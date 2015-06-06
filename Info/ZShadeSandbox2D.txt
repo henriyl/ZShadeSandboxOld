@@ -1,0 +1,106 @@
+Sandbox editor Will be same as my 3D editor.
+Will have main editor window and a tools window that contains tabs.
+
+Need stuff for Menu and HUD Editing
+
+Tabs:
+ Editor
+ World
+ Map
+ Tiles
+ Sprites
+
+
+Editor Tab:
+ Create World
+ Load Map
+ Save Map
+ Undo
+ Redo
+ Fullscreen yes/no
+ ...
+ 
+World Tab: (Edit and make changes to the world)
+ Update the name of the world.
+ Add a map to the world.
+ Remove a map from the world.
+ ...
+
+Map Tab: (Edit and make changes to the map)
+ Update the name of the map.
+ Update the size of the map.
+ Update the vision of the map.
+ Update the music for the map.
+ ...
+
+Tiles Tab:
+ List of tiles to select for the map.
+ Button that opens up a properties window for tile(s) the select tool is over.
+ ...
+
+Sprite Tab:
+ List of sprites to select for the map.
+ Shows highlighted sprite.
+ Update the size, position of highlighted sprite.
+ Button that opens up a properties window for highlighted sprite.
+ ...
+
+
+Need this to use InitCommonControls
+
+#include <commctrl.h>
+#pragma comment(lib,"comctl32.lib")
+
+
+Google: creating a tab view in win32
+Google: tabctrl_insertitem example
+
+http://cboard.cprogramming.com/windows-programming/151079-win32-tabs.html
+http://cboard.cprogramming.com/windows-programming/105210-adding-tab-window.html
+
+
+
+
+template<typename T, int x, int y>
+struct Array2D
+{
+    typedef T CArrayType[x][y];
+    typedef CArrayType& RefType;
+    static CArrayType& New()
+    {
+        return *(reinterpret_cast<CArrayType*>(new T[x * y]));
+    }
+    static void Delete(RefType x)
+    {
+        delete[] &x;
+    }
+};
+
+typedef Array2D<double, 3, 4> MyGrid;// define your 2d array with 3 rows / 4 columns.
+
+int main(int argc, char* argv[])
+{
+    MyGrid::RefType j = MyGrid::New();
+    ...
+    j[1][2] = 0.3333;
+    ...
+    MyGrid::Delete(j);
+    return 0;
+}
+
+Google: c++ smart pointer multidimensional array
+http://stackoverflow.com/questions/5057907/a-way-of-allocating-multidimensional-arrays-dynamically
+
+
+
+
+
+
+
+
+
+
+
+
+
+

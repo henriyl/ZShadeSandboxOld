@@ -1,0 +1,1121 @@
+********************************************************
+*Root*
+Node ID: 0
+Node Bounding Coord: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Node*
+Node ID: 1
+Node Bounding Coord: 
+Coord1: 0, 0, 0
+Coord2: 128, 0, 0
+Coord3: 0, 0, 128
+Coord4: 128, 0, 128
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Node*
+Node ID: 2
+Node Bounding Coord: 
+Coord1: 0, 0, 0
+Coord2: 64, 0, 0
+Coord3: 0, 0, 64
+Coord4: 64, 0, 64
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 3
+Node Bounding Coord: 
+Coord1: 0, 0, 0
+Coord2: 32, 0, 0
+Coord3: 0, 0, 32
+Coord4: 32, 0, 32
+********************************************************
+*Leaf*
+Node ID: 4
+Node Bounding Coord: 
+Coord1: 32, 0, 0
+Coord2: 64, 0, 0
+Coord3: 32, 0, 32
+Coord4: 64, 0, 32
+********************************************************
+*Leaf*
+Node ID: 5
+Node Bounding Coord: 
+Coord1: 0, 0, 32
+Coord2: 32, 0, 32
+Coord3: 0, 0, 64
+Coord4: 32, 0, 64
+********************************************************
+*Leaf*
+Node ID: 6
+Node Bounding Coord: 
+Coord1: 32, 0, 32
+Coord2: 64, 0, 32
+Coord3: 32, 0, 64
+Coord4: 64, 0, 64
+********************************************************
+*Node*
+Node ID: 7
+Node Bounding Coord: 
+Coord1: 64, 0, 0
+Coord2: 128, 0, 0
+Coord3: 64, 0, 64
+Coord4: 128, 0, 64
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 8
+Node Bounding Coord: 
+Coord1: 64, 0, 0
+Coord2: 96, 0, 0
+Coord3: 64, 0, 32
+Coord4: 96, 0, 32
+********************************************************
+*Leaf*
+Node ID: 9
+Node Bounding Coord: 
+Coord1: 96, 0, 0
+Coord2: 128, 0, 0
+Coord3: 96, 0, 32
+Coord4: 128, 0, 32
+********************************************************
+*Leaf*
+Node ID: 10
+Node Bounding Coord: 
+Coord1: 64, 0, 32
+Coord2: 96, 0, 32
+Coord3: 64, 0, 64
+Coord4: 96, 0, 64
+********************************************************
+*Leaf*
+Node ID: 11
+Node Bounding Coord: 
+Coord1: 96, 0, 32
+Coord2: 128, 0, 32
+Coord3: 96, 0, 64
+Coord4: 128, 0, 64
+********************************************************
+*Node*
+Node ID: 12
+Node Bounding Coord: 
+Coord1: 0, 0, 64
+Coord2: 64, 0, 64
+Coord3: 0, 0, 128
+Coord4: 64, 0, 128
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 13
+Node Bounding Coord: 
+Coord1: 0, 0, 64
+Coord2: 32, 0, 64
+Coord3: 0, 0, 96
+Coord4: 32, 0, 96
+********************************************************
+*Leaf*
+Node ID: 14
+Node Bounding Coord: 
+Coord1: 32, 0, 64
+Coord2: 64, 0, 64
+Coord3: 32, 0, 96
+Coord4: 64, 0, 96
+********************************************************
+*Leaf*
+Node ID: 15
+Node Bounding Coord: 
+Coord1: 0, 0, 96
+Coord2: 32, 0, 96
+Coord3: 0, 0, 128
+Coord4: 32, 0, 128
+********************************************************
+*Leaf*
+Node ID: 16
+Node Bounding Coord: 
+Coord1: 32, 0, 96
+Coord2: 64, 0, 96
+Coord3: 32, 0, 128
+Coord4: 64, 0, 128
+********************************************************
+*Node*
+Node ID: 17
+Node Bounding Coord: 
+Coord1: 64, 0, 64
+Coord2: 128, 0, 64
+Coord3: 64, 0, 128
+Coord4: 128, 0, 128
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 18
+Node Bounding Coord: 
+Coord1: 64, 0, 64
+Coord2: 96, 0, 64
+Coord3: 64, 0, 96
+Coord4: 96, 0, 96
+********************************************************
+*Leaf*
+Node ID: 19
+Node Bounding Coord: 
+Coord1: 96, 0, 64
+Coord2: 128, 0, 64
+Coord3: 96, 0, 96
+Coord4: 128, 0, 96
+********************************************************
+*Leaf*
+Node ID: 20
+Node Bounding Coord: 
+Coord1: 64, 0, 96
+Coord2: 96, 0, 96
+Coord3: 64, 0, 128
+Coord4: 96, 0, 128
+********************************************************
+*Leaf*
+Node ID: 21
+Node Bounding Coord: 
+Coord1: 96, 0, 96
+Coord2: 128, 0, 96
+Coord3: 96, 0, 128
+Coord4: 128, 0, 128
+********************************************************
+*Node*
+Node ID: 22
+Node Bounding Coord: 
+Coord1: 128, 0, 0
+Coord2: 256, 0, 0
+Coord3: 128, 0, 128
+Coord4: 256, 0, 128
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Node*
+Node ID: 23
+Node Bounding Coord: 
+Coord1: 128, 0, 0
+Coord2: 192, 0, 0
+Coord3: 128, 0, 64
+Coord4: 192, 0, 64
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 24
+Node Bounding Coord: 
+Coord1: 128, 0, 0
+Coord2: 160, 0, 0
+Coord3: 128, 0, 32
+Coord4: 160, 0, 32
+********************************************************
+*Leaf*
+Node ID: 25
+Node Bounding Coord: 
+Coord1: 160, 0, 0
+Coord2: 192, 0, 0
+Coord3: 160, 0, 32
+Coord4: 192, 0, 32
+********************************************************
+*Leaf*
+Node ID: 26
+Node Bounding Coord: 
+Coord1: 128, 0, 32
+Coord2: 160, 0, 32
+Coord3: 128, 0, 64
+Coord4: 160, 0, 64
+********************************************************
+*Leaf*
+Node ID: 27
+Node Bounding Coord: 
+Coord1: 160, 0, 32
+Coord2: 192, 0, 32
+Coord3: 160, 0, 64
+Coord4: 192, 0, 64
+********************************************************
+*Node*
+Node ID: 28
+Node Bounding Coord: 
+Coord1: 192, 0, 0
+Coord2: 256, 0, 0
+Coord3: 192, 0, 64
+Coord4: 256, 0, 64
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 29
+Node Bounding Coord: 
+Coord1: 192, 0, 0
+Coord2: 224, 0, 0
+Coord3: 192, 0, 32
+Coord4: 224, 0, 32
+********************************************************
+*Leaf*
+Node ID: 30
+Node Bounding Coord: 
+Coord1: 224, 0, 0
+Coord2: 256, 0, 0
+Coord3: 224, 0, 32
+Coord4: 256, 0, 32
+********************************************************
+*Leaf*
+Node ID: 31
+Node Bounding Coord: 
+Coord1: 192, 0, 32
+Coord2: 224, 0, 32
+Coord3: 192, 0, 64
+Coord4: 224, 0, 64
+********************************************************
+*Leaf*
+Node ID: 32
+Node Bounding Coord: 
+Coord1: 224, 0, 32
+Coord2: 256, 0, 32
+Coord3: 224, 0, 64
+Coord4: 256, 0, 64
+********************************************************
+*Node*
+Node ID: 33
+Node Bounding Coord: 
+Coord1: 128, 0, 64
+Coord2: 192, 0, 64
+Coord3: 128, 0, 128
+Coord4: 192, 0, 128
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 34
+Node Bounding Coord: 
+Coord1: 128, 0, 64
+Coord2: 160, 0, 64
+Coord3: 128, 0, 96
+Coord4: 160, 0, 96
+********************************************************
+*Leaf*
+Node ID: 35
+Node Bounding Coord: 
+Coord1: 160, 0, 64
+Coord2: 192, 0, 64
+Coord3: 160, 0, 96
+Coord4: 192, 0, 96
+********************************************************
+*Leaf*
+Node ID: 36
+Node Bounding Coord: 
+Coord1: 128, 0, 96
+Coord2: 160, 0, 96
+Coord3: 128, 0, 128
+Coord4: 160, 0, 128
+********************************************************
+*Leaf*
+Node ID: 37
+Node Bounding Coord: 
+Coord1: 160, 0, 96
+Coord2: 192, 0, 96
+Coord3: 160, 0, 128
+Coord4: 192, 0, 128
+********************************************************
+*Node*
+Node ID: 38
+Node Bounding Coord: 
+Coord1: 192, 0, 64
+Coord2: 256, 0, 64
+Coord3: 192, 0, 128
+Coord4: 256, 0, 128
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 39
+Node Bounding Coord: 
+Coord1: 192, 0, 64
+Coord2: 224, 0, 64
+Coord3: 192, 0, 96
+Coord4: 224, 0, 96
+********************************************************
+*Leaf*
+Node ID: 40
+Node Bounding Coord: 
+Coord1: 224, 0, 64
+Coord2: 256, 0, 64
+Coord3: 224, 0, 96
+Coord4: 256, 0, 96
+********************************************************
+*Leaf*
+Node ID: 41
+Node Bounding Coord: 
+Coord1: 192, 0, 96
+Coord2: 224, 0, 96
+Coord3: 192, 0, 128
+Coord4: 224, 0, 128
+********************************************************
+*Leaf*
+Node ID: 42
+Node Bounding Coord: 
+Coord1: 224, 0, 96
+Coord2: 256, 0, 96
+Coord3: 224, 0, 128
+Coord4: 256, 0, 128
+********************************************************
+*Node*
+Node ID: 43
+Node Bounding Coord: 
+Coord1: 0, 0, 128
+Coord2: 128, 0, 128
+Coord3: 0, 0, 256
+Coord4: 128, 0, 256
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Node*
+Node ID: 44
+Node Bounding Coord: 
+Coord1: 0, 0, 128
+Coord2: 64, 0, 128
+Coord3: 0, 0, 192
+Coord4: 64, 0, 192
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 45
+Node Bounding Coord: 
+Coord1: 0, 0, 128
+Coord2: 32, 0, 128
+Coord3: 0, 0, 160
+Coord4: 32, 0, 160
+********************************************************
+*Leaf*
+Node ID: 46
+Node Bounding Coord: 
+Coord1: 32, 0, 128
+Coord2: 64, 0, 128
+Coord3: 32, 0, 160
+Coord4: 64, 0, 160
+********************************************************
+*Leaf*
+Node ID: 47
+Node Bounding Coord: 
+Coord1: 0, 0, 160
+Coord2: 32, 0, 160
+Coord3: 0, 0, 192
+Coord4: 32, 0, 192
+********************************************************
+*Leaf*
+Node ID: 48
+Node Bounding Coord: 
+Coord1: 32, 0, 160
+Coord2: 64, 0, 160
+Coord3: 32, 0, 192
+Coord4: 64, 0, 192
+********************************************************
+*Node*
+Node ID: 49
+Node Bounding Coord: 
+Coord1: 64, 0, 128
+Coord2: 128, 0, 128
+Coord3: 64, 0, 192
+Coord4: 128, 0, 192
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 50
+Node Bounding Coord: 
+Coord1: 64, 0, 128
+Coord2: 96, 0, 128
+Coord3: 64, 0, 160
+Coord4: 96, 0, 160
+********************************************************
+*Leaf*
+Node ID: 51
+Node Bounding Coord: 
+Coord1: 96, 0, 128
+Coord2: 128, 0, 128
+Coord3: 96, 0, 160
+Coord4: 128, 0, 160
+********************************************************
+*Leaf*
+Node ID: 52
+Node Bounding Coord: 
+Coord1: 64, 0, 160
+Coord2: 96, 0, 160
+Coord3: 64, 0, 192
+Coord4: 96, 0, 192
+********************************************************
+*Leaf*
+Node ID: 53
+Node Bounding Coord: 
+Coord1: 96, 0, 160
+Coord2: 128, 0, 160
+Coord3: 96, 0, 192
+Coord4: 128, 0, 192
+********************************************************
+*Node*
+Node ID: 54
+Node Bounding Coord: 
+Coord1: 0, 0, 192
+Coord2: 64, 0, 192
+Coord3: 0, 0, 256
+Coord4: 64, 0, 256
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 55
+Node Bounding Coord: 
+Coord1: 0, 0, 192
+Coord2: 32, 0, 192
+Coord3: 0, 0, 224
+Coord4: 32, 0, 224
+********************************************************
+*Leaf*
+Node ID: 56
+Node Bounding Coord: 
+Coord1: 32, 0, 192
+Coord2: 64, 0, 192
+Coord3: 32, 0, 224
+Coord4: 64, 0, 224
+********************************************************
+*Leaf*
+Node ID: 57
+Node Bounding Coord: 
+Coord1: 0, 0, 224
+Coord2: 32, 0, 224
+Coord3: 0, 0, 256
+Coord4: 32, 0, 256
+********************************************************
+*Leaf*
+Node ID: 58
+Node Bounding Coord: 
+Coord1: 32, 0, 224
+Coord2: 64, 0, 224
+Coord3: 32, 0, 256
+Coord4: 64, 0, 256
+********************************************************
+*Node*
+Node ID: 59
+Node Bounding Coord: 
+Coord1: 64, 0, 192
+Coord2: 128, 0, 192
+Coord3: 64, 0, 256
+Coord4: 128, 0, 256
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 60
+Node Bounding Coord: 
+Coord1: 64, 0, 192
+Coord2: 96, 0, 192
+Coord3: 64, 0, 224
+Coord4: 96, 0, 224
+********************************************************
+*Leaf*
+Node ID: 61
+Node Bounding Coord: 
+Coord1: 96, 0, 192
+Coord2: 128, 0, 192
+Coord3: 96, 0, 224
+Coord4: 128, 0, 224
+********************************************************
+*Leaf*
+Node ID: 62
+Node Bounding Coord: 
+Coord1: 64, 0, 224
+Coord2: 96, 0, 224
+Coord3: 64, 0, 256
+Coord4: 96, 0, 256
+********************************************************
+*Leaf*
+Node ID: 63
+Node Bounding Coord: 
+Coord1: 96, 0, 224
+Coord2: 128, 0, 224
+Coord3: 96, 0, 256
+Coord4: 128, 0, 256
+********************************************************
+*Node*
+Node ID: 64
+Node Bounding Coord: 
+Coord1: 128, 0, 128
+Coord2: 256, 0, 128
+Coord3: 128, 0, 256
+Coord4: 256, 0, 256
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Node*
+Node ID: 65
+Node Bounding Coord: 
+Coord1: 128, 0, 128
+Coord2: 192, 0, 128
+Coord3: 128, 0, 192
+Coord4: 192, 0, 192
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 66
+Node Bounding Coord: 
+Coord1: 128, 0, 128
+Coord2: 160, 0, 128
+Coord3: 128, 0, 160
+Coord4: 160, 0, 160
+********************************************************
+*Leaf*
+Node ID: 67
+Node Bounding Coord: 
+Coord1: 160, 0, 128
+Coord2: 192, 0, 128
+Coord3: 160, 0, 160
+Coord4: 192, 0, 160
+********************************************************
+*Leaf*
+Node ID: 68
+Node Bounding Coord: 
+Coord1: 128, 0, 160
+Coord2: 160, 0, 160
+Coord3: 128, 0, 192
+Coord4: 160, 0, 192
+********************************************************
+*Leaf*
+Node ID: 69
+Node Bounding Coord: 
+Coord1: 160, 0, 160
+Coord2: 192, 0, 160
+Coord3: 160, 0, 192
+Coord4: 192, 0, 192
+********************************************************
+*Node*
+Node ID: 70
+Node Bounding Coord: 
+Coord1: 192, 0, 128
+Coord2: 256, 0, 128
+Coord3: 192, 0, 192
+Coord4: 256, 0, 192
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 71
+Node Bounding Coord: 
+Coord1: 192, 0, 128
+Coord2: 224, 0, 128
+Coord3: 192, 0, 160
+Coord4: 224, 0, 160
+********************************************************
+*Leaf*
+Node ID: 72
+Node Bounding Coord: 
+Coord1: 224, 0, 128
+Coord2: 256, 0, 128
+Coord3: 224, 0, 160
+Coord4: 256, 0, 160
+********************************************************
+*Leaf*
+Node ID: 73
+Node Bounding Coord: 
+Coord1: 192, 0, 160
+Coord2: 224, 0, 160
+Coord3: 192, 0, 192
+Coord4: 224, 0, 192
+********************************************************
+*Leaf*
+Node ID: 74
+Node Bounding Coord: 
+Coord1: 224, 0, 160
+Coord2: 256, 0, 160
+Coord3: 224, 0, 192
+Coord4: 256, 0, 192
+********************************************************
+*Node*
+Node ID: 75
+Node Bounding Coord: 
+Coord1: 128, 0, 192
+Coord2: 192, 0, 192
+Coord3: 128, 0, 256
+Coord4: 192, 0, 256
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 76
+Node Bounding Coord: 
+Coord1: 128, 0, 192
+Coord2: 160, 0, 192
+Coord3: 128, 0, 224
+Coord4: 160, 0, 224
+********************************************************
+*Leaf*
+Node ID: 77
+Node Bounding Coord: 
+Coord1: 160, 0, 192
+Coord2: 192, 0, 192
+Coord3: 160, 0, 224
+Coord4: 192, 0, 224
+********************************************************
+*Leaf*
+Node ID: 78
+Node Bounding Coord: 
+Coord1: 128, 0, 224
+Coord2: 160, 0, 224
+Coord3: 128, 0, 256
+Coord4: 160, 0, 256
+********************************************************
+*Leaf*
+Node ID: 79
+Node Bounding Coord: 
+Coord1: 160, 0, 224
+Coord2: 192, 0, 224
+Coord3: 160, 0, 256
+Coord4: 192, 0, 256
+********************************************************
+*Node*
+Node ID: 80
+Node Bounding Coord: 
+Coord1: 192, 0, 192
+Coord2: 256, 0, 192
+Coord3: 192, 0, 256
+Coord4: 256, 0, 256
+Node Children: 
+Child 1: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 2: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 3: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+Child 4: 
+Coord1: 0, 0, 0
+Coord2: 256, 0, 0
+Coord3: 0, 0, 256
+Coord4: 256, 0, 256
+********************************************************
+*Leaf*
+Node ID: 81
+Node Bounding Coord: 
+Coord1: 192, 0, 192
+Coord2: 224, 0, 192
+Coord3: 192, 0, 224
+Coord4: 224, 0, 224
+********************************************************
+*Leaf*
+Node ID: 82
+Node Bounding Coord: 
+Coord1: 224, 0, 192
+Coord2: 256, 0, 192
+Coord3: 224, 0, 224
+Coord4: 256, 0, 224
+********************************************************
+*Leaf*
+Node ID: 83
+Node Bounding Coord: 
+Coord1: 192, 0, 224
+Coord2: 224, 0, 224
+Coord3: 192, 0, 256
+Coord4: 224, 0, 256
+********************************************************
+*Leaf*
+Node ID: 84
+Node Bounding Coord: 
+Coord1: 224, 0, 224
+Coord2: 256, 0, 224
+Coord3: 224, 0, 256
+Coord4: 256, 0, 256

@@ -1,0 +1,191 @@
+Google: implementing radiosity algorithm
+http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter39.html
+
+The Shooter = the light source
+
+
+
+Example 39-1. Pseudocode for Our Algorithm
+
+initialize shooter residual E
+
+while not converged {
+
+  render scene from POV of shooter
+
+  for each receiving element {
+
+    if element is visible {
+
+      compute form factor FF
+
+      DE = r * FF * E
+
+      add DE to residual texture
+
+      add DE to radiosity texture
+
+    }
+
+  }
+
+  shooter's residual E = 0
+
+  compute next shooter
+
+}
+
+
+
+Example 39-2. Cg Code for Hemispherical Projection
+
+void hemiwarp(float4 Position: POSITION, // pos in world space
+
+  uniform half4x4 ModelView,             // modelview matrix
+
+  uniform half2 NearFar,                 // near and far planes
+
+
+
+  out float4 ProjPos: POSITION)         // projected position
+
+{
+
+  // transform the geometry to camera space
+
+  half4 mpos = mul(ModelView, Position);
+
+
+
+  // project to a point on a unit hemisphere
+
+
+
+  half3 hemi_pt = normalize( mpos.xyz );
+
+
+
+  // Compute (f-n), but let the hardware divide z by this
+
+  // in the w component (so premultiply x and y)
+
+  half f_minus_n = NearFar.y - NearFar.x;
+
+  ProjPos.xy = hemi_pt.xy * f_minus_n;
+
+
+
+  // compute depth proj. independently, using OpenGL orthographic
+
+
+
+  ProjPos.z = (-2.0 * mpos.z - NearFar.y - NearFar.x);
+
+  ProjPos.w = f_minus_n;
+
+}
+
+
+
+Example 39-3. Cg Code for the Visibility Test
+
+bool Visible(half3 ProjPos, // camera-space pos of element
+
+  uniform fixed3 RecvID,    // ID of receiver, for item buffer
+
+  sampler2D HemiItemBuffer )
+
+{
+
+  // Project the texel element onto the hemisphere
+
+
+
+  half3 proj = normalize(ProjPos);
+
+
+
+  // Vector is in [-1,1], scale to [0..1] for texture lookup
+
+  proj.xy = proj.xy * 0.5 + 0.5;
+
+
+
+  // Look up projected point in hemisphere item buffer
+
+  fixed3 xtex = tex2D(HemiItemBuffer, proj.xy);
+
+
+
+  // Compare the value in item buffer to the ID of the fragment
+
+
+
+  return all(xtex == RecvID);
+
+}
+
+
+
+half3 FormFactorEnergy(
+
+  half3 RecvPos,              // world-space position of this element
+
+  uniform half3 ShootPos,     // world-space position of shooter
+
+  half3 RecvNormal,           // world-space normal of this element
+
+
+
+  uniform half3 ShootNormal,  // world-space normal of shooter
+
+  uniform half3 ShootEnergy,  // energy from shooter residual texture
+
+  uniform half ShootDArea,    // the delta area of the shooter
+
+
+
+  uniform fixed3 RecvColor )  // the reflectivity of this element
+
+{
+
+  // a normalized vector from shooter to receiver
+
+  half3 r = ShootPos - RecvPos;
+
+  half distance2 = dot(r, r);
+
+  r = normalize(r);
+
+
+
+  // the angles of the receiver and the shooter from r
+
+
+
+  half cosi = dot(RecvNormal, r);
+
+  half cosj = -dot(ShootNormal, r);
+
+  // compute the disc approximation form factor
+
+  const half pi = 3.1415926535;
+
+  half Fij = max(cosi * cosj, 0) / (pi * distance2 + ShootDArea);
+
+  Fij *= Visible();   // returns visibility as 0 or 1
+
+
+
+  // Modulate shooter's energy by the receiver's reflectivity
+
+  // and the area of the shooter.
+
+  half3 delta = ShooterEnergy * RecvColor * ShootDArea * Fij;
+
+  return delta;
+
+}
+
+
+

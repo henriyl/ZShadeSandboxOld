@@ -1,0 +1,62 @@
+// Pixel Shader Code to paint a new texture on top of terrain
+
+Texture2D g_TextureMask;
+Texture2D g_PaintingTexture;
+
+float4 paintingTexColor = float4(1, 1, 1, 1);
+
+if (g_Painting == 1)
+{
+	float maskColor = g_TextureMask.Sample(SampleTypeLinear, input.uv).r;
+	if (maskColor == 1.0f)
+	{
+		paintingTexColor = g_PaintingTexture.Sample(SampleTypeLinear, input.uv);
+	}
+}
+
+// Regular layer map texturing
+// Sample layers in texture array.
+float4 c0 = g_LayerMapArray.Sample( SampleTypeLinear, float3(input.TiledTex, 0.0f) );
+float4 c1 = g_LayerMapArray.Sample( SampleTypeLinear, float3(input.TiledTex, 1.0f) );
+float4 c2 = g_LayerMapArray.Sample( SampleTypeLinear, float3(input.TiledTex, 2.0f) );
+float4 c3 = g_LayerMapArray.Sample( SampleTypeLinear, float3(input.TiledTex, 3.0f) );
+
+// Sample the blend map.
+float4 t = g_BlendMap.Sample( SampleTypeLinear, input.uv );
+
+// Blend the layers on top of each other.
+float4 texColor = c0;
+texColor = lerp(texColor, c1, t.r);
+texColor = lerp(texColor, c2, t.g);
+texColor = lerp(texColor, c3, t.b);
+
+finalColor = paintingTexColor * texColor;
+
+
+
+
+
+
+
+// When painting is done the terrain will generate a blend map based on what have been painted and the textures used will
+// make up the texture array
+
+
+NOTE: If the blend map contains a 0 nothing is drawn for that component if it contains a 1 then the texture gets drawn.
+
+// Just need to know how to generate a blend map
+default blend map is created and it contain (0, 0, 0, 0) for rgb
+second texture selected will have the r value in the blend map at the selected pixel with a value of 1
+third texture selected will have the g value in the blend map at the selected pixel with a value of 1
+fourth texture selected will have the b value in the blend map at the selected pixel with a value of 1
+fifth texture selected will have the a value in the blend map at the selected pixel with a value of 1
+
+Can write a compute shader that creates a blend map and creates a normal map from the height map
+
+blend map contains values (0, 0, 0, 0)
+layer map array is created with a default texture for the terrain
+When second texture is selected, once it is painted on the terrain need to create a new blend map based on the new added texture to the area
+ use the updated texturemaskSRV and the old blend map to create a new one in the compute shader
+then add the second texture into the layer mask array for the terrain texture
+
+Since the blend map is 0 or 1 might not need the compute shader

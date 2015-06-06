@@ -1,0 +1,108 @@
+Editor for editing the scene:
+
+Tabs - Editor, Terrain, Water, Vegitation, Environment, Post Processing, Lighting, Model
+Model - Transformation capability, loading capability
+
+
+Might need an object edit window to edit stuff like camera attributes ...
+Need to be able to apply shaders/multiple shaders to a Object/Terrain
+Need a basic template texture to apply to all objects and terrain when they are first created
+Need to implement water caustics
+
+Editor (undo and redo are last, play button is last)
+  *Enter Game Name Label (displays the path and name of the game directory)
+  *Create game directory (Opens a window so you can enter a name for the game directory and an create button)
+  *Open game directory (Opens a dialog to select the game directory)
+  *button to create HUD (Switch to HUD edit mode, Opens window for HUD editing)
+  *button to create Menu (Switch to Menu edit mode, Opens window for Menu editing)
+
+NEED 3D MOUSE PICKING AND BETTER DEFINED MATH SYSTEM FOR 3D TERRAIN EDITING (done)
+Terrain (Starts out flat with default single texture Below Sea level):
+  *Set different attributes of terrain (Tessellation factor for QuadTree ...)
+  *Type
+    Generate QuadTree
+  *Height
+    Load heightmap according to the current size
+    Generate Perlin Noise and procedural height
+  *Size
+    Resize Terrain Width and Depth
+    Set default Terrain Height
+  *Material and Texturing (Can have up to 4 layers of textures)
+    Apply a material (Ambient, Diffuse, Specular, Spec Power, etc ...)
+    (use a texturemaskSRV that contains 1s and 0s, pick the spot the brush is on that area will contain 1s in the texturemaskSRV and everywhere else will
+     have 0s, any spot with a 1 will be updated to the new painted texture. )
+    Paint - Allow painting of textures (Done with circle brush applied over vertex area of terrain)
+    Apply Normal Map/Bump Map - You choose what normal map to apply
+    Generate Shadow Map - Creates a showmap based on the heightmap
+    Apply Detail map
+    Set Texture Layer Size - Allows user to choose how many texture layers to apply to heightmap
+  *Sculpt
+    Brush Type: Raise, Lower, Flatten, Smooth
+    Raise, Lower and Smooth affect the vertices inside a circle radius brush
+    Flatten just levels the terrain to the default terrain height
+  *Load Defaults
+    Resets the terrain to a default state (Define what a default state is)
+
+Water (Ocean settings and Simple Water settings)
+  *Set Parameters for Ocean and simple water
+  *Turn on/off reflections
+  *Turn on/off refractions
+  *Toggle Ocean - Make Ocean Active in other words appear or dissapear
+  *Place Simple Water Plane (There can be several different simple water planes in the scene)
+    Adjust size of simple water plane
+  *Can Select and show/hide a simple water plane
+  *Reset Ocean Defaults (Define what a default state is)
+  *Reset Simple Water Defaults (Define what a default state is)
+  *NEED SOME UNDERWATER ATTRIBUTES BUT UNDERWATER NOT STARTED YET (Need Post Processing Effects for Underwater)
+
+Vegitation (Must have Terrain to apply to)
+  *Need to update attributes of vegitation
+  *Generate CPU/GPU GrassField - Applied Per node in QuadTree. Applied in a patch size 64x64 for example
+  *Load Grass Model
+  *Load Tree Model
+
+Post Processing
+  *Toggle Post Process Type (Blur, Depth of Field, Bloom, Bokeh, Center of Confution, etc...)
+  *Edit Post Process Attributes (Bloom Blur Sigma, Adaption Rate for Luminence, Near/Far Depth Toggle etc...)
+
+Environment
+  *Toggle Gravity
+  *Toggle camera collision with terrain
+  *Set Sea Level water height
+  *Toggle Water - Toggles overall water in map. Turn all water on/off
+  *Toggle Terrain
+  *Toggle Sky Sphere
+  *Edit Main Camera Attributes
+  *Adjust Camera Speed
+  *Toggle Shadow Maps
+  *Toggle Sun
+  *Toggle Sun Glare - The Lens glare that creates the rings from looking at the sun
+  *Set Sun Dir
+  *Toggle HDR - High Dynamic Range Lighting (Or is this a Post Process)
+  *Toggle Post Processing
+  *Indoor - Lets the system know that we are creating an indoor map (Not even close to starting yet)
+  *Adjust Time of day if sun is enabled
+  *Create Camera - Be able to place a camera into the scene (Orhographic Camera, ...)
+  *Create Light - Be able to place a light into the scene (Point, Spotlight, ...)
+  *Reset Defaults
+  *Set camera back to default position or (0,0,0)
+
+Lighting (Lighting stuff)
+  *Add Lights
+  *Update Lights
+  *Use Deferred Shading
+  *Use Radiosity
+  *Toggle Radiosity - Not started yet
+  *Set Radiosity Attributes - Not started yet
+
+Model
+  *Load a volume
+  *Transform Item
+  *Scale Item
+  *Rotate Item
+  *Load Models into the scene from a Model File Type (Collada .dae, x mesh, FBX format, OBJ format, .3DS format, .dxf format, etc...)
+  *Create Geometry
+    Box
+    sphere
+    ...
+

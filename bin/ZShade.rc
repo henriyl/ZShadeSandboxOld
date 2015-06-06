@@ -1,0 +1,47 @@
+#include "../ZShadeResource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+IDI_ICON	ICON		"zshade.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_TARGET	CURSOR		"cursor.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_TOOLBAR TOOLBAR 498, 17
+BEGIN
+    BUTTON      ID_BUTTON40090
+END
+
+IDR_TOOLBAR	BITMAP		"toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU	MENU
+BEGIN
+	POPUP "&File"
+	BEGIN
+		MENUITEM "Create Directory",			IDM_FILE_CD
+		MENUITEM "Open Directory",				IDM_FILE_OD
+		MENUITEM SEPARATOR
+		MENUITEM "Exit",						IDM_FILE_EXIT
+	END
+	POPUP "&Help"
+    BEGIN
+        MENUITEM "About",						IDM_HELP_ABOUT
+    END
+END
