@@ -6,7 +6,7 @@
 //
 // -Created on 6/5/2015 by Dustin Watson
 //==============================================================================
-#include "UnpackGBuffer.hlsl"
+#include "../GBuffer/UnpackGBuffer.hlsl"
 
 //
 // Constants

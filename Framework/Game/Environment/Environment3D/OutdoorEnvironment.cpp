@@ -1119,7 +1119,7 @@ bool OutdoorEnvironment::RenderWater()
 		m_D3DSystem->TurnOnWireframe();
 	}
 	mWater->SetFarPlane(m_EngineOptions->fFarPlane);
-	mWater->Render(m_CameraSystem.get(), mReflectionTexture->SRView, mRefractionTexture->SRView);
+	mWater->Render(m_CameraSystem.get(), false, mReflectionTexture->SRView, mRefractionTexture->SRView);
 	if (!bWireframeMode && !Quickwire()) m_D3DSystem->TurnOnCulling();
 
 	return true;

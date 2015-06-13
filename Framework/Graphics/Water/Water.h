@@ -22,7 +22,7 @@ public:
 	
 	bool Initialize(D3D* d3d, WaterParameters wp);
 	void Update(float speed, float seaLevel);
-	void Render(Camera* pCamera, ID3D11ShaderResourceView* pReflectionMap, ID3D11ShaderResourceView* pRefractionMap);
+	void Render(Camera* pCamera, bool renderDeferred, ID3D11ShaderResourceView* pReflectionMap, ID3D11ShaderResourceView* pRefractionMap);
 	
 	float GetWaterHeight();
 	

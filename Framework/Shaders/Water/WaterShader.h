@@ -61,14 +61,16 @@ public:
 	
 	void RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParameters mrp, ZShadeSandboxLighting::ShaderMaterial* material);
 	
+	void UseGBuffer(bool use) { mUseGBuffer = use; }
 	void UseFlowMap(bool use) { mUseFlowMap = use; }
-	
+
 private:
 	
 	//
 	// Variables
 	//
 	
+	bool mUseGBuffer;
 	bool mUseFlowMap;
 	
 	float fFarPlane;

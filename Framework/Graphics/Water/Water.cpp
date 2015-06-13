@@ -161,7 +161,7 @@ void Water::Update(float speed, float seaLevel)
 	return;
 }
 //==============================================================================================================================
-void Water::Render(Camera* pCamera, ID3D11ShaderResourceView* pReflectionMap, ID3D11ShaderResourceView* pRefractionMap)
+void Water::Render(Camera* pCamera, bool renderDeferred, ID3D11ShaderResourceView* pReflectionMap, ID3D11ShaderResourceView* pRefractionMap)
 {
 	XMMATRIX world = XMLoadFloat4x4(&mWorld);
 	
@@ -180,7 +180,8 @@ void Water::Render(Camera* pCamera, ID3D11ShaderResourceView* pReflectionMap, ID
 	mWaterShader->SetReflectionMap(pReflectionMap);
 	mWaterShader->SetRefractionMap(pRefractionMap);
 	mWaterShader->SetWireframe(m_Wireframe);
-	
+	mWaterShader->UseGBuffer(renderDeferred);
+
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
 	mrp.camera = pCamera;
 	mPlane->Render(mrp);

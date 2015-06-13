@@ -240,7 +240,7 @@ void OceanEnvironment::Render()
 		m_D3DSystem->TurnOnWireframe();
 	}
 	mWater->SetFarPlane(m_EngineOptions->fFarPlane);
-	mWater->Render(m_CameraSystem.get(), mReflectionTexture->SRView, mRefractionTexture->SRView);
+	mWater->Render(m_CameraSystem.get(), false, mReflectionTexture->SRView, mRefractionTexture->SRView);
 	//mOceanSurface->SetReflectionMap(mReflectionTexture->SRView);
 	//mOceanSurface->SetRefractionMap(mRefractionTexture->SRView);
 	//mOceanSurface->Render(m_CameraSystem.get(), fSeaLevel, fFrameTime);
@@ -274,22 +274,22 @@ void OceanEnvironment::RenderDeferred()
 	mCubeBelowWater->SetShadowMapSRV(mShadowTexture->SRView);
 	mCubeBelowWater->Render(mrp);
 
-	////
-	//// Render the ocean
-	////
+	//
+	// Render the ocean
+	//
 
-	//if (!bWireframeMode && !Quickwire()) m_D3DSystem->TurnOffCulling();
-	//if (Quickwire())
-	//{
-	//	mWater->SetWireframe(true);
-	//	m_D3DSystem->TurnOnWireframe();
-	//}
-	//mWater->SetFarPlane(m_EngineOptions->fFarPlane);
-	//mWater->Render(m_CameraSystem.get(), mReflectionTexture->SRView, mRefractionTexture->SRView);
-	////mOceanSurface->SetReflectionMap(mReflectionTexture->SRView);
-	////mOceanSurface->SetRefractionMap(mRefractionTexture->SRView);
-	////mOceanSurface->Render(m_CameraSystem.get(), fSeaLevel, fFrameTime);
-	//if (!bWireframeMode && !Quickwire()) m_D3DSystem->TurnOnCulling();
+	if (!bWireframeMode && !Quickwire()) m_D3DSystem->TurnOffCulling();
+	if (Quickwire())
+	{
+		mWater->SetWireframe(true);
+		m_D3DSystem->TurnOnWireframe();
+	}
+	mWater->SetFarPlane(m_EngineOptions->fFarPlane);
+	mWater->Render(m_CameraSystem.get(), true, mReflectionTexture->SRView, mRefractionTexture->SRView);
+	//mOceanSurface->SetReflectionMap(mReflectionTexture->SRView);
+	//mOceanSurface->SetRefractionMap(mRefractionTexture->SRView);
+	//mOceanSurface->Render(m_CameraSystem.get(), fSeaLevel, fFrameTime);
+	if (!bWireframeMode && !Quickwire()) m_D3DSystem->TurnOnCulling();
 }
 //===============================================================================================================================
 void OceanEnvironment::RenderShadowMap()

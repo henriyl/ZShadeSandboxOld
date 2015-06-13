@@ -190,13 +190,27 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	
 	// ==================================== Compile the Grass Shader
 	
-	
+	// ==================================== Compile the GBuffer Shader
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\ClearGBuffer.hlsl", "ClearGBufferVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\ClearGBuffer.hlsl", "ClearGBufferPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\MaterialGBuffer.hlsl", "MaterialGBufferVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\MaterialGBuffer.hlsl", "MaterialGBufferPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\MaterialGBuffer.hlsl", "MaterialGBufferWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\OBJGBuffer.hlsl", "OBJGBufferVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\OBJGBuffer.hlsl", "OBJGBufferPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\OBJGBuffer.hlsl", "OBJGBufferWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\DebugGBufferDeferred.hlsl", "DebugGBufferDeferredVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\DebugGBufferDeferred.hlsl", "DebugGBufferDeferredPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\DebugGBufferDeferred.hlsl", "DebugGBufferDepthDeferredPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\DebugGBufferDeferred.hlsl", "DebugGBufferDeferredWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\WaterGBuffer.hlsl", "WaterGBufferNormalVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\WaterGBuffer.hlsl", "WaterGBufferFlowVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\WaterGBuffer.hlsl", "WaterGBufferNormalPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\WaterGBuffer.hlsl", "WaterGBufferFlowPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\WaterGBuffer.hlsl", "WaterGBufferNormalWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\WaterGBuffer.hlsl", "WaterGBufferFlowWireframePS", EShaderTypes::ST_PIXEL);
+
 	// ==================================== Compile the Deferred Shader
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\ClearGBuffer.hlsl", "ClearGBufferVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\ClearGBuffer.hlsl", "ClearGBufferPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\MaterialGBuffer.hlsl", "MaterialGBufferVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\MaterialGBuffer.hlsl", "MaterialGBufferPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\MaterialGBuffer.hlsl", "MaterialGBufferWireframePS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\AmbientLightDeferred.hlsl", "AmbientLightDeferredVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\AmbientLightDeferred.hlsl", "AmbientLightDeferredPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\AmbientLightDeferred.hlsl", "AmbientLightDeferredWireframePS", EShaderTypes::ST_PIXEL);
@@ -212,14 +226,8 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\SpotLightDeferred.hlsl", "SpotLightDeferredVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\SpotLightDeferred.hlsl", "SpotLightDeferredPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\SpotLightDeferred.hlsl", "SpotLightDeferredWireframePS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\OBJGBuffer.hlsl", "OBJGBufferVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\OBJGBuffer.hlsl", "OBJGBufferPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\OBJGBuffer.hlsl", "OBJGBufferWireframePS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DebugGBufferDeferred.hlsl", "DebugGBufferDeferredVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DebugGBufferDeferred.hlsl", "DebugGBufferDeferredPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DebugGBufferDeferred.hlsl", "DebugGBufferDepthDeferredPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DebugGBufferDeferred.hlsl", "DebugGBufferDeferredWireframePS", EShaderTypes::ST_PIXEL);
 	
+
 	// ==================================== Compile the Environment Blur Shader 
 	Compile(d3d, "Environment\\Blur.hlsl", "HorizontalBlurVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Environment\\Blur.hlsl", "VerticalBlurVS", EShaderTypes::ST_VERTEX);

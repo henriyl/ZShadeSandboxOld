@@ -36,8 +36,14 @@ bool WaterShader::Initialize()
 	LoadPixelShader("WaterFlowPS");
 	LoadPixelShader("WaterNormalWireframePS");
 	LoadPixelShader("WaterFlowWireframePS");
+	LoadVertexShader("WaterGBufferNormalVS");
+	LoadVertexShader("WaterGBufferFlowVS");
+	LoadPixelShader("WaterGBufferNormalPS");
+	LoadPixelShader("WaterGBufferFlowPS");
+	LoadPixelShader("WaterGBufferNormalWireframePS");
+	LoadPixelShader("WaterGBufferFlowWireframePS");
 	AssignVertexShaderLayout("WaterShader");
-	
+
 	return true;
 }
 //==============================================================================================================================
@@ -52,16 +58,16 @@ void WaterShader::RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParame
 {
 	cbWaterBuffer cWB;
 	cbMatrixBuffer cMB;
-	
+
 	cMB.g_matWorld = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mrp.world));
 	cMB.g_matView = mrp.camera->View4x4();
 	cMB.g_matReflView = mrp.camera->ReflectionView4x4();
-	
+
 	if (m_pD3DSystem->GetEngineOptions()->m_DimType == DimType::ZSHADE_2D)
 		cMB.g_matProj = mrp.camera->Ortho4x4();
 	else if (m_pD3DSystem->GetEngineOptions()->m_DimType == DimType::ZSHADE_3D)
 		cMB.g_matProj = mrp.camera->Proj4x4();
-	
+
 	cWB.g_WaveHeight = mWaterParameters->g_WaveHeight;
 	cWB.g_SpecularShininess = mWaterParameters->g_SpecularShininess;
 	cWB.g_Time = mWaterParameters->g_Time;
@@ -75,7 +81,7 @@ void WaterShader::RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParame
 	cWB.g_wpadding = XMFLOAT2(0, 0);
 	cWB.g_FarPlane = fFarPlane;
 	cWB.g_TexScale = mWaterParameters->g_TexScale;
-	
+
 	// Map the water parameter constants
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped_res;
@@ -86,7 +92,7 @@ void WaterShader::RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParame
 		}
 		m_pD3DSystem->GetDeviceContext()->Unmap(m_pWaterBufferCB, 0);
 	}
-	
+
 	// Map the matrix constants
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped_res;
@@ -97,7 +103,7 @@ void WaterShader::RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParame
 		}
 		m_pD3DSystem->GetDeviceContext()->Unmap(m_pMatrixBufferCB, 0);
 	}
-	
+
 	ID3D11Buffer* vs_cbs[2] = { m_pWaterBufferCB, m_pMatrixBufferCB };
 	m_pD3DSystem->GetDeviceContext()->VSSetConstantBuffers(0, 2, vs_cbs);
 
@@ -106,33 +112,66 @@ void WaterShader::RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParame
 
 	ID3D11ShaderResourceView* ps_srvs[6] = { m_FlowMap, m_NoiseMap, m_WaveMap0, m_WaveMap1, m_ReflectionMap, m_RefractionMap };
 	ID3D11SamplerState* ps_samp[2] = { m_pD3DSystem->Mirror(), m_pD3DSystem->Linear() };
-	
+
 	if (!m_Wireframe)
 	{
 		// Assign Texture
-		
+
 		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 2, ps_samp);
-		
+
 		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 6, ps_srvs);
-		
+
 		if (mUseFlowMap)
+		{
 			SwitchTo("WaterFlowPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		}
 		else
-			SwitchTo("WaterNormalPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		{
+			if (mUseGBuffer)
+			{
+				SwitchTo("WaterGBufferNormalPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+			}
+			else
+			{
+				SwitchTo("WaterNormalPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+			}
+		}
 	}
 	else
 	{
 		if (mUseFlowMap)
-			SwitchTo("WaterNormalWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
-		else
+		{
 			SwitchTo("WaterFlowWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		}
+		else
+		{
+			if (mUseGBuffer)
+			{
+				SwitchTo("WaterGBufferNormalWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+			}
+			else
+			{
+				SwitchTo("WaterNormalWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+			}
+		}
 	}
-	
+
 	if (mUseFlowMap)
+	{
 		SwitchTo("WaterFlowVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+	}
 	else
-		SwitchTo("WaterNormalVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
-	
+	{
+		if (mUseGBuffer)
+		{
+			SwitchTo("WaterGBufferNormalVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+		}
+		else
+		{
+			SwitchTo("WaterNormalVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+		}
+	}
+
 	SetInputLayout("WaterShader");
 
 	SetVertexShader();
