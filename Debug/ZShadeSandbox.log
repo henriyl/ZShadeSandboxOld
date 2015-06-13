@@ -1,9 +1,9 @@
-﻿Build started 6/13/2015 11:14:34 AM.
-     1>Project "C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\ZShadeSandbox.vcxproj" on node 2 (Build target(s)).
+﻿Build started 6/13/2015 12:57:01 PM.
+     1>Project "C:\Users\Dustin\Documents\GitHub\ZShadeSandbox\ZShadeSandbox.vcxproj" on node 2 (Build target(s)).
      1>Link:
-         ZShadeSandbox.vcxproj -> C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Debug\ZShadeSandbox.exe
-     1>Done Building Project "C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\ZShadeSandbox.vcxproj" (Build target(s)).
+         ZShadeSandbox.vcxproj -> C:\Users\Dustin\Documents\GitHub\ZShadeSandbox\Debug\ZShadeSandbox.exe
+     1>Done Building Project "C:\Users\Dustin\Documents\GitHub\ZShadeSandbox\ZShadeSandbox.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.50
+Time Elapsed 00:00:00.47

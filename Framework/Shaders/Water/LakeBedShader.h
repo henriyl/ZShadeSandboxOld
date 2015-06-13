@@ -55,7 +55,7 @@ public:
 	void SetDepthMap(ID3D11ShaderResourceView* srv) 	{ g_DepthMap = srv; }
 	void SetCausticTexture(ID3D11ShaderResourceView* srv) 	{ g_CausticTexture = srv; }
 	
-	bool Render(int indexCount, float causticTimer, Camera* camera, LightCamera* lightCamera, XMMATRIX world, XMFLOAT4 clipplane, bool reflect);
+	bool Render(int indexCount, float causticTimer, Camera* camera, LightCamera* lightCamera, XMMATRIX world, XMFLOAT4 clipplane, bool renderDeferred, bool reflect);
 	
 private:
 	

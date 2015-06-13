@@ -81,7 +81,7 @@ void LakeBed::Update(float dt)
 	//}
 }
 //==============================================================================================================================
-void LakeBed::Render(Camera* camera, LightCamera* lightCamera, bool shadow, XMFLOAT4 clipplane, bool reflect)
+void LakeBed::Render(Camera* camera, LightCamera* lightCamera, bool renderDeferred, bool shadow, XMFLOAT4 clipplane, bool reflect)
 {
 	XMMATRIX scale, rx, ry, rz, translate;
 	scale = XMMatrixScaling( mScale.x, mScale.y, mScale.z );
@@ -115,7 +115,7 @@ void LakeBed::Render(Camera* camera, LightCamera* lightCamera, bool shadow, XMFL
 		// Get the current caustic animation texture
 		mShader->SetCausticTexture(mCausticAnimation->CurrentTextureSRV());
 
-		mShader->Render(mIndexCount, fCausticTimer, camera, lightCamera, world, clipplane, reflect);
+		mShader->Render(mIndexCount, fCausticTimer, camera, lightCamera, world, clipplane, renderDeferred, reflect);
 	}
 }
 //==============================================================================================================================

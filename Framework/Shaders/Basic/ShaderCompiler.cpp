@@ -209,6 +209,9 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	Compile(d3d, "Environment\\Lighting\\GBuffer\\WaterGBuffer.hlsl", "WaterGBufferFlowPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\GBuffer\\WaterGBuffer.hlsl", "WaterGBufferNormalWireframePS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\GBuffer\\WaterGBuffer.hlsl", "WaterGBufferFlowWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\LakeBedGBuffer.hlsl", "LakeBedGBufferVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\LakeBedGBuffer.hlsl", "LakeBedGBufferPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\LakeBedGBuffer.hlsl", "LakeBedGBufferWireframePS", EShaderTypes::ST_PIXEL);
 
 	// ==================================== Compile the Deferred Shader
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\AmbientLightDeferred.hlsl", "AmbientLightDeferredVS", EShaderTypes::ST_VERTEX);

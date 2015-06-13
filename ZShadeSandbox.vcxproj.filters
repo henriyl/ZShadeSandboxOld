@@ -2547,5 +2547,8 @@
     <FxCompile Include="Framework\Shaders\Water\Water.hlsl">
       <Filter>Framework\Shaders\Water</Filter>
     </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\GBuffer\LakeBedGBuffer.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\GBuffer</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

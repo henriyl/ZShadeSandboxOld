@@ -32,6 +32,9 @@ bool LakeBedShader::Initialize()
 	LoadVertexShader("LakeBedVS");
 	LoadPixelShader("LakeBedPS");
 	LoadPixelShader("LakeBedWireframePS");
+	LoadVertexShader("LakeBedGBufferVS");
+	LoadPixelShader("LakeBedGBufferPS");
+	LoadPixelShader("LakeBedWireframeGBufferPS");
 	AssignVertexShaderLayout("LakeBedShader");
 	
 	return true;
@@ -42,7 +45,7 @@ void LakeBedShader::Shutdown()
 	//ShutdownShader();
 }
 //==============================================================================================================================
-bool LakeBedShader::Render(int indexCount, float causticTimer, Camera* camera, LightCamera* lightCamera, XMMATRIX world, XMFLOAT4 clipplane, bool reflect)
+bool LakeBedShader::Render(int indexCount, float causticTimer, Camera* camera, LightCamera* lightCamera, XMMATRIX world, XMFLOAT4 clipplane, bool renderDeferred, bool reflect)
 {
 	// Light must exist otherwise there is no point to the shader
 	if (lightCamera == NULL) return false;
@@ -106,13 +109,36 @@ bool LakeBedShader::Render(int indexCount, float causticTimer, Camera* camera, L
 		
 		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 7, ps_srvs);
 		
-		SwitchTo("LakeBedPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		if (renderDeferred)
+		{
+			SwitchTo("LakeBedGBufferPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		}
+		else
+		{
+			SwitchTo("LakeBedPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		}
 	}
 	else
 	{
-		SwitchTo("LakeBedWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		if (renderDeferred)
+		{
+			SwitchTo("LakeBedGBufferWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		}
+		else
+		{
+			SwitchTo("LakeBedWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		}
 	}
 	
+	if (renderDeferred)
+	{
+		SwitchTo("LakeBedGBufferVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+	}
+	else
+	{
+		SwitchTo("LakeBedVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+	}
+
 	SetInputLayout("LakeBedShader");
 
 	SetVertexShader();

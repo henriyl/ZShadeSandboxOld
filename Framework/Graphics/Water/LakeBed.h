@@ -33,7 +33,7 @@ public:
 	LakeBed(D3D* d3d, float width = 512.0f, float height = 512.0f, float depth = 512.0f);
 	
 	void Update(float dt);
-	void Render(Camera* camera, LightCamera* lightCamera, bool shadow = false, XMFLOAT4 clipplane = XMFLOAT4(0, 0, 0, 0), bool reflect = false);
+	void Render(Camera* camera, LightCamera* lightCamera, bool renderDeferred = false, bool shadow = false, XMFLOAT4 clipplane = XMFLOAT4(0, 0, 0, 0), bool reflect = false);
 	void RenderBuffers();
 	
 	void Initialize();

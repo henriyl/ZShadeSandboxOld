@@ -859,6 +859,9 @@
     <FxCompile Include="Framework\Shaders\Environment\Lighting\GBuffer\DebugGBufferDeferred.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\GBuffer\LakeBedGBuffer.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Framework\Shaders\Environment\Lighting\GBuffer\MaterialGBuffer.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
