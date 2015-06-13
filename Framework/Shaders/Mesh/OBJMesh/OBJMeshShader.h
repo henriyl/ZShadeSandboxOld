@@ -14,26 +14,13 @@
 #include "D3D.h"
 #include "Shader.h"
 #include "Vertex.h"
+#include "MeshRenderParameters.h"
+#include "ShaderMaterial.h"
 using namespace std;
 //===============================================================================================================================
 //===============================================================================================================================
 class OBJMeshShader : public ZShadeSandboxShader::Shader
 {
-	struct cbOBJShadingConst
-	{
-		XMFLOAT4 	g_ClipPlane;
-		XMFLOAT4	g_DifColor;
-		XMFLOAT2	padding;
-		float		g_FarPlane;
-		int			g_hasTexture;
-	};
-	
-	struct cbMatrixBuffer
-	{
-		XMFLOAT4X4	g_WVPMatrix;
-		XMFLOAT4X4	g_WorldMatrix;
-	};
-	
 public:
 	
 	OBJMeshShader(D3D* d3d);
@@ -43,17 +30,19 @@ public:
 	bool Initialize();
 	void Shutdown();
 	
-	void SetFarPlane(float farPlane) { fFarPlane = farPlane; }
-
-	bool Render(int startIndex, int indexCount, Camera* camera, XMMATRIX wvp, XMFLOAT4 clipplane, XMFLOAT4 difColor, bool hasTexture,
-		ID3D11ShaderResourceView* texture);
+	bool Render
+	(	int startIndex
+	,	int indexCount
+	,	ZShadeSandboxMesh::MeshRenderParameters mrp
+	,	ZShadeSandboxLighting::ShaderMaterial* material
+	);
 
 private:
 	
-	float fFarPlane;
-
-	ID3D11Buffer* m_pOBJShadingCB;
-	ID3D11Buffer* m_pMatrixBufferCB;
+	ID3D11Buffer* m_pShadingCB;
+	ID3D11Buffer* m_pMatrixCB;
+	ID3D11Buffer* m_pLightCB;
+	ID3D11Buffer* m_pSunCB;
 };
 //===============================================================================================================================
 //===============================================================================================================================

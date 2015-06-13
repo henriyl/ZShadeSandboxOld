@@ -1,14 +1,16 @@
 #include "OBJMesh.h"
 #include "TextureManager.h"
 #include <memory>
+#include "ShapeContact.h"
 using namespace ZShadeSandboxMesh;
 //===============================================================================================================================
 //===============================================================================================================================
 GameDirectory3D* OBJMesh::mGD3D = 0;
+D3D*  OBJMesh::mD3DSystem = 0;
 //===============================================================================================================================
 OBJMesh::OBJMesh(D3D* d3d, GameDirectory3D* g3D)
-:   mD3DSystem(d3d)
 {
+	OBJMesh::mD3DSystem = d3d;
 	OBJMesh::mGD3D = g3D;
 }
 //===============================================================================================================================
@@ -16,19 +18,59 @@ OBJMesh::~OBJMesh()
 {
 }
 //===============================================================================================================================
-XMFLOAT3& OBJMesh::Scale()
+void OBJMesh::Scale(XMFLOAT3 v)
 {
-	return m_pMesh->Scale();
+	m_pMesh->Scale(v);
 }
 //===============================================================================================================================
-XMFLOAT3& OBJMesh::Rotate()
+void OBJMesh::Rotate(XMFLOAT3 v)
 {
-	return m_pMesh->Rotate();
+	m_pMesh->Rotate(v);
 }
 //===============================================================================================================================
-XMFLOAT3& OBJMesh::Position()
+void OBJMesh::Position(XMFLOAT3 v)
 {
-	return m_pMesh->Position();
+	m_pMesh->Position(v);
+}
+//===============================================================================================================================
+void OBJMesh::SetFarPlane(float farPlane)
+{
+	m_pMesh->SetFarPlane(farPlane);
+}
+//===============================================================================================================================
+ZShadeSandboxMath::AABB* OBJMesh::GetAABB()
+{
+	return m_pMesh->GetAABB();
+}
+//===============================================================================================================================
+bool OBJMesh::IntersectsAABB(XMFLOAT3 point)
+{
+	return m_pMesh->IntersectsAABB(point);
+}
+//===============================================================================================================================
+float OBJMesh::DistanceAABBToPoint(XMFLOAT3 point)
+{
+	return m_pMesh->DistanceAABBToPoint(point);
+}
+//===============================================================================================================================
+void OBJMesh::UpdateAABB(XMFLOAT3 center, XMFLOAT3 scale)
+{
+	m_pMesh->UpdateAABB(center, scale);
+}
+//===============================================================================================================================
+ZShadeSandboxMath::SpherePrimitive* OBJMesh::GetSphere()
+{
+	return m_pMesh->GetSphere();
+}
+//===============================================================================================================================
+bool OBJMesh::IntersectsSphere(XMFLOAT3 point)
+{
+	return m_pMesh->IntersectsSphere(point);
+}
+//===============================================================================================================================
+float OBJMesh::DistanceSphereToPoint(XMFLOAT3 point)
+{
+	return m_pMesh->DistanceSphereToPoint(point);
 }
 //===============================================================================================================================
 void OBJMesh::Load(string filename, bool bRebuildNormals, bool isRHCoordSys)
@@ -37,7 +79,7 @@ void OBJMesh::Load(string filename, bool bRebuildNormals, bool isRHCoordSys)
 	m_pMesh->Load(filename, bRebuildNormals, isRHCoordSys);
 }
 //===============================================================================================================================
-void OBJMesh::Render(OBJMeshRenderParameters render_param)
+void OBJMesh::Render(MeshRenderParameters render_param)
 {
 	m_pMesh->Render(render_param);
 }
@@ -47,37 +89,110 @@ void OBJMesh::SetWireframe(bool wire)
 	m_pMesh->SetWireframe(wire);
 }
 //===============================================================================================================================
-void OBJMesh::SetFarPlane(float farPlane)
+void OBJMesh::Mesh::Scale(XMFLOAT3 v)
 {
-	m_pMesh->SetFarPlane(farPlane);
+	mScale = v;
+
+	// Rescale the AABB and Sphere
+	
+
+	//float r = mSphere->Radius();
+	//mSphere->Radius() = r * v.x;
 }
 //===============================================================================================================================
-XMFLOAT3& OBJMesh::Mesh::Scale()
+void OBJMesh::Mesh::Rotate(XMFLOAT3 v)
 {
-	return mScale;
+	mRotation = v;
+
+	// Rotate the AABB
+
 }
 //===============================================================================================================================
-XMFLOAT3& OBJMesh::Mesh::Rotate()
+void OBJMesh::Mesh::Position(XMFLOAT3 v)
 {
-	return mRotation;
-}
-//===============================================================================================================================
-XMFLOAT3& OBJMesh::Mesh::Position()
-{
-	return mPosition;
+	mPosition = v;
+
+	// Reposition the AABB and Sphere
+	//UpdateAABB(v, mAABB->vSize);
+	mAABB->vCenter.x += v.x;
+	mAABB->vCenter.y += v.y;
+	mAABB->vCenter.z += v.z;
+
+	mAABB->vMin.x += v.x;
+	mAABB->vMin.y += v.y;
+	mAABB->vMin.z += v.z;
+
+	mAABB->vMax.x += v.x;
+	mAABB->vMax.y += v.y;
+	mAABB->vMax.z += v.z;
 }
 //===============================================================================================================================
 void OBJMesh::Mesh::SetWireframe(bool wire)
 {
 	mShader->SetWireframe(wire);
 	mTessellationShader->SetWireframe(wire);
-	mOBJDeferredShader->SetWireframe(wire);
+	mOBJGBufferShader->SetWireframe(wire);
 }
 //===============================================================================================================================
 void OBJMesh::Mesh::SetFarPlane(float farPlane)
 {
-	mShader->SetFarPlane(farPlane);
-	mTessellationShader->SetFarPlane(farPlane);
+	for (auto& group : mGroups)
+	{
+		auto* material = &group.Material;
+
+		material->fFarPlane = farPlane;
+	}
+}
+//===============================================================================================================================
+ZShadeSandboxMath::AABB* OBJMesh::Mesh::GetAABB()
+{
+	return mAABB;
+}
+//===============================================================================================================================
+bool OBJMesh::Mesh::IntersectsAABB(XMFLOAT3 point)
+{
+	if (mAABB == 0) return false;
+	
+	// Calculate the dimensions of this node.
+	float xMin = mAABB->vMin.x;
+	float xMax = mAABB->vMax.x;
+	
+	float zMin = mAABB->vMin.z;
+	float zMax = mAABB->vMax.z;
+	
+	// See if the x and z coordinate are in this node, if not then stop traversing this part of the tree.
+	if ((point.x < xMin) || (point.x > xMax) || (point.z < zMin) || (point.z > zMax))
+	{
+		return false;
+	}
+	
+	return mAABB->ContainsPoint3D(point);
+}
+//===============================================================================================================================
+float OBJMesh::Mesh::DistanceAABBToPoint(XMFLOAT3 point)
+{
+	return mAABB->DistanceToPoint3D(point);
+}
+//===============================================================================================================================
+void OBJMesh::Mesh::UpdateAABB(XMFLOAT3 center, XMFLOAT3 scale)
+{
+	mAABB->vMin = XMFLOAT3(center.x - scale.x, center.y - scale.y, center.z - scale.z);
+	mAABB->vMax = XMFLOAT3(center.x + scale.x, center.y + scale.y, center.z + scale.z);
+}
+//===============================================================================================================================
+ZShadeSandboxMath::SpherePrimitive* OBJMesh::Mesh::GetSphere()
+{
+	return mSphere;
+}
+//===============================================================================================================================
+bool OBJMesh::Mesh::IntersectsSphere(XMFLOAT3 point)
+{
+	return ShapeContact::SphereIntersectsPoint(*mSphere, point);
+}
+//===============================================================================================================================
+float OBJMesh::Mesh::DistanceSphereToPoint(XMFLOAT3 point)
+{
+	return ShapeContact::DistanceSphereToPoint(*mSphere, point);
 }
 //===============================================================================================================================
 bool OBJMesh::LoadObj(string filename, D3D* d3d, vector<VertexNormalTex>& vertices,
@@ -88,11 +203,10 @@ bool OBJMesh::LoadObj(string filename, D3D* d3d, vector<VertexNormalTex>& vertic
 	vector<XMFLOAT3> positions;
 	vector<XMFLOAT3> normals;
 	vector<XMFLOAT2> texCoords;
-	map<string, OBJMeshSurfaceMaterial> materials;
+	map<string, ZShadeSandboxLighting::ShaderMaterial> materials;
 
-	OBJMeshSurfaceMaterial* currentMaterial = new OBJMeshSurfaceMaterial();
-	InitMaterial(currentMaterial); // kind of default material
-
+	ZShadeSandboxLighting::ShaderMaterial* currentMaterial = new ZShadeSandboxLighting::ShaderMaterial(d3d);
+	
 	// File Input
 	ifstream file(filename.c_str());
 	if (!file) return false;
@@ -223,6 +337,7 @@ bool OBJMesh::LoadObj(string filename, D3D* d3d, vector<VertexNormalTex>& vertic
 	if (!groups.empty())
 	{
 		groups.back().Material = *currentMaterial;
+		groups.back().Material.SetD3D(mD3DSystem);
 		groups.back().IndexCount = indices.size() - groups.back().IndexStart;
 	}
 
@@ -231,13 +346,13 @@ bool OBJMesh::LoadObj(string filename, D3D* d3d, vector<VertexNormalTex>& vertic
 	return true;
 }
 //===============================================================================================================================
-bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, OBJMeshSurfaceMaterial>& materials)
+bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, ZShadeSandboxLighting::ShaderMaterial>& materials)
 {
 	// File Input
 	ifstream file(filename.c_str());
 	if (!file) return false;
 
-	OBJMeshSurfaceMaterial* mat = NULL;
+	ZShadeSandboxLighting::ShaderMaterial* mat = NULL;
 	for (string line; getline(file, line);)
 	{
 		string key;
@@ -247,9 +362,9 @@ bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, OBJMeshSurfaceMater
 		if (key == "newmtl")
 		{
 			// Switching active materials
-			mat = new OBJMeshSurfaceMaterial();
-			InitMaterial(mat);
-			ss >> mat->sMaterialName;
+			string matName;
+			ss >> matName;
+			mat = new ZShadeSandboxLighting::ShaderMaterial(d3d, matName);
 			materials[mat->sMaterialName] = *mat;
 			mat = &materials[mat->sMaterialName];
 		}
@@ -262,28 +377,28 @@ bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, OBJMeshSurfaceMater
 			// Ambient color
 			float r, g, b;
 			ss >> r >> g >> b;
-			mat->vAmbientColor = XMFLOAT3(r, g, b);
+			mat->vAmbientColor = XMFLOAT4(r, g, b, 1);
 		}
 		else if (key == "Kd")
 		{
 			// Diffuse color
 			float r, g, b;
 			ss >> r >> g >> b;
-			mat->vDiffuseColor = XMFLOAT3(r, g, b);
+			mat->vDiffuseColor = XMFLOAT4(r, g, b, 1);
 		}
 		else if (key == "Ks")
 		{
 			// Specular color
 			float r, g, b;
 			ss >> r >> g >> b;
-			mat->vSpecularColor = XMFLOAT3(r, g, b);
+			mat->vSpecularColor = XMFLOAT4(r, g, b, 1);
 		}
 		else if (key == "Ke")
 		{
 			// Emissive color
 			float r, g, b;
 			ss >> r >> g >> b;
-			mat->vEmissiveColor = XMFLOAT3(r, g, b);
+			mat->vEmissiveColor = XMFLOAT4(r, g, b, 1);
 		}
 		else if (key == "Tf")
 		{
@@ -297,7 +412,9 @@ bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, OBJMeshSurfaceMater
 			// Material Dissolve (Alpha)
 			ss >> mat->fAlpha;
 			if (mat->fAlpha > 0.0f)
+			{
 				mat->bHasTransparency = true;
+			}
 		}
 		else if (key == "Ns")
 		{
@@ -305,6 +422,10 @@ bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, OBJMeshSurfaceMater
 			int nShininess;
 			ss >> nShininess;
 			mat->fSpecularPower = nShininess;
+		}
+		else if (key == "Db")
+		{
+			ss >> mat->fDetailBrightness;
 		}
 		else if (key == "Ni")
 		{
@@ -317,6 +438,12 @@ bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, OBJMeshSurfaceMater
 			ss >> illumination;
 			mat->iIlluminationModel = illumination;
 			mat->bSpecularToggle = (illumination == 2);
+		}
+		else if (key == "map_Km")
+		{
+			// Diffuse Texture
+			ss >> mat->sDetailMapTextureName;
+			mat->bHasDetailMapTexture = true;
 		}
 		else if (key == "map_Kd")
 		{
@@ -352,7 +479,7 @@ bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, OBJMeshSurfaceMater
 		{
 			// Normal Map (Bump Map) Texture
 			ss >> mat->sNormalMapTextureName;
-			mat->bHasNormalMap = true;
+			mat->bHasNormalMapTexture = true;
 		}
 	}
 
@@ -360,49 +487,23 @@ bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, OBJMeshSurfaceMater
 	for (auto& iter : materials)
 	{
 		auto& mat = iter.second;
-		if (mat.bHasDiffuseTexture)
-			mat.diffuseSRV = TextureManager::Instance()->GetTexture(BetterString(mGD3D->m_textures_path + "\\" + mat.sDiffuseTextureName));
-		if (mat.bHasAmbientTexture)
-			mat.ambientSRV = TextureManager::Instance()->GetTexture(BetterString(mGD3D->m_textures_path + "\\" + mat.sAmbientTextureName));
-		if (mat.bHasSpecularTexture)
-			mat.specularSRV = TextureManager::Instance()->GetTexture(BetterString(mGD3D->m_textures_path + "\\" + mat.sSpecularTextureName));
-		if (mat.bHasEmissiveTexture)
-			mat.emissiveSRV = TextureManager::Instance()->GetTexture(BetterString(mGD3D->m_textures_path + "\\" + mat.sEmissiveTextureName));
-		if (mat.bHasNormalMap)
-			mat.normalMapSRV = TextureManager::Instance()->GetTexture(BetterString(mGD3D->m_textures_path + "\\" + mat.sNormalMapTextureName));
-		if (mat.bHasTransparency)
-			mat.alphaSRV = TextureManager::Instance()->GetTexture(BetterString(mGD3D->m_textures_path + "\\" + mat.sAlphaTextureName));
+
+		if (mat.bHasDiffuseTexture) mat.AddDiffuseTexture(mGD3D->m_textures_path, mat.sDiffuseTextureName);
+		if (mat.bHasAmbientTexture) mat.AddAmbientTexture(mGD3D->m_textures_path, mat.sAmbientTextureName);
+		if (mat.bHasSpecularTexture) mat.AddSpecularTexture(mGD3D->m_textures_path, mat.sSpecularTextureName);
+		if (mat.bHasEmissiveTexture) mat.AddEmissiveTexture(mGD3D->m_textures_path, mat.sEmissiveTextureName);
+		if (mat.bHasNormalMapTexture) mat.AddNormalMapTexture(mGD3D->m_textures_path, mat.sNormalMapTextureName);
+		if (mat.bHasTransparency) mat.AddAlphaMapTexture(mGD3D->m_textures_path, mat.sAlphaTextureName);
+		if (mat.bHasDetailMapTexture) mat.AddDetailMapTexture(mGD3D->m_textures_path, mat.sDetailMapTextureName);
+
+		mat.vDiffuseColor.w = mat.fAlpha;
+		mat.vAmbientColor.w = mat.fAlpha;
+		mat.vSpecularColor.w = mat.fAlpha;
+		mat.vEmissiveColor.w = mat.fAlpha;
 	}
 
 	file.close();
 	return true;
-}
-//===============================================================================================================================
-void OBJMesh::InitMaterial(OBJMeshSurfaceMaterial* mat)
-{
-	ZeroMemory(mat, sizeof(ZShadeSandboxMesh::OBJMeshSurfaceMaterial));
-	mat->diffuseSRV = NULL;
-	mat->ambientSRV = NULL;
-	mat->specularSRV = NULL;
-	mat->alphaSRV = NULL;
-	mat->normalMapSRV = NULL;
-	mat->emissiveSRV = NULL;
-	mat->vDiffuseColor = XMFLOAT3(0.8f, 0.8f, 0.8f);
-	mat->vAmbientColor = XMFLOAT3(0.2f, 0.2f, 0.2f);
-	mat->vSpecularColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	mat->vEmissiveColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	mat->vTransmissionFilter = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	mat->fRefractionIndex = 0.0f;
-	mat->iIlluminationModel = 1.0f;
-	mat->fAlpha = 1.0f;
-	mat->fSpecularPower = 0.3f;
-	mat->fSpecularIntensity = 0.8f;
-	mat->bSpecularToggle = false;
-	mat->bHasDiffuseTexture = false;
-	mat->bHasAmbientTexture = false;
-	mat->bHasSpecularTexture = false;
-	mat->bHasNormalMap = false;
-	mat->bHasTransparency = false;
 }
 //===============================================================================================================================
 OBJMesh::Mesh::Mesh(D3D* d3d)
@@ -417,7 +518,7 @@ OBJMesh::Mesh::Mesh(D3D* d3d)
 
 	mShader = new OBJMeshShader(mD3DSystem);
 	mTessellationShader = new OBJMeshTessellationShader(mD3DSystem);
-	mOBJDeferredShader = new OBJDeferredShader(mD3DSystem);
+	mOBJGBufferShader = new OBJGBufferShader(mD3DSystem);
 }
 //===============================================================================================================================
 OBJMesh::Mesh::~Mesh()
@@ -491,7 +592,58 @@ bool OBJMesh::Mesh::Load(string filename, bool bRebuildNormals, bool isRHCoordSy
 			vertex.normal.z *= f;
 		}
 	}
+	
+	//
+	// Create the Axis Aligned Bounding box for the mesh
+	//
 
+	XMFLOAT3 minVertex(FLT_MAX, FLT_MAX, FLT_MAX);
+	XMFLOAT3 maxVertex(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		// The minVertex and maxVertex will most likely not be actual vertices in the model, but vertices
+        // that use the smallest and largest x, y, and z values from the model to be sure ALL vertices are
+        // covered by the bounding volume
+		
+        //Get the smallest vertex 
+        minVertex.x = min(minVertex.x, vertices[i].position.x);    // Find smallest x value in model
+		minVertex.y = min(minVertex.y, vertices[i].position.y);    // Find smallest y value in model
+		minVertex.z = min(minVertex.z, vertices[i].position.z);    // Find smallest z value in model
+		
+        //Get the largest vertex 
+		maxVertex.x = max(maxVertex.x, vertices[i].position.x);    // Find largest x value in model
+		maxVertex.y = max(maxVertex.y, vertices[i].position.y);    // Find largest y value in model
+		maxVertex.z = max(maxVertex.z, vertices[i].position.z);    // Find largest z value in model
+	}
+	
+	mAABB = new ZShadeSandboxMath::AABB();
+	mAABB->vMin = minVertex;
+	mAABB->vMax = maxVertex;
+	
+	// Find the true center of the model
+	mAABB->vCenter = ZShadeSandboxMath::XMMath3(maxVertex) - ZShadeSandboxMath::XMMath3(minVertex) / 2.0f;
+	
+	float sphereRadius = 0.0f;
+	
+	// Get the bounding sphere
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		float x = (mAABB->vCenter.x - vertices[i].position.x) * (mAABB->vCenter.x - vertices[i].position.x);
+		float y = (mAABB->vCenter.y - vertices[i].position.y) * (mAABB->vCenter.y - vertices[i].position.y);
+		float z = (mAABB->vCenter.z - vertices[i].position.z) * (mAABB->vCenter.z - vertices[i].position.z);
+		
+		sphereRadius = max(sphereRadius, x + y + z);
+	}
+	
+	// We didn't use the square root when finding the largest distance since it slows things down.
+	// We can square root the answer from above to get the actual bounding sphere now
+	sphereRadius = sqrt(sphereRadius);
+	
+	mSphere = new ZShadeSandboxMath::SpherePrimitive();
+	mSphere->Center() = mAABB->vCenter;
+	mSphere->Radius() = sphereRadius;
+	
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -539,20 +691,22 @@ void OBJMesh::Mesh::CalculateWorldMatrix()
 	mWorld = XMMatrixMultiply(mWorld, translation);
 }
 //===============================================================================================================================
-void OBJMesh::Mesh::Render(OBJMeshRenderParameters render_param)
+void OBJMesh::Mesh::Render(MeshRenderParameters render_param)
 {
 	if (render_param.camera == NULL) return;
 
 	// Get the world matrix transformation for the mesh
 	CalculateWorldMatrix();
 	
-	XMMATRIX view = render_param.camera->View();
+	/*XMMATRIX view = render_param.camera->View();
 	if (render_param.reflection)
 	{
 		view = render_param.camera->ReflectionView();
 	}
 	
-	XMMATRIX wvp = mWorld * view * render_param.camera->Proj();
+	XMMATRIX wvp = mWorld * view * render_param.camera->Proj();*/
+
+	render_param.world = mWorld;
 
 	//Set the vertex buffer stride and offset
 	unsigned int stride = sizeof(VertexNormalTex);
@@ -574,41 +728,59 @@ void OBJMesh::Mesh::Render(OBJMeshRenderParameters render_param)
 		case ERenderType::e3ControlPointPatchList: mD3DSystem->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST); break;
 	}
 
-	for (const auto& group : mGroups)
+	for (auto& group : mGroups)
 	{
-		// Currently only uses a diffuse texture, need to add in all the other material textures to the shader
-		// Also need to define what happens when there is no material -> uses material defined in WavefrontObj::InitMaterial
-
 		auto* material = &group.Material;
+
+		if (material->bHasTransparency && material->fAlpha > 0)
+		{
+			continue;
+		//	//mD3DSystem->TurnOnAlphaBlending();
+		//	//mD3DSystem->TurnOnAdditiveBlending();
+		}
 
 		XMFLOAT4 materialDiffuse(material->vDiffuseColor.x, material->vDiffuseColor.y, material->vDiffuseColor.z, 0.0f);
 		bool hasDiffuseTexture = material->bHasDiffuseTexture;
 		
-		if (render_param.bRenderDeferred)
+		if (render_param.renderDeferred)
 		{
-			mOBJDeferredShader->Render11(
+			mOBJGBufferShader->Render11(
 				group.IndexStart,
 				group.IndexCount,
-				render_param.camera,
-				wvp,
-				XMFLOAT2(10, 300), // Add this to the material
-				material->fSpecularIntensity,
-				material->fSpecularPower,
-				material->diffuseSRV
+				render_param,
+				material
 			);
 		}
 		else
 		{
 			if (render_param.tessellate)
 			{
-				mTessellationShader->Render(group.IndexStart, group.IndexCount, render_param.minTessDist, render_param.maxTessDist, render_param.minTess, render_param.maxTess,
-					render_param.camera, wvp, render_param.clipplane, materialDiffuse, hasDiffuseTexture, material->diffuseSRV);
+				//mTessellationShader->Render(group.IndexStart, group.IndexCount, render_param.minTessDist, render_param.maxTessDist, render_param.minTess, render_param.maxTess,
+				//	render_param.camera, wvp, render_param.clipplane, materialDiffuse, hasDiffuseTexture, material->diffuseSRV);
+				mTessellationShader->Render(
+					group.IndexStart,
+					group.IndexCount,
+					render_param,
+					material
+				);
 			}
 			else
 			{
-				mShader->Render(group.IndexStart, group.IndexCount, render_param.camera, wvp, render_param.clipplane, materialDiffuse, hasDiffuseTexture, material->diffuseSRV);
+				//mShader->Render(group.IndexStart, group.IndexCount, render_param.camera, wvp, render_param.clipplane, materialDiffuse, hasDiffuseTexture, material->diffuseSRV, material);
+				mShader->Render(
+					group.IndexStart,
+					group.IndexCount,
+					render_param,
+					material
+				);
 			}
 		}
+
+		//if (material->bHasTransparency && material->fAlpha > 0)
+		//{
+		//	//mD3DSystem->TurnOffAdditiveBlending();
+		//	//mD3DSystem->TurnOffAlphaBlending();
+		//}
 	}
 }
 //===============================================================================================================================

@@ -23,12 +23,12 @@ public:
 	
 	float& Range()							{ return fRange; }
 	float& LightLength()					{ return fLightLength; }
-	float& CapsuleIntensity()				{ return fCapsuleIntensity; }
+	//float& CapsuleIntensity()				{ return fCapsuleIntensity; }
 	XMFLOAT3& CapsuleDirectionLength()		{ return fCapsuleDirectionLength; }
 	
 	float Range() const						{ return fRange; }
 	float LightLength() const 				{ return fLightLength; }
-	float CapsuleIntensity() const			{ return fCapsuleIntensity; }
+	//float CapsuleIntensity() const			{ return fCapsuleIntensity; }
 	XMFLOAT3 CapsuleDirectionLength() const	{ return fCapsuleDirectionLength; }
 	
 	ZShadeSandboxLighting::Light* Clone();
@@ -37,7 +37,7 @@ private:
 	
 	float fRange;
 	float fLightLength;
-	float fCapsuleIntensity;
+	//float fCapsuleIntensity;
 	XMFLOAT3 fCapsuleDirectionLength;
 };
 }

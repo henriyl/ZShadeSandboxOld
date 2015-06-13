@@ -72,8 +72,6 @@ bool TerrainTessellationQuadShader::Render(int indexCount, Camera* camera, Light
 	cMatrixBuffer cMB;
 	cDomainConstBuffer cDCB;
 	cShadingConstBuffer cSCB;
-	ZShadeSandboxLighting::cbLightBuffer cLB;
-	ZShadeSandboxLighting::cbSunLightBuffer cSLB;
 	
 	if (m_UseCustomWorld)
 		cMB.g_WorldMatrix = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mWorld.Get()));
@@ -122,9 +120,6 @@ bool TerrainTessellationQuadShader::Render(int indexCount, Camera* camera, Light
 	cSCB.g_TextureHeight = terrainShadingConst.g_TextureHeight;
 	cSCB.g_seaLevel = terrainShadingConst.g_seaLevel;
 	cSCB.g_waterBodyColor = terrainShadingConst.g_waterBodyColor;
-	//cSCB.g_SunDir = terrainShadingConst.g_SunDir;
-	//cSCB.g_EnableSun = terrainShadingConst.g_EnableSun;
-	//cSCB.g_SunDiffuseColor = terrainShadingConst.g_SunDiffuseColor;
 	cSCB.g_MaterialDiffuseColor = terrainShadingConst.g_MaterialDiffuseColor;
 	cSCB.g_MaterialAmbientColor = terrainShadingConst.g_MaterialAmbientColor;
 	cSCB.g_TexelCellSpaceU = terrainShadingConst.g_TexelCellSpaceU;
@@ -139,74 +134,7 @@ bool TerrainTessellationQuadShader::Render(int indexCount, Camera* camera, Light
 	cSCB.g_useSSAO = terrainShadingConst.g_useSSAO;
 	cSCB.g_ViewMatrix = cMB.g_ViewMatrix;
 	
-	ZShadeSandboxLighting::cbAmbientLightBuffer alb;
-	ZShadeSandboxLighting::cbDirectionalLightBuffer dlb;
-	ZShadeSandboxLighting::cbSpotLightBuffer slb;
-	ZShadeSandboxLighting::cbPointLightBuffer plb;
-	ZShadeSandboxLighting::cbCapsuleLightBuffer clb;
-	for (int i = 0; i < terrainShadingConst.g_AmbientLightCount; i++)
-	{
-		alb.g_AmbientColor = terrainShadingConst.g_AmbientLight[i].g_AmbientColor;
-		cLB.g_AmbientLight[i] = alb;
-	}
-	for (int i = 0; i < terrainShadingConst.g_DirectionalLightCount; i++)
-	{
-		dlb.g_Direction = terrainShadingConst.g_DirectionalLight[i].g_LightDirection;
-		dlb.padding = 0;
-		dlb.g_Ambient = terrainShadingConst.g_DirectionalLight[i].g_AmbientColor;
-		dlb.g_Diffuse = terrainShadingConst.g_DirectionalLight[i].g_DiffuseColor;
-		cLB.g_DirectionalLight[i] = dlb;
-	}
-	for (int i = 0; i < terrainShadingConst.g_SpotLightCount; i++)
-	{
-		slb.g_AmbientColor = terrainShadingConst.g_SpotLight[i].g_AmbientColor;
-		slb.g_DiffuseColor = terrainShadingConst.g_SpotLight[i].g_DiffuseColor;
-		slb.g_LightPosition = terrainShadingConst.g_SpotLight[i].g_LightPosition;
-		slb.padding = 0;
-		slb.g_LightRange = terrainShadingConst.g_SpotLight[i].g_LightRange;
-		slb.g_SpotCosOuterCone = terrainShadingConst.g_SpotLight[i].g_SpotCosOuterCone;
-		slb.g_SpotInnerConeReciprocal = terrainShadingConst.g_SpotLight[i].g_SpotInnerConeReciprocal;
-		slb.g_CosineAngle = terrainShadingConst.g_SpotLight[i].g_CosineAngle;
-		cLB.g_SpotLight[i] = slb;
-	}
-	for (int i = 0; i < terrainShadingConst.g_PointLightCount; i++)
-	{
-		plb.g_LightPosition = terrainShadingConst.g_PointLight[i].g_LightPosition;
-		plb.g_LightRange = terrainShadingConst.g_PointLight[i].g_LightRange;
-		plb.g_Attenuation = terrainShadingConst.g_PointLight[i].g_Attenuation;
-		plb.padding = 0;
-		plb.g_AmbientColor = terrainShadingConst.g_PointLight[i].g_AmbientColor;
-		plb.g_DiffuseColor = terrainShadingConst.g_PointLight[i].g_DiffuseColor;
-		cLB.g_PointLight[i] = plb;
-	}
-	for (int i = 0; i < terrainShadingConst.g_CapsuleLightCount; i++)
-	{
-		clb.g_LightPosition = terrainShadingConst.g_CapsuleLight[i].g_LightPosition;
-		clb.g_LightRange = terrainShadingConst.g_CapsuleLight[i].g_LightRange;
-		clb.g_LightDirection = terrainShadingConst.g_CapsuleLight[i].g_LightDirection;
-		//clb.g_LightRangeReciprocal = terrainShadingConst.g_CapsuleLight[i].g_LightRangeReciprocal;
-		//clb.g_LightColor = terrainShadingConst.g_CapsuleLight[i].g_LightColor;
-		clb.g_LightLength = terrainShadingConst.g_CapsuleLight[i].g_LightLength;
-		clb.g_CapsuleDirectionLength = terrainShadingConst.g_CapsuleLight[i].g_CapsuleDirectionLength;
-		clb.g_CapsuleIntensity = terrainShadingConst.g_CapsuleLight[i].g_CapsuleIntensity;
-		clb.g_AmbientColor = terrainShadingConst.g_CapsuleLight[i].g_AmbientColor;
-		clb.g_DiffuseColor = terrainShadingConst.g_CapsuleLight[i].g_DiffuseColor;
-		cLB.g_CapsuleLight[i] = clb;
-	}
-	cLB.g_AmbientLightCount = terrainShadingConst.g_AmbientLightCount;
-	cLB.g_DirectionalLightCount = terrainShadingConst.g_DirectionalLightCount;
-	cLB.g_SpotLightCount = terrainShadingConst.g_SpotLightCount;
-	cLB.g_PointLightCount = terrainShadingConst.g_PointLightCount;
-	cLB.g_CapsuleLightCount = terrainShadingConst.g_CapsuleLightCount;
-	cLB.g_AmbientDown = terrainShadingConst.g_AmbientDown;
-	cLB.g_AmbientUp = terrainShadingConst.g_AmbientUp;
-	cLB.padding = 0;
-	
-	cSLB.g_SunDir = terrainShadingConst.g_SunDir;
-	cSLB.g_EnableSun = terrainShadingConst.g_EnableSun;
-	cSLB.g_SunDiffuseColor = terrainShadingConst.g_SunDiffuseColor;
-	cSLB.padding = XMFLOAT3(0, 0, 0);
-	cSLB.g_SunShineness = terrainShadingConst.g_SunShineness;
+	ZShadeSandboxLighting::LightManager::Instance()->BuildFinalLightBuffers(m_pLightCB, m_pSunCB);
 	
 	// Map tessellation constants
 	{
@@ -252,39 +180,17 @@ bool TerrainTessellationQuadShader::Render(int indexCount, Camera* camera, Light
 		m_pD3DSystem->GetDeviceContext()->Unmap(m_pShadingCB, 0);
 	}
 
-	// Map light shading constants
-	{
-		D3D11_MAPPED_SUBRESOURCE mapped_res;
-		m_pD3DSystem->GetDeviceContext()->Map(m_pLightCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
-		{
-			assert(mapped_res.pData);
-			*(ZShadeSandboxLighting::cbLightBuffer*)mapped_res.pData = cLB;
-		}
-		m_pD3DSystem->GetDeviceContext()->Unmap(m_pLightCB, 0);
-	}
-	
-	// Map sun light shading constants
-	{
-		D3D11_MAPPED_SUBRESOURCE mapped_res;
-		m_pD3DSystem->GetDeviceContext()->Map(m_pSunCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
-		{
-			assert(mapped_res.pData);
-			*(ZShadeSandboxLighting::cbSunLightBuffer*)mapped_res.pData = cSLB;
-		}
-		m_pD3DSystem->GetDeviceContext()->Unmap(m_pSunCB, 0);
-	}
-	
-	// Set the tessellation constant buffer into the Hull ZShadeSandboxShader::Shader
+	// Set the tessellation constant buffer into the Hull Shader
 	ID3D11Buffer* hs_cbs[1] = { m_pTessellationCB };
 	m_pD3DSystem->GetDeviceContext()->HSSetConstantBuffers(0, 1, hs_cbs);
 	
-	// Set the domain constant buffer into the Domain ZShadeSandboxShader::Shader
-	// Set the matrix constant buffer into the Domain ZShadeSandboxShader::Shader
+	// Set the domain constant buffer into the Domain Shader
+	// Set the matrix constant buffer into the Domain Shader
 	ID3D11Buffer* ds_cbs[2] = { m_pDomainCB, m_pMatrixBufferCB };
 	m_pD3DSystem->GetDeviceContext()->DSSetConstantBuffers(0, 2, ds_cbs);
 
-	// Set the shading constant buffer into the Pixel ZShadeSandboxShader::Shader
-	ID3D11Buffer* ps_cbs[3] = { m_pShadingCB, m_pLightCB, m_pSunCB };
+	// Set the shading constant buffer into the Pixel Shader
+	ID3D11Buffer* ps_cbs[3] = { m_pLightCB, m_pSunCB, m_pShadingCB };
 	m_pD3DSystem->GetDeviceContext()->PSSetConstantBuffers(0, 3, ps_cbs);
 
 	// Set the heightmap texture into the vertex shader

@@ -31,12 +31,6 @@ bool SkyShader::Initialize()
 	LoadPixelShader("SkyWireframePS");
 	AssignVertexShaderLayout("SkyLayout");
 
-	SetInputLayoutDesc("DeferredSky", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex, 3);
-	LoadVertexShader("DeferredSkyVS");
-	LoadPixelShader("DeferredSkyPS");
-	LoadPixelShader("DeferredSkyWireframePS");
-	AssignVertexShaderLayout("DeferredSky");
-
 	return true;
 }
 //==============================================================================================================================
@@ -58,7 +52,7 @@ void SkyShader::RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParamete
 	XMMATRIX W = mv * mrp.world;
 	per_frame.g_World = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(W));
 	per_frame.g_View = mrp.view;
-	per_frame.g_Proj = mrp.pCamera->Proj4x4();
+	per_frame.g_Proj = mrp.camera->Proj4x4();
 	// Consts
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped_res;
@@ -82,31 +76,19 @@ void SkyShader::RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParamete
 		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 1, ps_samp);
 		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 1, ps_srvs);
 
-		if (mrp.bRenderDeferred)
-			SwitchTo("DeferredSkyPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
-		else
-			SwitchTo("SkyPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		SwitchTo("SkyPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
 	else
 	{
-		if (mrp.bRenderDeferred)
-			SwitchTo("DeferredSkyWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
-		else
-			SwitchTo("SkyWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		SwitchTo("SkyWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
 
-	if (mrp.bRenderDeferred)
-		SwitchTo("DeferredSkyVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
-	else
-		SwitchTo("SkyVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+	SwitchTo("SkyVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
 
 	SetVertexShader();
 	SetPixelShader();
 
-	if (mrp.bRenderDeferred)
-		SetInputLayout("DeferredSky");
-	else
-		SetInputLayout("SkyLayout");
+	SetInputLayout("SkyLayout");
 
 	//Perform Drawing
 	RenderIndex11(indexCount);

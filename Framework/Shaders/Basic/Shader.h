@@ -22,11 +22,12 @@
 #include <fstream>
 #include "SkyPlaneParameters.h"
 #include "ZMath.h"
-#include "BetterString.h"
+//#include "BetterString.h"
 #include "Camera.h"
 #include "ShaderCompiler.h"
 #include "CustomMeshParameters.h"
 #include "ShaderMaterial.h"
+#include "MeshRenderParameters.h"
 using namespace std;
 
 //=================================================================================================================
@@ -49,7 +50,7 @@ public:
 	void UseCustomView(bool useView) { m_UseCustomView = useView; }
 	void SetCustomView(XMFLOAT4X4 view) { mView = view; }
 	
-	//Create a custom shader with this for the ZShadeSandboxMesh::CustomMesh
+	//Create a custom shader with this for the CustomMesh
 	//Override this and add whatever is needed to render the shader
 	virtual void RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParameters mrp, ZShadeSandboxLighting::ShaderMaterial* material) {}
 	//virtual void RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParameters mrp, ID3D11ShaderResourceView* texture) {}
@@ -60,9 +61,9 @@ public:
 	void SetDomainShader();
 	void SetGeometryShader();
 	void SetComputeShader();
-	void SetInputLayout(BetterString vertexShaderName);
-	void AssignVertexShaderLayout(BetterString vertexShaderName);
-	void SwitchTo(BetterString shaderFuncName, int type);
+	void SetInputLayout(string vertexShaderName);
+	void AssignVertexShaderLayout(string vertexShaderName);
+	void SwitchTo(string shaderFuncName, int type);
 	
 	void RenderDraw11(int vertexCount);
 	void RenderIndex11(int indexCount);
@@ -84,17 +85,17 @@ public:
 	//std::vector<uint8_t> CompileBinary(const std::string filename);
 
 	// Loads the shader from the shader compiler
-	void LoadVertexShader(BetterString shaderFuncName);
-	void LoadPixelShader(BetterString shaderFuncName);
-	void LoadHullShader(BetterString shaderFuncName);
-	void LoadDomainShader(BetterString shaderFuncName);
-	void LoadGeometryShader(BetterString shaderFuncName);
-	void LoadComputeShader(BetterString shaderFuncName);
+	void LoadVertexShader(string shaderFuncName);
+	void LoadPixelShader(string shaderFuncName);
+	void LoadHullShader(string shaderFuncName);
+	void LoadDomainShader(string shaderFuncName);
+	void LoadGeometryShader(string shaderFuncName);
+	void LoadComputeShader(string shaderFuncName);
 
-	ID3D11VertexShader* GetVertexShader(BetterString shaderFuncName);
-	ID3D11PixelShader* GetPixelShader(BetterString shaderFuncName);
-	ID3D11GeometryShader* GetGeometryShader(BetterString shaderFuncName);
-	ID3D11ComputeShader* GetComputeShader(BetterString shaderFuncName);
+	ID3D11VertexShader* GetVertexShader(string shaderFuncName);
+	ID3D11PixelShader* GetPixelShader(string shaderFuncName);
+	ID3D11GeometryShader* GetGeometryShader(string shaderFuncName);
+	ID3D11ComputeShader* GetComputeShader(string shaderFuncName);
 
 	void SetWireframe(bool set) { m_Wireframe = set; }
 	bool IsWireframe() { return m_Wireframe; }
@@ -104,8 +105,8 @@ public:
 	//Locate the current directory the shader is at
 	string LocateDir();
 	
-	ID3D11InputLayout* GetInputLayout(BetterString vertexShaderName);
-	void SetInputLayoutDesc(BetterString vertexShaderName, D3D11_INPUT_ELEMENT_DESC* desc, UINT NumElements);
+	ID3D11InputLayout* GetInputLayout(string vertexShaderName);
+	void SetInputLayoutDesc(string vertexShaderName, D3D11_INPUT_ELEMENT_DESC* desc, UINT NumElements);
 	void SetInputLayoutCreation(bool set) { m_UseInputLayout = set; }
 	void ClearInputLayout();
 	
@@ -119,7 +120,7 @@ protected:
 	bool m_UseOrtho;
 	bool m_UseInputLayout;
 	bool m_Wireframe;
-	BetterString m_filename;
+	string m_filename;
 	D3D* m_pD3DSystem;
 	
 	struct SLayout
@@ -129,6 +130,9 @@ protected:
 		ID3D11InputLayout* m_layout11;
 	};
 	
+	string mCurrentLayoutName;
+	ID3D11InputLayout* m_CurrentLayout11;
+
 	// Lookup key is the name of the vertex shader
 	map<string, SLayout*> m_VertexShaderLayout;
 	
@@ -136,6 +140,11 @@ protected:
 	// HLSL Shaders
 	//
 	
+	string mCurrentVSFuncName;
+	string mCurrentPSFuncName;
+	string mCurrentGSFuncName;
+	string mCurrentCSFuncName;
+
 	VertexShader*   m_pVertexShader;
 	HullShader*     m_pHullShader;
 	DomainShader*   m_pDomainShader;
@@ -144,10 +153,10 @@ protected:
 	ComputeShader*  m_pComputeShader;
 	
 	// Ability to have multiple shaders to switch back and forth from
-	map<BetterString, VertexShader*>   m_VertexShaders;
-	map<BetterString, PixelShader*>    m_PixelShaders;
-	map<BetterString, GeometryShader*> m_GeometryShaders;
-	map<BetterString, ComputeShader*>  m_ComputeShaders;
+	map<string, VertexShader*>   m_VertexShaders;
+	map<string, PixelShader*>    m_PixelShaders;
+	map<string, GeometryShader*> m_GeometryShaders;
+	map<string, ComputeShader*>  m_ComputeShaders;
 };
 }
 //=================================================================================================================

@@ -14,7 +14,6 @@ ModelEnvironment::ModelEnvironment(LPCSTR base_window_name, LPCSTR render_window
 	bEnableShadows = true;
 
 	bEnableDeferredShading = true;
-	bUseDirectionalLightDeferred = true;
 	
 	// Not using any reflections
 	m_CameraSystem->SetRenderReflectionView( false );
@@ -33,7 +32,7 @@ ModelEnvironment::ModelEnvironment(LPCSTR base_window_name, LPCSTR render_window
 	
 	//mp.pos = XMFLOAT3(0, 1, 0);
 	mp.scale = XMFLOAT3(20, 1, 20);
-	mp.material = MaterialManager::Instance()->GetMaterial("Metal");
+	mp.material = MaterialManager::Instance()->GetMaterial("Stone");
 	//mPlane = new ZShadeSandboxMesh::PlaneMesh(200.0f, 0.0f, m_D3DSystem, mp, true);
 	mPlane = new ZShadeSandboxMesh::PlaneMesh(m_D3DSystem, mp, "Models\\plane01.txt");
 	
@@ -81,17 +80,17 @@ ModelEnvironment::ModelEnvironment(LPCSTR base_window_name, LPCSTR render_window
 	// Enable the capsule lights for this scene
 	//ZShadeSandboxLighting::LightManager::Instance()->ToggleCapsuleLights(true);
 	
+	// spaceCompound
 	mSpaceCompound = new ZShadeSandboxMesh::OBJMesh(m_D3DSystem, m_GameDirectory3D);
-	mSpaceCompound->Load("Models//spaceCompound.obj", false, true);
-	mSpaceCompound->Scale() = XMFLOAT3(0.3f, 0.3f, 0.3f);
-	mSpaceCompound->Position() = XMFLOAT3(100, 15, 100);
+	mSpaceCompound->Load("Models//spaceCompound.obj", false, false);
+	mSpaceCompound->Scale(XMFLOAT3(2.3f, 1.3f, 2.3f));
+	mSpaceCompound->Position(XMFLOAT3(100, -1, 100));
 	
+	// MaleLow.obj
 	mHuman = new ZShadeSandboxMesh::OBJMesh(m_D3DSystem, m_GameDirectory3D);
 	mHuman->Load("Models//MaleLow.obj", false, true);
-	mHuman->Scale() = XMFLOAT3(0.3f, 0.3f, 0.3f);
-	mHuman->Position() = XMFLOAT3(50, 15, 50);
-
-	mSky = new Sky(m_D3DSystem, m_GameDirectory3D->m_textures_path, "sky_cube.dds", 1000.0f);
+	mHuman->Scale(XMFLOAT3(0.3f, 0.3f, 0.3f));
+	mHuman->Position(XMFLOAT3(50, 15, 50));
 }
 //===============================================================================================================================
 ModelEnvironment::~ModelEnvironment()
@@ -104,9 +103,9 @@ void ModelEnvironment::RenderShadowMap()
 	mDirLight1->Update();
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
-	mrp.pLightCamera = mDirLight1->Perspective();
-	mrp.bShadowMap = true;
+	mrp.camera = m_CameraSystem.get();
+	mrp.light = mDirLight1;
+	mrp.shadowMap = true;
 
 	mPlane->Render(mrp);
 
@@ -159,8 +158,9 @@ void ModelEnvironment::RenderDeferred()
 	}
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
-	mrp.bRenderDeferred = true;
+	mrp.camera = m_CameraSystem.get();
+	mrp.renderDeferred = true;
+	mrp.light = mDirLight1;
 	
 	mPlane->Render(mrp);
 
@@ -185,30 +185,21 @@ void ModelEnvironment::RenderDeferred()
 	mPickingSphere->Render(mrp);
 	
 	// Render deferred shading on obj mesh
-	ZShadeSandboxMesh::OBJMeshRenderParameters omrp;
-	omrp.camera = m_CameraSystem.get();
-	omrp.renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
-	omrp.bRenderDeferred = true;
-	mSpaceCompound->Render(omrp);
-	mHuman->Render(omrp);
+	//ZShadeSandboxMesh::OBJMeshRenderParameters omrp;
+	//omrp.camera = m_CameraSystem.get();
+	//omrp.renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
+	//omrp.bRenderDeferred = true;
+	mSpaceCompound->Render(mrp);
+	mHuman->Render(mrp);
 
-	bool toggleMesh = true;
-	bool reflect = false;
-	bool renderDeferred = true;
-	ZShadeSandboxLighting::LightManager::Instance()->RenderLightMesh(m_CameraSystem.get(), mDirLight1->Perspective(), toggleMesh, reflect, bWireframeMode, renderDeferred);
-
-	//
-	//Render the sky
-	//
-
-	if (!Quickwire() && !bWireframeMode)
-	{
-		m_D3DSystem->TurnOffCulling();
-		mSky->Render(m_D3DSystem, m_CameraSystem.get(), true);
-		m_D3DSystem->TurnOnZBuffer();
-	}
-
-	m_D3DSystem->TurnOffCulling();
+	ZShadeSandboxLighting::LightRenderParameters lrp;
+	lrp.camera = m_CameraSystem.get();
+	lrp.clipplane = XMFLOAT4(0, 0, 0, 0);
+	lrp.reflect = false;
+	lrp.renderDeferred = true;
+	lrp.toggleMesh = true;
+	lrp.toggleWireframe = bWireframeMode;
+	ZShadeSandboxLighting::DeferredShaderManager::Instance()->RenderLightMesh(lrp);
 }
 //===============================================================================================================================
 bool ModelEnvironment::Initialize()
@@ -277,62 +268,159 @@ void ModelEnvironment::Update()
 	mDirLight1->Direction() = XMFLOAT3(lightDirX, dir.y, dir.z);*/
 
 	XMFLOAT3 eye = m_CameraSystem->Position();
-	XMFLOAT3 DirLightPos = mDirLight1->Position();
-	
+	XMFLOAT3 Dir1LightPos = mDirLight1->Position();
+	XMFLOAT3 Dir2LightPos = mDirLight2->Position();
+	XMFLOAT3 Dir3LightPos = mDirLight3->Position();
+	XMFLOAT3 PointLightPos = mPointLight->Position();
+	XMFLOAT3 CapsuleLightPos = mCapsuleLight->Position();
+	XMFLOAT3 SpotLightPos = mSpotLight1->Position();
+
 	if (keyboard->IsKeyDown(Keyboard::Key::Up))
 	{
 		mDirLight1->Direction().x += 0.01f;
-		mDirLight1->UpdateMeshPosition(XMFLOAT3(DirLightPos.x + 0.01f, DirLightPos.y, DirLightPos.z));
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x + 0.01f, Dir1LightPos.y, Dir1LightPos.z));
+
+		mDirLight2->Direction().x += 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x + 0.01f, Dir2LightPos.y, Dir2LightPos.z));
+
+		mDirLight3->Direction().x += 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x + 0.01f, Dir3LightPos.y, Dir3LightPos.z));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x + 0.01f, PointLightPos.y, PointLightPos.z));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x + 0.01f, CapsuleLightPos.y, CapsuleLightPos.z));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x + 0.01f, SpotLightPos.y, SpotLightPos.z));
 	}
 	if (keyboard->IsKeyDown(Keyboard::Key::Down))
 	{
 		mDirLight1->Direction().x -= 0.01f;
-		mDirLight1->UpdateMeshPosition(XMFLOAT3(DirLightPos.x - 0.01f, DirLightPos.y, DirLightPos.z));
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x - 0.01f, Dir1LightPos.y, Dir1LightPos.z));
+
+		mDirLight2->Direction().x -= 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x - 0.01f, Dir2LightPos.y, Dir2LightPos.z));
+
+		mDirLight3->Direction().x -= 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x - 0.01f, Dir3LightPos.y, Dir3LightPos.z));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x - 0.01f, PointLightPos.y, PointLightPos.z));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x - 0.01f, CapsuleLightPos.y, CapsuleLightPos.z));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x - 0.01f, SpotLightPos.y, SpotLightPos.z));
 	}
 	if (keyboard->IsKeyDown(Keyboard::Key::Left))
 	{
 		mDirLight1->Direction().z += 0.01f;
-		mDirLight1->UpdateMeshPosition(XMFLOAT3(DirLightPos.x, DirLightPos.y, DirLightPos.z + 0.01f));
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x, Dir1LightPos.y, Dir1LightPos.z + 0.01f));
+
+		mDirLight2->Direction().z += 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x, Dir2LightPos.y, Dir2LightPos.z + 0.01f));
+
+		mDirLight3->Direction().z += 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x, Dir3LightPos.y, Dir3LightPos.z + 0.01f));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x, PointLightPos.y, PointLightPos.z + 0.01f));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x, CapsuleLightPos.y, CapsuleLightPos.z + 0.01f));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x, SpotLightPos.y, SpotLightPos.z + 0.01f));
 	}
 	if (keyboard->IsKeyDown(Keyboard::Key::Right))
 	{
 		mDirLight1->Direction().x -= 0.01f;
-		mDirLight1->UpdateMeshPosition(XMFLOAT3(DirLightPos.x, DirLightPos.y, DirLightPos.z - 0.01f));
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x, Dir1LightPos.y, Dir1LightPos.z - 0.01f));
+
+		mDirLight2->Direction().x -= 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x, Dir2LightPos.y, Dir2LightPos.z - 0.01f));
+
+		mDirLight3->Direction().x -= 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x, Dir3LightPos.y, Dir3LightPos.z - 0.01f));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x, PointLightPos.y, PointLightPos.z - 0.01f));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x, CapsuleLightPos.y, CapsuleLightPos.z - 0.01f));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x, SpotLightPos.y, SpotLightPos.z - 0.01f));
 	}
 	if (keyboard->IsKeyDown(Keyboard::Key::E))
 	{
 		mDirLight1->Direction().y += 0.01f;
-		mDirLight1->UpdateMeshPosition(XMFLOAT3(DirLightPos.x, DirLightPos.y + 0.01f, DirLightPos.z));
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x, Dir1LightPos.y + 0.01f, Dir1LightPos.z));
+
+		mDirLight2->Direction().y += 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x, Dir2LightPos.y + 0.01f, Dir2LightPos.z));
+
+		mDirLight3->Direction().y += 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x, Dir3LightPos.y + 0.01f, Dir3LightPos.z));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x, PointLightPos.y + 0.01f, PointLightPos.z));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x, CapsuleLightPos.y + 0.01f, CapsuleLightPos.z));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x, SpotLightPos.y + 0.01f, SpotLightPos.z));
 	}
 	if (keyboard->IsKeyDown(Keyboard::Key::R))
 	{
 		mDirLight1->Direction().y -= 0.01f;
-		mDirLight1->UpdateMeshPosition(XMFLOAT3(DirLightPos.x, DirLightPos.y - 0.01f, DirLightPos.z));
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x, Dir1LightPos.y - 0.01f, Dir1LightPos.z));
+
+		mDirLight2->Direction().y -= 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x, Dir2LightPos.y - 0.01f, Dir2LightPos.z));
+
+		mDirLight3->Direction().y -= 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x, Dir3LightPos.y - 0.01f, Dir3LightPos.z));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x, PointLightPos.y - 0.01f, PointLightPos.z));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x, CapsuleLightPos.y - 0.01f, CapsuleLightPos.z));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x, SpotLightPos.y - 0.01f, SpotLightPos.z));
 	}
 
 	mSpaceCompound->SetWireframe(bWireframeMode);
 	mHuman->SetWireframe(bWireframeMode);
+
+	mSpaceCompound->SetFarPlane(m_EngineOptions->fFarPlane);
+	mHuman->SetFarPlane(m_EngineOptions->fFarPlane);
+	
+	//// OBJ Mesh Collision test with camera
+	//bool touchedAABB = false;
+	//bool touchedSphere = false;
+	//
+	//if (mSpaceCompound->IntersectsAABB(eye))
+	//{
+	//	touchedAABB = true;
+	//}
+	//
+	//if (mHuman->IntersectsAABB(eye))
+	//{
+	//	touchedAABB = true;
+	//}
+	//
+	///*if (mSpaceCompound->IntersectsSphere(eye))
+	//{
+	//	touchedSphere = true;
+	//}
+	//
+	//if (mHuman->IntersectsSphere(eye))
+	//{
+	//	touchedSphere = true;
+	//}*/
+	//
+	//bToggleGBufferDebugging = touchedAABB;// && touchedSphere;
+
+	// If the camera touched an OBJ Mesh then render everything in wireframe mode
+	//bWireframeMode = touchedAABB && touchedSphere;
 }
 //===============================================================================================================================
 void ModelEnvironment::Render()
 {
-	// If there are any lights in the scene capture them
-	ZShadeSandboxLighting::LightManager::Instance()->RebuildLightBuffer(mAmbientUp, mAmbientDown);
-	ZShadeSandboxLighting::LightManager::Instance()->RebuildSunBuffer(*mSunLightBuffer);
+	//// If there are any lights in the scene capture them
+	//ZShadeSandboxLighting::LightManager::Instance()->RebuildLightBuffer(mAmbientUp, mAmbientDown);
+	//ZShadeSandboxLighting::LightManager::Instance()->RebuildSunBuffer(*mSunLightBuffer);
 
-	// Add the light buffers to the mesh system
-	mPlane->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mPlane->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//// Add the light buffers to the mesh system
+	//mPlane->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mPlane->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
-	vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
-	for (; it != m_SpawnedMeshContainer.end(); it++)
-	{
-		(*it)->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-		(*it)->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
-	}
+	//vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
+	//for (; it != m_SpawnedMeshContainer.end(); it++)
+	//{
+	//	(*it)->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//	(*it)->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//}
 
-	mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
 	// Mouse Picking
 	XMMATRIX world = XMMatrixIdentity();
@@ -387,9 +475,8 @@ void ModelEnvironment::Render()
 bool ModelEnvironment::RenderScene()
 {
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
-	mrp.pLightCamera = mDirLight1->Perspective();
-	mrp.dirLight = mDirLight1;
+	mrp.camera = m_CameraSystem.get();
+	mrp.light = mDirLight1;
 	
 	vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
 	for (; it != m_SpawnedMeshContainer.end(); it++)
@@ -431,29 +518,39 @@ bool ModelEnvironment::RenderScene()
 	mPickingSphere->SetSSAOMapSRV(0);
 	mPickingSphere->Render(mrp);
 	
-	ZShadeSandboxMesh::OBJMeshRenderParameters omrp;
-	omrp.camera = m_CameraSystem.get();
-	omrp.renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
-	omrp.tessellate = false;
-	mSpaceCompound->Render(omrp);
-	mHuman->Render(omrp);
+	//ZShadeSandboxMesh::OBJMeshRenderParameters omrp;
+	//omrp.camera = m_CameraSystem.get();
+	//omrp.renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
+	//omrp.renderType = ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList;
+	//omrp.maxTess = 64.0f;
+	//omrp.minTess = 0.0f;
+	//omrp.maxTessDist = 500.0f;
+	//omrp.minTessDist = 20.0f;
+	//omrp.tessellate = true;
+	mSpaceCompound->Render(mrp);
+	mHuman->Render(mrp);
 	
-	bool toggleMesh = true;
-	bool reflect = false;
-	bool renderDeferred = false;
-	ZShadeSandboxLighting::LightManager::Instance()->RenderLightMesh(m_CameraSystem.get(), mDirLight1->Perspective(), toggleMesh, reflect, bWireframeMode, renderDeferred);
-
-	//
-	//Render the sky
-	//
-
-	if (!Quickwire() && !bWireframeMode)
+	if (bEnableDeferredShading)
 	{
-		m_D3DSystem->TurnOffCulling();
-
-		mSky->Render(m_D3DSystem, m_CameraSystem.get(), false);
-
-		m_D3DSystem->TurnOnZBuffer();
+		ZShadeSandboxLighting::LightRenderParameters lrp;
+		lrp.camera = m_CameraSystem.get();
+		lrp.clipplane = XMFLOAT4(0, 0, 0, 0);
+		lrp.reflect = false;
+		lrp.renderDeferred = false;
+		lrp.toggleMesh = true;
+		lrp.toggleWireframe = bWireframeMode;
+		ZShadeSandboxLighting::DeferredShaderManager::Instance()->RenderLightMesh(lrp);
+	}
+	else
+	{
+		ZShadeSandboxLighting::LightRenderParameters lrp;
+		lrp.camera = m_CameraSystem.get();
+		lrp.clipplane = XMFLOAT4(0, 0, 0, 0);
+		lrp.reflect = false;
+		lrp.renderDeferred = false;
+		lrp.toggleMesh = true;
+		lrp.toggleWireframe = bWireframeMode;
+		ZShadeSandboxLighting::LightManager::Instance()->RenderLightMesh(lrp);
 	}
 
 	return true;

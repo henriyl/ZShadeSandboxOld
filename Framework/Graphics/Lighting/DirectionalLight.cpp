@@ -17,8 +17,8 @@ ZShadeSandboxLighting::Light* DirectionalLight::Clone()
 	light->SpecularColor() = mSpecularColor;
 	light->Position() = mPosition;
 	light->Direction() = mDirection;
-	light->ToggleSphereMesh() = bToggleSphereMesh;
-	light->ToggleSphereMeshWireframe() = bToggleSphereMeshWireframe;
+	light->Intensity() = fIntensity;
+	light->ToggleLight() = bToggleLight;
 
 	// Need to clone the mesh
 	//light->SetMesh((ZShadeSandboxMesh::SphereMesh*)mMesh->Clone());

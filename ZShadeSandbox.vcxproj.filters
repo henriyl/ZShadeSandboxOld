@@ -272,6 +272,12 @@
     <Filter Include="Framework\Shaders\Environment\Lighting\DeferredShading">
       <UniqueIdentifier>{05ede003-c3db-416f-8117-cddce487a7ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Framework\Shaders\Environment\Lighting\Radiosity">
+      <UniqueIdentifier>{34b0d416-49f5-4186-8967-ba4b57b4c844}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Shaders\Environment\Lighting\GBuffer">
+      <UniqueIdentifier>{14845333-e4d7-4c4a-87b9-c092d2c766d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -986,9 +992,6 @@
     <ClCompile Include="Framework\Shaders\Basic\FontShader.cpp">
       <Filter>Framework\Shaders\Basic</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Shaders\Basic\LightShader.cpp">
-      <Filter>Framework\Shaders\Basic</Filter>
-    </ClCompile>
     <ClCompile Include="Framework\Shaders\Basic\MaterialShader.cpp">
       <Filter>Framework\Shaders\Basic</Filter>
     </ClCompile>
@@ -1001,20 +1004,11 @@
     <ClCompile Include="Framework\Shaders\Basic\TextureShader.cpp">
       <Filter>Framework\Shaders\Basic</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Shaders\BasicTessellation\QuadMaterialTessellationShader.cpp">
-      <Filter>Framework\Shaders\BasicTessellation</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Shaders\BasicTessellation\TriMaterialTessellationShader.cpp">
-      <Filter>Framework\Shaders\BasicTessellation</Filter>
-    </ClCompile>
     <ClCompile Include="Framework\Shaders\Environment\Lighting\ShadowMapBuildShader.cpp">
       <Filter>Framework\Shaders\Environment\Lighting</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Shaders\Environment\BlurShader.cpp">
       <Filter>Framework\Shaders\Environment</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshShader.cpp">
-      <Filter>Framework\Shaders\Mesh\OBJMesh</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Shaders\Water\WaterShader.cpp">
       <Filter>Framework\Shaders\Water</Filter>
@@ -1214,9 +1208,6 @@
     <ClCompile Include="Framework\General\Animation3D\TextureAnimation3D.cpp">
       <Filter>Framework\General\Animation3D</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\DeferredShader.cpp">
-      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
-    </ClCompile>
     <ClCompile Include="Framework\Graphics\PostProcessing\PostProcessColor.cpp">
       <Filter>Framework\Graphics\PostProcessing</Filter>
     </ClCompile>
@@ -1229,9 +1220,6 @@
     <ClCompile Include="Framework\Graphics\D3D\GBuffer.cpp">
       <Filter>Framework\Graphics\D3D</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJDeferredShader.cpp">
-      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
-    </ClCompile>
     <ClCompile Include="Framework\Game\Environment\Environment3D\IndoorEnvironment.cpp">
       <Filter>Framework\Game\Environment\Environment3D</Filter>
     </ClCompile>
@@ -1240,6 +1228,54 @@
     </ClCompile>
     <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\PointLightDeferredShader.cpp">
       <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Ocean\OceanHeightfield.cpp">
+      <Filter>Framework\Graphics\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Ocean\OceanPatchTree.cpp">
+      <Filter>Framework\Graphics\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Ocean\OceanSurface.cpp">
+      <Filter>Framework\Graphics\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\Ocean\OceanSurfaceShader.cpp">
+      <Filter>Framework\Shaders\Ocean</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\MaterialGBufferShader.cpp">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Lighting\DeferredShading\DeferredShaderManager.cpp">
+      <Filter>Framework\Graphics\Lighting\DeferredShading</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\AmbientLightDeferredShader.cpp">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\CapsuleLightDeferredShader.cpp">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJGBufferShader.cpp">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\SpotLightDeferredShader.cpp">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshShader.cpp">
+      <Filter>Framework\Shaders\Mesh\OBJMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\Basic\MaterialLightShader.cpp">
+      <Filter>Framework\Shaders\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\BasicTessellation\MaterialTessellationShader.cpp">
+      <Filter>Framework\Shaders\BasicTessellation</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\BasicTessellation\MaterialLightTessellationShader.cpp">
+      <Filter>Framework\Shaders\BasicTessellation</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\DebugGBufferDeferredShader.cpp">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Mesh\MeshAttributes.cpp">
+      <Filter>Framework\Graphics\Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2121,9 +2157,6 @@
     <ClInclude Include="Framework\Graphics\Mesh\CustomMesh\TriangleMesh.h">
       <Filter>Framework\Graphics\Mesh\CustomMesh</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Graphics\Mesh\OBJMesh\OBJMeshSurfaceMaterial.h">
-      <Filter>Framework\Graphics\Mesh\OBJMesh</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Graphics\Mesh\MeshRenderType.h">
       <Filter>Framework\Graphics\Mesh</Filter>
     </ClInclude>
@@ -2134,9 +2167,6 @@
       <Filter>Framework\Shaders\Basic</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Shaders\Basic\FontShader.h">
-      <Filter>Framework\Shaders\Basic</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Shaders\Basic\LightShader.h">
       <Filter>Framework\Shaders\Basic</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Shaders\Basic\MaterialShader.h">
@@ -2154,20 +2184,11 @@
     <ClInclude Include="Framework\Shaders\Basic\TextureShader.h">
       <Filter>Framework\Shaders\Basic</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Shaders\BasicTessellation\QuadMaterialTessellationShader.h">
-      <Filter>Framework\Shaders\BasicTessellation</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Shaders\BasicTessellation\TriMaterialTessellationShader.h">
-      <Filter>Framework\Shaders\BasicTessellation</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Shaders\Environment\Lighting\ShadowMapBuildShader.h">
       <Filter>Framework\Shaders\Environment\Lighting</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Shaders\Environment\BlurShader.h">
       <Filter>Framework\Shaders\Environment</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshShader.h">
-      <Filter>Framework\Shaders\Mesh\OBJMesh</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Shaders\Water\WaterShader.h">
       <Filter>Framework\Shaders\Water</Filter>
@@ -2337,9 +2358,6 @@
     <ClInclude Include="Framework\General\Animation3D\TextureAnimation3D.h">
       <Filter>Framework\General\Animation3D</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\DeferredShader.h">
-      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Graphics\PostProcessing\PostProcessColor.h">
       <Filter>Framework\Graphics\PostProcessing</Filter>
     </ClInclude>
@@ -2352,9 +2370,6 @@
     <ClInclude Include="Framework\Graphics\D3D\GBuffer.h">
       <Filter>Framework\Graphics\D3D</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJDeferredShader.h">
-      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Game\Environment\Environment3D\IndoorEnvironment.h">
       <Filter>Framework\Game\Environment\Environment3D</Filter>
     </ClInclude>
@@ -2363,6 +2378,63 @@
     </ClInclude>
     <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\PointLightDeferredShader.h">
       <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Ocean\OceanHeightfield.h">
+      <Filter>Framework\Graphics\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Ocean\OceanParameters.h">
+      <Filter>Framework\Graphics\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Ocean\OceanPatch.h">
+      <Filter>Framework\Graphics\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Ocean\OceanPatchTree.h">
+      <Filter>Framework\Graphics\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Ocean\OceanSurface.h">
+      <Filter>Framework\Graphics\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\Ocean\OceanSurfaceShader.h">
+      <Filter>Framework\Shaders\Ocean</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\MaterialGBufferShader.h">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Lighting\DeferredShading\DeferredShaderManager.h">
+      <Filter>Framework\Graphics\Lighting\DeferredShading</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\AmbientLightDeferredShader.h">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\CapsuleLightDeferredShader.h">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJGBufferShader.h">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\SpotLightDeferredShader.h">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshShader.h">
+      <Filter>Framework\Shaders\Mesh\OBJMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\Basic\MaterialLightShader.h">
+      <Filter>Framework\Shaders\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Mesh\MeshRenderParameters.h">
+      <Filter>Framework\Graphics\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\BasicTessellation\MaterialTessellationShader.h">
+      <Filter>Framework\Shaders\BasicTessellation</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\BasicTessellation\MaterialLightTessellationShader.h">
+      <Filter>Framework\Shaders\BasicTessellation</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\DebugGBufferDeferredShader.h">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Mesh\MeshAttributes.h">
+      <Filter>Framework\Graphics\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2386,5 +2458,82 @@
     <ResourceCompile Include="bin\ZShadeSandbox.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Framework\Shaders\Mesh\OBJMesh\OBJMesh.hlsl">
+      <Filter>Framework\Shaders\Mesh\OBJMesh</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshTessellation.hlsl">
+      <Filter>Framework\Shaders\Mesh\OBJMesh</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\CapsuleLightDeferred.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\ClearGBuffer.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\DirectionalLightDeferred.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\MaterialGBuffer.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJGBuffer.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\PointLightDeferred.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\SpotLightDeferred.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\UnpackGBuffer.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\AmbientLightDeferred.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\Lighting.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\ShadowMap.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\AtmosphericFog.hlsl">
+      <Filter>Framework\Shaders\Environment</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Blur.hlsl">
+      <Filter>Framework\Shaders\Environment</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\CSDesaturation.hlsl">
+      <Filter>Framework\Shaders\Basic</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\MaterialShader.hlsl">
+      <Filter>Framework\Shaders\Basic</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\Sprite.hlsl">
+      <Filter>Framework\Shaders\Basic</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\Texture.hlsl">
+      <Filter>Framework\Shaders\Basic</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\BasicTessellation\QuadMaterialTessellation.hlsl">
+      <Filter>Framework\Shaders\BasicTessellation</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\BasicTessellation\TriMaterialTessellation.hlsl">
+      <Filter>Framework\Shaders\BasicTessellation</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\MaterialLightShader.hlsl">
+      <Filter>Framework\Shaders\Basic</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\BasicTessellation\QuadMaterialLightTessellation.hlsl">
+      <Filter>Framework\Shaders\BasicTessellation</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\BasicTessellation\TriMaterialLightTessellation.hlsl">
+      <Filter>Framework\Shaders\BasicTessellation</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\DebugGBufferDeferred.hlsl">
+      <Filter>Framework\Shaders\Environment\Lighting\DeferredShading</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

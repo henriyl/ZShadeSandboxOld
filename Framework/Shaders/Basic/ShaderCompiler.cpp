@@ -61,15 +61,6 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	Compile(d3d, "Environment\\Lighting\\ShadowMap.hlsl", "ShadowMapBuilderVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Environment\\Lighting\\ShadowMap.hlsl", "ShadowMapBuilderPS", EShaderTypes::ST_PIXEL);
 	
-	// ==================================== Compile the Color Shader
-	//Compile(d3d, "Basic\\Color.hlsl", "colorVertexShader", EShaderTypes::ST_VERTEX);
-	//Compile(d3d, "Basic\\Color.hlsl", "colorPixelShader", EShaderTypes::ST_PIXEL);
-	
-	// ==================================== Compile the Light Shader
-	Compile(d3d, "Basic\\LightShader.hlsl", "LightShaderVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Basic\\LightShader.hlsl", "LightShaderPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Basic\\LightShader.hlsl", "LightShaderWireframePS", EShaderTypes::ST_PIXEL);
-
 	// ==================================== Compile the Texture Shader
 	Compile(d3d, "Basic\\Texture.hlsl", "textureVertexShader", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Basic\\Texture.hlsl", "texturePixelShader", EShaderTypes::ST_PIXEL);
@@ -80,57 +71,43 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	Compile(d3d, "Basic\\MaterialShader.hlsl", "MaterialShaderPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Basic\\MaterialShader.hlsl", "MaterialShaderWireframePS", EShaderTypes::ST_PIXEL);
 	
-	// ==================================== Compile the Transparent Shader
-	//Compile(d3d, "Basic\\Transparent.hlsl", "transparentVertexShader", EShaderTypes::ST_VERTEX);
-	//Compile(d3d, "Basic\\Transparent.hlsl", "transparentPixelShader", EShaderTypes::ST_PIXEL);
-	//Compile(d3d, "Basic\\Transparent.hlsl", "transparentWireframePS", EShaderTypes::ST_PIXEL);
+	// ==================================== Compile the Material Light Shader
+	Compile(d3d, "Basic\\MaterialLightShader.hlsl", "MaterialLightVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Basic\\MaterialLightShader.hlsl", "MaterialLightPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Basic\\MaterialLightShader.hlsl", "MaterialLightWireframePS", EShaderTypes::ST_PIXEL);
 
 	// ==================================== Compile the sprite gui shader
 	Compile(d3d, "Basic\\Sprite.hlsl", "SpriteVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Basic\\Sprite.hlsl", "SpriteInstancedVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Basic\\Sprite.hlsl", "SpritePS", EShaderTypes::ST_PIXEL);
 
-	// ==================================== Compile the Position Normal Texture Tangent Shader
-	//Compile(d3d, "Basic\\PosNormalTexTan.hlsl", "PNTT_VS", EShaderTypes::ST_VERTEX);
-	//Compile(d3d, "Basic\\PosNormalTexTan.hlsl", "PNTT_PS", EShaderTypes::ST_PIXEL);
-	//Compile(d3d, "Basic\\PosNormalTexTan.hlsl", "PNTTWireframePS", EShaderTypes::ST_PIXEL);
-
 	// ==================================== Compile the Desaturation Compute Shader
 	Compile(d3d, "Basic\\CSDesaturation.hlsl", "main", EShaderTypes::ST_COMPUTE);
 	
-	// ==================================== Compile the Tessellation Color Shader
-	/*Compile(d3d, "BasicTessellation\\TessellationColorVS.hlsl", "TessellationColorVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "BasicTessellation\\TessellationColorPS.hlsl", "TessellationColorPS", EShaderTypes::ST_PIXEL);
-	
-	// ==================================== Compile the Tessellation Texture Shader
-	Compile(d3d, "BasicTessellation\\TessellationTextureVS.hlsl", "TessellationTextureVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "BasicTessellation\\TessellationTexturePS.hlsl", "TessellationTexturePS", EShaderTypes::ST_PIXEL);
-	
-	// ==================================== Compile the Tessellation Quad Color Shader
-	Compile(d3d, "BasicTessellation\\TessellationQuadColorHS.hlsl", "TessellationQuadColorHS", EShaderTypes::ST_HULL);
-	Compile(d3d, "BasicTessellation\\TessellationQuadColorDS.hlsl", "TessellationQuadColorDS", EShaderTypes::ST_DOMAIN);
-	
-	// ==================================== Compile the Tessellation Quad Texture Shader
-	Compile(d3d, "BasicTessellation\\TessellationQuadTextureHS.hlsl", "TessellationQuadTextureHS", EShaderTypes::ST_HULL);
-	Compile(d3d, "BasicTessellation\\TessellationQuadTextureDS.hlsl", "TessellationQuadTextureDS", EShaderTypes::ST_DOMAIN);
-	
-	// ==================================== Compile the Tessellation Tri Color Shader
-	Compile(d3d, "BasicTessellation\\TessellationTriColorHS.hlsl", "TessellationTriColorHS", EShaderTypes::ST_HULL);
-	Compile(d3d, "BasicTessellation\\TessellationTriColorDS.hlsl", "TessellationTriColorDS", EShaderTypes::ST_DOMAIN);
-	
-	// ==================================== Compile the Tessellation Tri Texture Shader
-	Compile(d3d, "BasicTessellation\\TessellationTriTextureHS.hlsl", "TessellationTriTextureHS", EShaderTypes::ST_HULL);
-	Compile(d3d, "BasicTessellation\\TessellationTriTextureDS.hlsl", "TessellationTriTextureDS", EShaderTypes::ST_DOMAIN);
-	*/
-
 	// ==================================== Compile the Material Tessellation Shader
-	Compile(d3d, "BasicTessellation\\MaterialTessellationShaderVS.hlsl", "MaterialTessellationShaderVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "BasicTessellation\\MaterialTessellationShaderPS.hlsl", "MaterialTessellationShaderPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "BasicTessellation\\MaterialTessellationShaderPS.hlsl", "MaterialTessellationShaderWireframePS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "BasicTessellation\\QuadMaterialTessellationShaderHS.hlsl", "QuadMaterialTessellationShaderHS", EShaderTypes::ST_HULL);
-	Compile(d3d, "BasicTessellation\\QuadMaterialTessellationShaderDS.hlsl", "QuadMaterialTessellationShaderDS", EShaderTypes::ST_DOMAIN);
-	Compile(d3d, "BasicTessellation\\TriMaterialTessellationShaderHS.hlsl", "TriMaterialTessellationShaderHS", EShaderTypes::ST_HULL);
-	Compile(d3d, "BasicTessellation\\TriMaterialTessellationShaderDS.hlsl", "TriMaterialTessellationShaderDS", EShaderTypes::ST_DOMAIN);
+	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationHS", EShaderTypes::ST_HULL);
+	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationDS", EShaderTypes::ST_DOMAIN);
+	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationWireframePS", EShaderTypes::ST_PIXEL);
+	
+	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationHS", EShaderTypes::ST_HULL);
+	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationDS", EShaderTypes::ST_DOMAIN);
+	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationWireframePS", EShaderTypes::ST_PIXEL);
+	
+	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationHS", EShaderTypes::ST_HULL);
+	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationDS", EShaderTypes::ST_DOMAIN);
+	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationWireframePS", EShaderTypes::ST_PIXEL);
+
+	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationHS", EShaderTypes::ST_HULL);
+	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationDS", EShaderTypes::ST_DOMAIN);
+	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationWireframePS", EShaderTypes::ST_PIXEL);
 
 	// ==================================== Compile the Ocean Shaders
 	//Compile(d3d, "Ocean\\OceanFFTCS.hlsl", "Radix008A_CS", EShaderTypes::ST_COMPUTE);
@@ -174,10 +151,7 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	Compile(d3d, "Sky\\Sky.hlsl", "SkyVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Sky\\Sky.hlsl", "SkyPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Sky\\Sky.hlsl", "SkyWireframePS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Sky\\Sky.hlsl", "DeferredSkyVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Sky\\Sky.hlsl", "DeferredSkyPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Sky\\Sky.hlsl", "DeferredSkyWireframePS", EShaderTypes::ST_PIXEL);
-	
+
 	// ==================================== Compile the SkyPlane Shader
 	Compile(d3d, "Sky\\SkyPlane.hlsl", "skyPlaneVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Sky\\SkyPlane.hlsl", "skyPlanePS", EShaderTypes::ST_PIXEL);
@@ -208,11 +182,11 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	Compile(d3d, "Mesh\\OBJMesh\\OBJMesh.hlsl", "OBJMeshWireframePS", EShaderTypes::ST_PIXEL);
 	
 	// ==================================== Compile the OBJ Mesh Tessellation Shader
-	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellationVS.hlsl", "OBJMeshTessellationVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellationHS.hlsl", "OBJMeshTessellationHS", EShaderTypes::ST_HULL);
-	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellationDS.hlsl", "OBJMeshTessellationDS", EShaderTypes::ST_DOMAIN);
-	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellationPS.hlsl", "OBJMeshTessellationPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellationPS.hlsl", "OBJMeshTessellationWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellation.hlsl", "OBJMeshTessellationVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellation.hlsl", "OBJMeshTessellationHS", EShaderTypes::ST_HULL);
+	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellation.hlsl", "OBJMeshTessellationDS", EShaderTypes::ST_DOMAIN);
+	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellation.hlsl", "OBJMeshTessellationPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Mesh\\OBJMesh\\OBJMeshTessellation.hlsl", "OBJMeshTessellationWireframePS", EShaderTypes::ST_PIXEL);
 	
 	// ==================================== Compile the Grass Shader
 	
@@ -220,18 +194,31 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	// ==================================== Compile the Deferred Shader
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\ClearGBuffer.hlsl", "ClearGBufferVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\ClearGBuffer.hlsl", "ClearGBufferPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DeferredShader.hlsl", "DeferredShaderVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DeferredShader.hlsl", "DeferredShaderVS2", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DeferredShader.hlsl", "DeferredShaderPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DeferredShader.hlsl", "DeferredShaderWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\MaterialGBuffer.hlsl", "MaterialGBufferVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\MaterialGBuffer.hlsl", "MaterialGBufferPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\MaterialGBuffer.hlsl", "MaterialGBufferWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\AmbientLightDeferred.hlsl", "AmbientLightDeferredVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\AmbientLightDeferred.hlsl", "AmbientLightDeferredPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\AmbientLightDeferred.hlsl", "AmbientLightDeferredWireframePS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DirectionalLightDeferred.hlsl", "DirectionalLightDeferredVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DirectionalLightDeferred.hlsl", "DirectionalLightDeferredPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DirectionalLightDeferred.hlsl", "DirectionalLightDeferredWireframePS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\PointLightDeferred.hlsl", "PointLightDeferredVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\PointLightDeferred.hlsl", "PointLightDeferredHS", EShaderTypes::ST_HULL);
-	Compile(d3d, "Environment\\Lighting\\DeferredShading\\PointLightDeferred.hlsl", "PointLightDeferredDS", EShaderTypes::ST_DOMAIN);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\PointLightDeferred.hlsl", "PointLightDeferredPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\DeferredShading\\PointLightDeferred.hlsl", "PointLightDeferredWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\CapsuleLightDeferred.hlsl", "CapsuleLightDeferredVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\CapsuleLightDeferred.hlsl", "CapsuleLightDeferredPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\CapsuleLightDeferred.hlsl", "CapsuleLightDeferredWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\SpotLightDeferred.hlsl", "SpotLightDeferredVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\SpotLightDeferred.hlsl", "SpotLightDeferredPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\SpotLightDeferred.hlsl", "SpotLightDeferredWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\OBJGBuffer.hlsl", "OBJGBufferVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\OBJGBuffer.hlsl", "OBJGBufferPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\OBJGBuffer.hlsl", "OBJGBufferWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DebugGBufferDeferred.hlsl", "DebugGBufferDeferredVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DebugGBufferDeferred.hlsl", "DebugGBufferDeferredPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DebugGBufferDeferred.hlsl", "DebugGBufferDepthDeferredPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Environment\\Lighting\\DeferredShading\\DebugGBufferDeferred.hlsl", "DebugGBufferDeferredWireframePS", EShaderTypes::ST_PIXEL);
 	
 	// ==================================== Compile the Environment Blur Shader 
 	Compile(d3d, "Environment\\Blur.hlsl", "HorizontalBlurVS", EShaderTypes::ST_VERTEX);

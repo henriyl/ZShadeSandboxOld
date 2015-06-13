@@ -18,7 +18,7 @@ void InfinitePlane::SetWireframe(float wire)
 //===============================================================================================================================
 void InfinitePlane::Render(ZShadeSandboxMesh::MeshRenderParameters mrp)
 {
-	XMFLOAT3 eye = mrp.pCamera->Position();
+	XMFLOAT3 eye = mrp.camera->Position();
 	
 	XMMATRIX world, scale, translate;
 	
@@ -29,7 +29,7 @@ void InfinitePlane::Render(ZShadeSandboxMesh::MeshRenderParameters mrp)
 	world = XMMatrixMultiply( mWorld, scale );
 	world = XMMatrixMultiply( world, translate );
 	
-	mrp.bSpecifyWorld = true;
+	mrp.specifyWorld = true;
 	mrp.world = world;
 	
 	mMesh->Render(mrp);

@@ -126,7 +126,7 @@ void Particle::Render(Camera* camera)
 	if (Dead()) return;
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = camera;
+	mrp.camera = camera;
 	//mrp.blendAmount = m_blendAmount;
 
 	// Need to be able to generate color vertices in a mesh class, currently it just generates texture vertices

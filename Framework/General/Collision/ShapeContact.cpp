@@ -975,6 +975,19 @@ bool ShapeContact::SphereIntersectsTriangle(ZShadeSandboxMath::SpherePrimitive s
 	return SphereIntersectsTriangle(sphere, tri.Point1(), tri.Point2(), tri.Point3());
 }
 //==================================================================================================================================
+bool ShapeContact::SphereIntersectsPoint(ZShadeSandboxMath::SpherePrimitive sphere, ZShadeSandboxMath::XMMath3 point)
+{
+	ZShadeSandboxMath::XMMath3 center(sphere.Center());
+	float radius = sphere.Radius();
+	
+	float distance = point.DistanceSquared(center);
+	
+	if (distance <= SQR(radius))
+		return true;
+	
+	return false;
+}
+//==================================================================================================================================
 bool ShapeContact::SphereIntersectsTriangle(ZShadeSandboxMath::SpherePrimitive sphere, ZShadeSandboxMath::XMMath3 vertex1, ZShadeSandboxMath::XMMath3 vertex2, ZShadeSandboxMath::XMMath3 vertex3)
 {
 	ZShadeSandboxMath::XMMath3 center(sphere.Center());

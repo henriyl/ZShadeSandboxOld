@@ -104,14 +104,14 @@ void TessellationEnvironment::Render()
 	}
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem.get();
 	
 	//
 	// Render the tessellated quad
 	//
 	
-	mrp.bTessellate = true;
-	mrp.fTessellationFactor = fTessFactor;
+	mrp.tessellate = true;
+	//mrp.fTessellationFactor = fTessFactor;
 	mrp.renderType = ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList;
 	mTessellatedQuad->Render(mrp);
 	
@@ -132,7 +132,7 @@ void TessellationEnvironment::Render()
 	// Render the regular quad
 	//
 	
-	mrp.bTessellate = false;
+	mrp.tessellate = false;
 	mrp.renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
 	mRegularQuad->Render(mrp);
 

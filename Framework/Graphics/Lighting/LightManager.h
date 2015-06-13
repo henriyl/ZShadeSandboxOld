@@ -18,11 +18,6 @@
 #include "D3D.h"
 #include "Light.h"
 
-namespace ZShadeSandboxLighting {
-	struct LightBuffer;
-	struct SunLightBuffer;
-}
-
 //==============================================================================================================================
 //==============================================================================================================================
 
@@ -46,6 +41,11 @@ namespace ZShadeSandboxLighting {
 	class DirectionalLight;
 	class SpotLight;
 	class PointLight;
+	struct LightRenderParameters;
+	struct LightBuffer;
+	struct SunLightBuffer;
+	struct cbLightBuffer;
+	struct cbSunLightBuffer;
 }
 
 //==============================================================================================================================
@@ -64,7 +64,13 @@ public:
 	void AddAmbientLight(XMFLOAT4 ambientColor, XMFLOAT3 position);
 	
 	// Adds a directional light
-	void AddDirectionalLight(XMFLOAT4 diffuseColor, XMFLOAT4 ambientColor, XMFLOAT3 position, XMFLOAT3 direction);
+	void AddDirectionalLight
+	(	XMFLOAT4 diffuseColor
+	,	XMFLOAT4 ambientColor
+	,	XMFLOAT3 position
+	,	XMFLOAT3 direction
+	,	float intensity
+	);
 	
 	// Add a spot light
 	void AddSpotLight
@@ -75,6 +81,7 @@ public:
 	,	float range
 	, 	float spotAngle
 	, 	XMFLOAT3 attenuation
+	,	float intensity
 	);
 	
 	// Adds a point light
@@ -85,6 +92,7 @@ public:
 	, 	XMFLOAT3 direction
 	,	float range
 	, 	XMFLOAT3 attenuation
+	,	float intensity
 	);
 	
 	// Adds a capsule light
@@ -119,8 +127,8 @@ public:
 	ZShadeSandboxLighting::PointLight* GetPointLight(int i);
 	ZShadeSandboxLighting::CapsuleLight* GetCapsuleLight(int i);
 	
-	ZShadeSandboxLighting::LightBuffer* GetLightBuffer() { return mLightBuffer; }
-	ZShadeSandboxLighting::SunLightBuffer* GetSunLightBuffer() { return mSunLightBuffer; }
+	//ZShadeSandboxLighting::LightBuffer* GetLightBuffer() { return mLightBuffer; }
+	//ZShadeSandboxLighting::SunLightBuffer* GetSunLightBuffer() { return mSunLightBuffer; }
 	
 	void ToggleAmbientLights(bool toggle);
 	void ToggleDirectionalLights(bool toggle);
@@ -128,9 +136,23 @@ public:
 	void TogglePointLights(bool toggle);
 	void ToggleCapsuleLights(bool toggle);
 	
-	void RebuildLightBuffer(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown);
+	XMFLOAT3& AmbientUp() { return ambientUp; }
+	XMFLOAT3& AmbientDown() { return ambientDown; }
+	
+	//void RebuildLightBuffer(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown);
 	void RebuildSunBuffer(SunLightBuffer buff);
-	void BuildLightingBuffers(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown, SunLightBuffer buff);
+	//void BuildLightingBuffers(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown, SunLightBuffer buff);
+	
+	void BuildFinalLightBuffers(
+		ID3D11Buffer*& lightBuffer,
+		ID3D11Buffer*& sunLightBuffer
+	);
+	
+	void BuildAmbientLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light);
+	void BuildDirectionalLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light);
+	void BuildPointLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light);
+	void BuildSpotLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light);
+	void BuildCapsuleLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light);
 	
 	static void NewInstance(D3D* d3d);
 	static LightManager* Instance();
@@ -138,12 +160,15 @@ public:
 public:
 	
 	// Renders a mesh at the position of the light for debugging
-	void RenderLightMesh(Camera* camera, LightCamera* lightcamera, bool toggleMesh = true, bool reflect = false, bool toggleWireframe = false, bool renderDeferred = false, XMFLOAT4 clipplane = XMFLOAT4(0, 0, 0, 0));
+	void RenderLightMesh(ZShadeSandboxLighting::LightRenderParameters lrp);
 	
 private:
 	
-	ZShadeSandboxLighting::LightBuffer* mLightBuffer;
+	//ZShadeSandboxLighting::LightBuffer* mLightBuffer;
 	ZShadeSandboxLighting::SunLightBuffer* mSunLightBuffer;
+	
+	XMFLOAT3 ambientUp;
+	XMFLOAT3 ambientDown;
 	
 	// Toggle lights based on type
 	bool bToggleAmbientLights;

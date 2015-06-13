@@ -8,16 +8,18 @@ Light::Light()
 {
 	mMesh = NULL;
 	mLightCamera = new LightCamera();
+	fIntensity = 2.8f;
+	bToggleLight = true;
 }
 //==============================================================================================================================
 void Light::BuildSphereMesh(D3D* d3d)
 {
-	float size = 10;
-	float r = size / 100;
+	float size = 0.5;
+	//float r = size / 100;
 	
 	ZShadeSandboxMesh::MeshParameters mp;
 	mp.useCustomShader = false;
-	mp.vertexType = ZShadeSandboxMesh::EVertexType::VT_Tex;
+	mp.vertexType = ZShadeSandboxMesh::EVertexType::VT_NormalTex;
 	mp.rotationAxisX = false;
 	mp.rotationAxisY = false;
 	mp.rotationAxisZ = false;
@@ -30,19 +32,8 @@ void Light::BuildSphereMesh(D3D* d3d)
 	mp.textureHeight = -1;
 	mp.shader = 0;
 	
-	mMesh = new ZShadeSandboxMesh::SphereMesh(r, size, size, d3d, mp);
-}
-//==============================================================================================================================
-void Light::AddMeshLightBuffer(ZShadeSandboxLighting::LightBuffer* lb)
-{
-	if (mMesh != NULL)
-		mMesh->SetLightBuffer(lb);
-}
-//==============================================================================================================================
-void Light::AddMeshLightBuffer(ZShadeSandboxLighting::SunLightBuffer* sb)
-{
-	if (mMesh != NULL)
-		mMesh->SetLightBuffer(sb);
+	//mMesh = new ZShadeSandboxMesh::SphereMesh(r, size, size, d3d, mp);
+	mMesh = new ZShadeSandboxMesh::SphereMesh(d3d, mp, "Models\\sphere.txt");
 }
 //==============================================================================================================================
 void Light::UpdateLVP()
@@ -67,29 +58,29 @@ void Light::SetLens(float fnear, float ffar)
 void Light::UpdateMeshPosition(XMFLOAT3 pos)
 {
 	mPosition = pos;
-	mMesh->Position() = pos;
+	if (mMesh != NULL) mMesh->Position() = pos;
 }
 //==============================================================================================================================
 void Light::ScaleMesh(XMFLOAT3 scale)
 {
-	mMesh->Scale() = scale;
+	if (mMesh != NULL) mMesh->Scale() = scale;
 }
 //==============================================================================================================================
 int Light::TriangleCount() const { return mMesh->TriangleCount(); }
 //==============================================================================================================================
-void Light::RenderSphereMesh(Camera* camera, LightCamera* lightcamera, bool reflect, XMFLOAT4 clipplane)
+void Light::RenderSphereMesh(ZShadeSandboxLighting::LightRenderParameters lrp)
 {
 	if (mMesh == NULL) return;
 
-	if (bToggleSphereMesh)
+	if (lrp.toggleMesh)
 	{
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = camera;
-		mrp.pLightCamera = lightcamera;
-		mrp.bReflection = reflect;
-		mrp.clipplane = clipplane;
-		mrp.bRenderDeferred = bToggleRenderDeferredMesh;
-		mMesh->SetWireframe(bToggleSphereMeshWireframe);
+		mrp.camera = lrp.camera;
+		mrp.light = this;
+		mrp.reflection = lrp.reflect;
+		mrp.clipplane = lrp.clipplane;
+		mrp.renderDeferred = lrp.renderDeferred;
+		mMesh->SetWireframe(lrp.toggleWireframe);
 		mMesh->Render(mrp);
 	}
 }

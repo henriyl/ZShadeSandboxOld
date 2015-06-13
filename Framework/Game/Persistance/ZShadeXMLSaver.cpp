@@ -15,33 +15,33 @@ bool ZShadeXMLSaver::SaveMaterialXML(string filename, ZShadeSandboxLighting::Sha
 	
 	// Save the name of the material
 	XMLElement* mat_name_elem = doc->NewElement( "Name" );
-	mat_name_elem->InsertFirstChild( doc->NewText(material->Name().c_str()) );
+	mat_name_elem->InsertFirstChild( doc->NewText(material->sMaterialName.c_str()) );
 	materialSysNode->InsertEndChild( mat_name_elem );
 	
 	// Save Enable flags of the material
-	const char* enable_shadowmap_str = (material->EnableShadowMap() == true) ? "true" : "false";
+	const char* enable_shadowmap_str = (material->bHasShadowMap == true) ? "true" : "false";
 	XMLElement* enable_shadowmap_elem = doc->NewElement( "EnableShadowMap" );
 	enable_shadowmap_elem->InsertFirstChild( doc->NewText(enable_shadowmap_str) );
 	materialSysNode->InsertEndChild( enable_shadowmap_elem );
 	
-	const char* enable_ssao_str = (material->EnableSSAOMap() == true) ? "true" : "false";
+	const char* enable_ssao_str = (material->bHasSSAOMap == true) ? "true" : "false";
 	XMLElement* enable_ssao_elem = doc->NewElement( "EnableSSAO" );
 	enable_ssao_elem->InsertFirstChild( doc->NewText(enable_ssao_str) );
 	materialSysNode->InsertEndChild( enable_ssao_elem );
 	
-	const char* enable_transparency_str = (material->EnableTransparency() == true) ? "true" : "false";
+	const char* enable_transparency_str = (material->bHasTransparency == true) ? "true" : "false";
 	XMLElement* enable_transparency_elem = doc->NewElement( "EnableTransparency" );
 	enable_transparency_elem->InsertFirstChild( doc->NewText(enable_transparency_str) );
 	materialSysNode->InsertEndChild( enable_transparency_elem );
 	
-	const char* enable_lighting_str = (material->EnableLighting() == true) ? "true" : "false";
+	const char* enable_lighting_str = (material->bEnableLighting == true) ? "true" : "false";
 	XMLElement* enable_lighting_elem = doc->NewElement( "EnableLighting" );
 	enable_lighting_elem->InsertFirstChild( doc->NewText(enable_lighting_str) );
 	materialSysNode->InsertEndChild( enable_lighting_elem );
 	
 	// Save the brightness of detail from the material
 	stringstream db;
-	db << material->DetailBrightness();
+	db << material->fDetailBrightness;
 	const char* detail_brightness_str = db.str().c_str();
 	XMLElement* detail_brightness_elem = doc->NewElement( "DetailBrightness" );
 	detail_brightness_elem->InsertFirstChild( doc->NewText(detail_brightness_str) );
@@ -49,11 +49,11 @@ bool ZShadeXMLSaver::SaveMaterialXML(string filename, ZShadeSandboxLighting::Sha
 	
 	// Save the alpha coverage transparency from the material
 	stringstream act_x;
-	act_x << material->AlphaToCoverageValue().x;
+	act_x << material->vAlphaToCoverageValue.x;
 	stringstream act_y;
-	act_y << material->AlphaToCoverageValue().y;
+	act_y << material->vAlphaToCoverageValue.y;
 	stringstream act_z;
-	act_z << material->AlphaToCoverageValue().z;
+	act_z << material->vAlphaToCoverageValue.z;
 	string act_str;
 	act_str.append(act_x.str());
 	act_str.append(" ");
@@ -66,13 +66,13 @@ bool ZShadeXMLSaver::SaveMaterialXML(string filename, ZShadeSandboxLighting::Sha
 	
 	// Save the materials ambient color
 	stringstream amb_x;
-	amb_x << material->AmbientColor().x;
+	amb_x << material->vAmbientColor.x;
 	stringstream amb_y;
-	amb_y << material->AmbientColor().y;
+	amb_y << material->vAmbientColor.y;
 	stringstream amb_z;
-	amb_z << material->AmbientColor().z;
+	amb_z << material->vAmbientColor.z;
 	stringstream amb_w;
-	amb_w << material->AmbientColor().w;
+	amb_w << material->vAmbientColor.w;
 	string amb_str;
 	amb_str.append(amb_x.str());
 	amb_str.append(" ");
@@ -87,13 +87,13 @@ bool ZShadeXMLSaver::SaveMaterialXML(string filename, ZShadeSandboxLighting::Sha
 	
 	// Save the materials diffuse color
 	stringstream dif_x;
-	dif_x << material->DiffuseColor().x;
+	dif_x << material->vDiffuseColor.x;
 	stringstream dif_y;
-	dif_y << material->DiffuseColor().y;
+	dif_y << material->vDiffuseColor.y;
 	stringstream dif_z;
-	dif_z << material->DiffuseColor().z;
+	dif_z << material->vDiffuseColor.z;
 	stringstream dif_w;
-	dif_w << material->DiffuseColor().w;
+	dif_w << material->vDiffuseColor.w;
 	string dif_str;
 	dif_str.append(dif_x.str());
 	dif_str.append(" ");
@@ -108,13 +108,13 @@ bool ZShadeXMLSaver::SaveMaterialXML(string filename, ZShadeSandboxLighting::Sha
 	
 	// Save the materials specular color
 	stringstream spe_x;
-	spe_x << material->SpecularColor().x;
+	spe_x << material->vSpecularColor.x;
 	stringstream spe_y;
-	spe_y << material->SpecularColor().y;
+	spe_y << material->vSpecularColor.y;
 	stringstream spe_z;
-	spe_z << material->SpecularColor().z;
+	spe_z << material->vSpecularColor.z;
 	stringstream spe_w;
-	spe_w << material->SpecularColor().w;
+	spe_w << material->vSpecularColor.w;
 	string spe_str;
 	spe_str.append(spe_x.str());
 	spe_str.append(" ");
@@ -127,9 +127,30 @@ bool ZShadeXMLSaver::SaveMaterialXML(string filename, ZShadeSandboxLighting::Sha
 	specular_elem->InsertFirstChild( doc->NewText(spe_str.c_str()) );
 	materialSysNode->InsertEndChild( specular_elem );
 	
+	// Save the materials emissive color
+	stringstream emi_x;
+	emi_x << material->vEmissiveColor.x;
+	stringstream emi_y;
+	emi_y << material->vEmissiveColor.y;
+	stringstream emi_z;
+	emi_z << material->vEmissiveColor.z;
+	stringstream emi_w;
+	emi_w << material->vEmissiveColor.w;
+	string emi_str;
+	emi_str.append(emi_x.str());
+	emi_str.append(" ");
+	emi_str.append(emi_y.str());
+	emi_str.append(" ");
+	emi_str.append(emi_z.str());
+	emi_str.append(" ");
+	emi_str.append(emi_w.str());
+	XMLElement* emissive_elem = doc->NewElement("EmissiveColor");
+	emissive_elem->InsertFirstChild(doc->NewText(emi_str.c_str()));
+	materialSysNode->InsertEndChild(emissive_elem);
+
 	// Save the materials specular exponent
 	stringstream sp;
-	sp << material->SpecularPower();
+	sp << material->fSpecularPower;
 	const char* specular_power_str = sp.str().c_str();
 	XMLElement* specular_power_elem = doc->NewElement( "SpecularPower" );
 	specular_power_elem->InsertFirstChild( doc->NewText(specular_power_str) );
@@ -137,23 +158,23 @@ bool ZShadeXMLSaver::SaveMaterialXML(string filename, ZShadeSandboxLighting::Sha
 	
 	// Save the materials specular intensity
 	stringstream si;
-	si << material->SpecularIntensity();
+	si << material->fSpecularIntensity;
 	const char* specular_intensity_str = si.str().c_str();
 	XMLElement* specular_intensity_elem = doc->NewElement( "SpecularIntensity" );
 	specular_intensity_elem->InsertFirstChild( doc->NewText(specular_intensity_str) );
 	materialSysNode->InsertEndChild( specular_intensity_elem );
 	
-	// Save the materials emissive color
+	// Save the materials emissivity
 	stringstream emi;
-	emi << material->Emissivity();
-	const char* emissive_str = emi.str().c_str();
-	XMLElement* emissive_elem = doc->NewElement( "Emissive" );
-	emissive_elem->InsertFirstChild( doc->NewText(emissive_str) );
-	materialSysNode->InsertEndChild( emissive_elem );
+	emi << material->fEmissivity;
+	const char* emissivity_str = emi.str().c_str();
+	XMLElement* emissivity_elem = doc->NewElement( "Emissivity" );
+	emissivity_elem->InsertFirstChild(doc->NewText(emissivity_str));
+	materialSysNode->InsertEndChild(emissivity_elem);
 	
 	// Save the materials reflectivity
 	stringstream reflec;
-	reflec << material->Reflectivity();
+	reflec << material->fReflectivity;
 	const char* reflectivity_str = reflec.str().c_str();
 	XMLElement* reflectivity_elem = doc->NewElement( "Reflectivity" );
 	reflectivity_elem->InsertFirstChild( doc->NewText(reflectivity_str) );
@@ -161,12 +182,99 @@ bool ZShadeXMLSaver::SaveMaterialXML(string filename, ZShadeSandboxLighting::Sha
 	
 	// Save the materials transmissivity
 	stringstream transmiss;
-	transmiss << material->Transmissivity();
+	transmiss << material->fTransmissivity;
 	const char* transmissivity_str = transmiss.str().c_str();
 	XMLElement* transmissivity_elem = doc->NewElement( "Transmissivity" );
 	transmissivity_elem->InsertFirstChild( doc->NewText(transmissivity_str) );
 	materialSysNode->InsertEndChild( transmissivity_elem );
 	
+	// Save the transmission filter of the material
+	stringstream trans_x;
+	trans_x << material->vTransmissionFilter.x;
+	stringstream trans_y;
+	trans_y << material->vTransmissionFilter.y;
+	stringstream trans_z;
+	trans_z << material->vTransmissionFilter.z;
+	string trans_str;
+	trans_str.append(trans_x.str());
+	trans_str.append(" ");
+	trans_str.append(trans_y.str());
+	trans_str.append(" ");
+	trans_str.append(trans_z.str());
+	XMLElement* transmission_filter_elem = doc->NewElement("TransmissionFilter");
+	transmission_filter_elem->InsertFirstChild(doc->NewText(trans_str.c_str()));
+	materialSysNode->InsertEndChild(transmission_filter_elem);
+
+	// Save the materials alpha
+	stringstream alphas;
+	alphas << material->fAlpha;
+	const char* alpha_str = alphas.str().c_str();
+	XMLElement* alpha_elem = doc->NewElement("Alpha");
+	alpha_elem->InsertFirstChild(doc->NewText(alpha_str));
+	materialSysNode->InsertEndChild(alpha_elem);
+
+	// Save the materials refraction index
+	stringstream refind;
+	refind << material->fRefractionIndex;
+	const char* refind_str = refind.str().c_str();
+	XMLElement* refind_elem = doc->NewElement("RefractionIndex");
+	refind_elem->InsertFirstChild(doc->NewText(refind_str));
+	materialSysNode->InsertEndChild(refind_elem);
+
+	// Save the materials no dist tess factor
+	stringstream nodisttessfactor;
+	nodisttessfactor << material->fNoDistTessFactor;
+	const char* nodisttessfactor_str = nodisttessfactor.str().c_str();
+	XMLElement* nodisttessfactor_elem = doc->NewElement("NoDistTessFactor");
+	nodisttessfactor_elem->InsertFirstChild(doc->NewText(nodisttessfactor_str));
+	materialSysNode->InsertEndChild(nodisttessfactor_elem);
+
+	// Save the materials min tess dist
+	stringstream mintessdist;
+	mintessdist << material->fMinTessDist;
+	const char* mintessdist_str = mintessdist.str().c_str();
+	XMLElement* mintessdist_elem = doc->NewElement("MinTessDist");
+	mintessdist_elem->InsertFirstChild(doc->NewText(mintessdist_str));
+	materialSysNode->InsertEndChild(mintessdist_elem);
+
+	// Save the materials max tess dist
+	stringstream maxtessdist;
+	maxtessdist << material->fMaxTessDist;
+	const char* maxtessdist_str = maxtessdist.str().c_str();
+	XMLElement* maxtessdist_elem = doc->NewElement("MaxTessDist");
+	maxtessdist_elem->InsertFirstChild(doc->NewText(maxtessdist_str));
+	materialSysNode->InsertEndChild(maxtessdist_elem);
+
+	// Save the materials min tess factor
+	stringstream mintessfactor;
+	mintessfactor << material->fMinTessFactor;
+	const char* mintessfactor_str = mintessfactor.str().c_str();
+	XMLElement* mintessfactor_elem = doc->NewElement("MinTessFactor");
+	mintessfactor_elem->InsertFirstChild(doc->NewText(mintessfactor_str));
+	materialSysNode->InsertEndChild(mintessfactor_elem);
+
+	// Save the materials max tess factor
+	stringstream maxtessfactor;
+	maxtessfactor << material->fMaxTessFactor;
+	const char* maxtessfactor_str = maxtessfactor.str().c_str();
+	XMLElement* maxtessfactor_elem = doc->NewElement("MaxTessFactor");
+	maxtessfactor_elem->InsertFirstChild(doc->NewText(maxtessfactor_str));
+	materialSysNode->InsertEndChild(maxtessfactor_elem);
+
+	// Save the enable dist tessellation flag
+	const char* enable_disttess_str = (material->bEnableDistTess == true) ? "true" : "false";
+	XMLElement* enable_disttess_elem = doc->NewElement("EnableDistTess");
+	enable_disttess_elem->InsertFirstChild(doc->NewText(enable_disttess_str));
+	materialSysNode->InsertEndChild(enable_disttess_elem);
+
+	// Save the materials illumination model
+	stringstream illum;
+	illum << material->iIlluminationModel;
+	const char* illum_str = illum.str().c_str();
+	XMLElement* illum_elem = doc->NewElement("IlluminationModel");
+	illum_elem->InsertFirstChild(doc->NewText(illum_str));
+	materialSysNode->InsertEndChild(illum_elem);
+
 	//Save the diffuse array texture names
 	XMLElement* names_elem = doc->NewElement( "DiffuseArray" );
 	for (int i = 0; i < material->GetDiffuseArrayTextureNames().size(); i++)
@@ -201,6 +309,30 @@ bool ZShadeXMLSaver::SaveMaterialXML(string filename, ZShadeSandboxLighting::Sha
 				XMLElement* tex_elem = doc->NewElement( "DiffuseTexture" );
 				tex_elem->InsertFirstChild( doc->NewText(tex_str) );
 				materialSysNode->InsertEndChild( tex_elem );
+			}
+			break;
+			case ZShadeSandboxLighting::EMaterialTextureType::eAmbient:
+			{
+				const char* tex_str = tex->GetTextureName().c_str();
+				XMLElement* tex_elem = doc->NewElement("AmbientTexture");
+				tex_elem->InsertFirstChild(doc->NewText(tex_str));
+				materialSysNode->InsertEndChild(tex_elem);
+			}
+			break;
+			case ZShadeSandboxLighting::EMaterialTextureType::eSpecular:
+			{
+				const char* tex_str = tex->GetTextureName().c_str();
+				XMLElement* tex_elem = doc->NewElement("SpecularTexture");
+				tex_elem->InsertFirstChild(doc->NewText(tex_str));
+				materialSysNode->InsertEndChild(tex_elem);
+			}
+			break;
+			case ZShadeSandboxLighting::EMaterialTextureType::eEmissive:
+			{
+				const char* tex_str = tex->GetTextureName().c_str();
+				XMLElement* tex_elem = doc->NewElement("EmissiveTexture");
+				tex_elem->InsertFirstChild(doc->NewText(tex_str));
+				materialSysNode->InsertEndChild(tex_elem);
 			}
 			break;
 			case ZShadeSandboxLighting::EMaterialTextureType::eDetail:

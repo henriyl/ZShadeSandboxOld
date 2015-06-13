@@ -97,15 +97,14 @@ CubeMesh::CubeMesh(D3D* d3d, ZShadeSandboxMath::BoxPrimitive box, ZShadeSandboxM
 		bof1, bof2, bof3, bof4
 	};
 
-	mVerticesTex.resize( NUM_CUBE_VERTS );
+	mAttributes->mVerticesTex.resize(NUM_CUBE_VERTS);
 
 	for (int i = 0; i < NUM_CUBE_VERTS; i++)
 	{
-		mVerticesTex[i] = verts[i];
+		mAttributes->mVerticesTex[i] = verts[i];
 	}
 
-	mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexTex);
-	mVertexCount = NUM_CUBE_VERTS;
+	mAttributes->mVertexCount = NUM_CUBE_VERTS;
 	
 	//
 	// Load Indices
@@ -138,11 +137,11 @@ CubeMesh::CubeMesh(D3D* d3d, ZShadeSandboxMath::BoxPrimitive box, ZShadeSandboxM
 		22, 21, 23
 	};
 
-	mIndices.resize( NUM_CUBE_INDICES );
+	mAttributes->mIndices.resize(NUM_CUBE_INDICES);
 
 	for (int i = 0; i < NUM_CUBE_INDICES; i++)
 	{
-		mIndices[i] = indices[i];
+		mAttributes->mIndices[i] = indices[i];
 	}
 	
 	CreateBuffers();
@@ -226,15 +225,14 @@ CubeMesh::CubeMesh(D3D* d3d, XMFLOAT3 p1, XMFLOAT3 p2, XMFLOAT3 p3, XMFLOAT3 p4,
 		bof1, bof2, bof3, bof4
 	};
 	
-	mVerticesTex.resize( NUM_CUBE_VERTS );
+	mAttributes->mVerticesTex.resize(NUM_CUBE_VERTS);
 
 	for (int i = 0; i < NUM_CUBE_VERTS; i++)
 	{
-		mVerticesTex[i] = verts[i];
+		mAttributes->mVerticesTex[i] = verts[i];
 	}
 
-	mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexTex);
-	mVertexCount = NUM_CUBE_VERTS;
+	mAttributes->mVertexCount = NUM_CUBE_VERTS;
 	
 	//
 	// Load Indices
@@ -267,11 +265,11 @@ CubeMesh::CubeMesh(D3D* d3d, XMFLOAT3 p1, XMFLOAT3 p2, XMFLOAT3 p3, XMFLOAT3 p4,
 		22, 21, 23
 	};
 
-	mIndices.resize( NUM_CUBE_INDICES );
+	mAttributes->mIndices.resize(NUM_CUBE_INDICES);
 
 	for (int i = 0; i < NUM_CUBE_INDICES; i++)
 	{
-		mIndices[i] = indices[i];
+		mAttributes->mIndices[i] = indices[i];
 	}
 	
 	CreateBuffers();
@@ -355,15 +353,14 @@ void CubeMesh::Initialize()
 				bof1, bof2, bof3, bof4
 			};
 
-			mVerticesVNT.resize(NUM_CUBE_VERTS);
+			mAttributes->mVerticesNormalTex.resize(NUM_CUBE_VERTS);
 
 			for (int i = 0; i < NUM_CUBE_VERTS; i++)
 			{
-				mVerticesVNT[i] = verts[i];
+				mAttributes->mVerticesNormalTex[i] = verts[i];
 			}
 
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTex);
-			mVertexCount = NUM_CUBE_VERTS;
+			mAttributes->mVertexCount = NUM_CUBE_VERTS;
 #pragma endregion
 		}
 		break;
@@ -433,15 +430,14 @@ void CubeMesh::Initialize()
 				bof1, bof2, bof3, bof4
 			};
 
-			mVerticesVNTT.resize(NUM_CUBE_VERTS);
+			mAttributes->mVerticesNormalTexTan.resize(NUM_CUBE_VERTS);
 
 			for (int i = 0; i < NUM_CUBE_VERTS; i++)
 			{
-				mVerticesVNTT[i] = verts[i];
+				mAttributes->mVerticesNormalTexTan[i] = verts[i];
 			}
 
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTexTan);
-			mVertexCount = NUM_CUBE_VERTS;
+			mAttributes->mVertexCount = NUM_CUBE_VERTS;
 #pragma endregion
 		}
 		break;
@@ -511,15 +507,14 @@ void CubeMesh::Initialize()
 				bof1, bof2, bof3, bof4
 			};
 
-			mVerticesPos.resize(NUM_CUBE_VERTS);
+			mAttributes->mVerticesPos.resize(NUM_CUBE_VERTS);
 
 			for (int i = 0; i < NUM_CUBE_VERTS; i++)
 			{
-				mVerticesPos[i] = verts[i];
+				mAttributes->mVerticesPos[i] = verts[i];
 			}
 
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexPos);
-			mVertexCount = NUM_CUBE_VERTS;
+			mAttributes->mVertexCount = NUM_CUBE_VERTS;
 #pragma endregion
 		}
 		break;
@@ -589,22 +584,21 @@ void CubeMesh::Initialize()
 				bof1, bof2, bof3, bof4
 			};
 
-			mVerticesTex.resize(NUM_CUBE_VERTS);
+			mAttributes->mVerticesTex.resize(NUM_CUBE_VERTS);
 
 			for (int i = 0; i < NUM_CUBE_VERTS; i++)
 			{
-				mVerticesTex[i] = verts[i];
+				mAttributes->mVerticesTex[i] = verts[i];
 			}
 
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexTex);
-			mVertexCount = NUM_CUBE_VERTS;
+			mAttributes->mVertexCount = NUM_CUBE_VERTS;
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
 #pragma region "Vertex Color"
-			XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+			XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
 			//Front Face
 			ZShadeSandboxMesh::VertexColor ff1 = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(-1.0f, 1.0f, -1.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w);
@@ -669,21 +663,20 @@ void CubeMesh::Initialize()
 				bof1, bof2, bof3, bof4
 			};
 
-			mVerticesColor.resize(NUM_CUBE_VERTS);
+			mAttributes->mVerticesColor.resize(NUM_CUBE_VERTS);
 
 			for (int i = 0; i < NUM_CUBE_VERTS; i++)
 			{
-				mVerticesColor[i] = verts[i];
+				mAttributes->mVerticesColor[i] = verts[i];
 			}
 
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexColor);
-			mVertexCount = NUM_CUBE_VERTS;
+			mAttributes->mVertexCount = NUM_CUBE_VERTS;
 #pragma endregion
 		}
 		break;
 	}
 	
-	mTriangleCount = mVertexCount / 3;
+	mAttributes->mTriangleCount = mAttributes->mVertexCount / 3;
 	
 	//
 	// Load Indices
@@ -716,11 +709,11 @@ void CubeMesh::Initialize()
 		22, 21, 23
 	};
 
-	mIndices.resize( NUM_CUBE_INDICES );
+	mAttributes->mIndices.resize(NUM_CUBE_INDICES);
 
 	for (int i = 0; i < NUM_CUBE_INDICES; i++)
 	{
-		mIndices[i] = indices[i];
+		mAttributes->mIndices[i] = indices[i];
 	}
 }
 //===============================================================================================================================

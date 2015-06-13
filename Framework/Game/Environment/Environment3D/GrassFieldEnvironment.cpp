@@ -94,7 +94,7 @@ void GrassFieldEnvironment::Render()
 	//m_pTextureShader->SetTexture( tex );
 	//m_pTextureShader->SetClipPlane( XMFLOAT4(0,0,0,0) );
 	//m_pTextureShader->Render11(m_pTerrain->GetIndexCount(), mCamera);
-	m_pMaterialShader->Render11(m_pTerrain->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0), m_CameraSystem.get(), 0, MaterialManager::Instance()->GetMaterial("Soil"));
+	//m_pMaterialShader->Render11(m_pTerrain->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0), m_CameraSystem.get(), 0, MaterialManager::Instance()->GetMaterial("Soil"));
 }
 //===============================================================================================================================
 void GrassFieldEnvironment::RenderDeferred()

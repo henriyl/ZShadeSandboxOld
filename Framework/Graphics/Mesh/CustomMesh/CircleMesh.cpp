@@ -9,7 +9,6 @@ CircleMesh::CircleMesh(D3D* d3d, float radius, ZShadeSandboxMesh::MeshParameters
 	mMeshType = ZShadeSandboxMesh::EMeshType::CIRCLE;
 
 	Initialize();
-	//LoadVertexAdjacency();
 	CreateBuffers();
 }
 //===============================================================================================================================
@@ -31,9 +30,9 @@ void CircleMesh::Initialize()
 	
 	uint32 ringCount = iStackCount + 1;
 	
-	mVertexCount = ringCount;
+	mAttributes->mVertexCount = ringCount;
 	
-	mTriangleCount = mVertexCount / 3;
+	mAttributes->mTriangleCount = mAttributes->mVertexCount / 3;
 	
 	uint32 baseIndex = (uint32)0;
 
@@ -45,8 +44,7 @@ void CircleMesh::Initialize()
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTex:
 		{
 #pragma region "Normal Tex"
-			mVerticesVNT.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexNormalTex );
+			mAttributes->mVerticesNormalTex.resize(mAttributes->mVertexCount);
 			
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for(uint32 i = 0; i <= iSliceCount; ++i)
@@ -59,19 +57,20 @@ void CircleMesh::Initialize()
 				float u = x / iHeight + 0.5f;
 				float v = z / iHeight + 0.5f;
 
-				mVerticesVNT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(x, y, z, 0.0f, 1.0f, 0.0f, u, v));
+				mAttributes->mVerticesNormalTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(x, y, z, 0.0f, 1.0f, 0.0f, u, v));
 			}
 
 			// Cap center vertex.
-			mVerticesVNT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f));
+			mAttributes->mVerticesNormalTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f));
+
+			mAttributes->mVertexCount = mAttributes->mVerticesNormalTex.size();
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
 		{
 #pragma region "Normal Tex Tan"
-			mVerticesVNTT.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexNormalTexTan );
+			mAttributes->mVerticesNormalTexTan.resize(mAttributes->mVertexCount);
 			
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for(uint32 i = 0; i <= iSliceCount; ++i)
@@ -84,19 +83,20 @@ void CircleMesh::Initialize()
 				float u = x / iHeight + 0.5f;
 				float v = z / iHeight + 0.5f;
 
-				mVerticesVNTT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(x, y, z, 0.0f, 1.0f, 0.0f, u, v, 0.0f, 0.0f, 0.0f));
+				mAttributes->mVerticesNormalTexTan.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(x, y, z, 0.0f, 1.0f, 0.0f, u, v, 0.0f, 0.0f, 0.0f));
 			}
 
 			// Cap center vertex.
-			mVerticesVNTT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f));
+			mAttributes->mVerticesNormalTexTan.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f));
+
+			mAttributes->mVertexCount = mAttributes->mVerticesNormalTexTan.size();
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Pos:
 		{
 #pragma region "Normal Pos"
-			mVerticesPos.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexPos );
+			mAttributes->mVerticesPos.resize(mAttributes->mVertexCount);
 			
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for(uint32 i = 0; i <= iSliceCount; ++i)
@@ -104,19 +104,20 @@ void CircleMesh::Initialize()
 				float x = fRadius * cosf(i * dTheta);
 				float z = fRadius * sinf(i * dTheta);
 
-				mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(x, y, z));
+				mAttributes->mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(x, y, z));
 			}
 
 			// Cap center vertex.
-			mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(0.0f, y, 0.0f));
+			mAttributes->mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(0.0f, y, 0.0f));
+
+			mAttributes->mVertexCount = mAttributes->mVerticesPos.size();
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Tex:
 		{
 #pragma region "Normal Tex"
-			//mVerticesTex.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexTex );
+			mAttributes->mVerticesTex.resize(mAttributes->mVertexCount);
 			
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for(uint32 i = 0; i <= iSliceCount; ++i)
@@ -129,23 +130,22 @@ void CircleMesh::Initialize()
 				float u = x / iHeight + 0.5f;
 				float v = z / iHeight + 0.5f;
 
-				mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(x, y, z, u, v));
+				mAttributes->mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(x, y, z, u, v));
 			}
 
 			// Cap center vertex.
-			mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(0.0f, y, 0.0f, 0.5f, 0.5f));
+			mAttributes->mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(0.0f, y, 0.0f, 0.5f, 0.5f));
 
-			mVertexCount = mVerticesTex.size();
+			mAttributes->mVertexCount = mAttributes->mVerticesTex.size();
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
 #pragma region "Normal Color"
-			XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+			XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
-			mVerticesColor.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexColor );
+			mAttributes->mVerticesColor.resize(mAttributes->mVertexCount);
 			
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for(uint32 i = 0; i <= iSliceCount; ++i)
@@ -153,11 +153,13 @@ void CircleMesh::Initialize()
 				float x = fRadius * cosf(i * dTheta);
 				float z = fRadius * sinf(i * dTheta);
 
-				mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(x, y, z, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
+				mAttributes->mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(x, y, z, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
 			}
 
 			// Cap center vertex.
-			mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(0.0f, y, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
+			mAttributes->mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(0.0f, y, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
+
+			mAttributes->mVertexCount = mAttributes->mVerticesColor.size();
 #pragma endregion
 		}
 		break;
@@ -172,16 +174,16 @@ void CircleMesh::Initialize()
 	//mIndices.resize( mIndexCount );
 	
 	// Index of center vertex.
-	uint32 centerIndex = (uint32)mVerticesTex.size() - 1;
+	uint32 centerIndex = (uint32)mAttributes->mVerticesTex.size() - 1;
 
 	uint32 index = 0;
 	for(uint32 i = 0; i < iSliceCount; ++i)
 	{
-		mIndices.push_back(centerIndex);
-		mIndices.push_back(baseIndex + i + 1);
-		mIndices.push_back(baseIndex + i);
+		mAttributes->mIndices.push_back(centerIndex);
+		mAttributes->mIndices.push_back(baseIndex + i + 1);
+		mAttributes->mIndices.push_back(baseIndex + i);
 	}
 
-	mIndexCount = mIndices.size();
+	mAttributes->mIndexCount = mAttributes->mIndices.size();
 }
 //===============================================================================================================================

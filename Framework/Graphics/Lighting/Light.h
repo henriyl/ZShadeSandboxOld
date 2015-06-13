@@ -27,6 +27,7 @@ namespace ZShadeSandboxMesh {
 namespace ZShadeSandboxLighting {
 	struct LightBuffer;
 	struct SunLightBuffer;
+	struct LightRenderParameters;
 }
 
 //==============================================================================================================================
@@ -57,9 +58,8 @@ public:
 	XMFLOAT4& SpecularColor() 				{ return mSpecularColor; }
 	XMFLOAT3& Position() 					{ return mPosition; }
 	XMFLOAT3& Direction() 					{ return mDirection; }
-	bool& ToggleSphereMesh()				{ return bToggleSphereMesh; }
-	bool& ToggleSphereMeshWireframe()		{ return bToggleSphereMeshWireframe; }
-	bool& ToggleRenderDeferredMesh()		{ return bToggleRenderDeferredMesh; }
+	float& Intensity()						{ return fIntensity; }
+	bool& ToggleLight()						{ return bToggleLight; }
 	
 	LightCamera* Perspective()				{ return mLightCamera; }
 	int LightType() const 					{ return mLightType; }
@@ -68,10 +68,9 @@ public:
 	XMFLOAT4 SpecularColor() const			{ return mSpecularColor; }
 	XMFLOAT3 Position() const 				{ return mPosition; }
 	XMFLOAT3 Direction() const 				{ return mDirection; }
-	bool ToggleSphereMesh() const			{ return bToggleSphereMesh; }
-	bool ToggleSphereMeshWireframe() const	{ return bToggleSphereMeshWireframe; }
-	bool ToggleRenderDeferredMesh() const	{ return bToggleRenderDeferredMesh; }
-
+	float Intensity() const					{ return fIntensity; }
+	bool ToggleLight() const				{ return bToggleLight; }
+	
 	int FetchLightTypeIndex();
 	
 	// Updates the light view projection matrix for this light
@@ -81,22 +80,21 @@ public:
 	
 	// When a light is created from the light manager it will build the mesh and render it
 	void BuildSphereMesh(D3D* d3d);
-	void RenderSphereMesh(Camera* camera, LightCamera* lightcamera, bool reflect, XMFLOAT4 clipplane);
+	void RenderSphereMesh(ZShadeSandboxLighting::LightRenderParameters lrp);
 	
 	void UpdateMeshPosition(XMFLOAT3 pos);
 	void ScaleMesh(XMFLOAT3 scale);
 	void SetMesh(ZShadeSandboxMesh::CustomMesh* mesh);
 	
-	void AddMeshLightBuffer(ZShadeSandboxLighting::LightBuffer* lb);
-	void AddMeshLightBuffer(ZShadeSandboxLighting::SunLightBuffer* sb);
-
 	int TriangleCount() const;
 	
 	virtual Light* Clone() { return NULL; }
 	
 protected:
 	
+	bool bToggleLight;
 	int mLightType;
+	float fIntensity;
 	XMFLOAT4 mDiffuseColor;
 	XMFLOAT4 mAmbientColor;
 	XMFLOAT4 mSpecularColor;
@@ -105,15 +103,6 @@ protected:
 	
 	// Camera for the perspective of this light
 	LightCamera* mLightCamera;
-	
-	// Can toggle the position of this light source to see where it is
-	bool bToggleSphereMesh;
-	
-	// Can the sphere mesh wireframe be shown ??
-	bool bToggleSphereMeshWireframe;
-
-	// Can the sphere mesh be rendered with deferred shading
-	bool bToggleRenderDeferredMesh;
 	
 	// Mesh that represents the position of the light source in the shape of a sphere
 	ZShadeSandboxMesh::CustomMesh* mMesh;

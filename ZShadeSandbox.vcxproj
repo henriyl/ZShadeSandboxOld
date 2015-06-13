@@ -40,14 +40,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2015.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\dustprog\Documents\Visual Studio 2013\Projects\ZShadeSandbox\bin\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\bin\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Base;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Systems;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\AI;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Animation2D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Audio;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Camera;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Collision;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\DataTypes;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Font;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Generic;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Math;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Memory;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Parsers;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Performance;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Scripting;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\WinBase;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Base;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\D3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Environment2D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Environment3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Lighting;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Ocean;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Sky;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Terrain;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Vegitation\Grass;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Vegitation\Tree;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Water;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Basic;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Environment;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Ocean;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\PostProcess;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Sky;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Terrain;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Vegitation\Grass;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Vegitation\Tree;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Water;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Third Party;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\AI\LuaBehaviorTree;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Physics;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\SpriteGUI;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Environment2D\Platformer;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Environment2D\TopDown;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Geometry;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Third Party\tolua;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Third Party\lua;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Helpers;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Windows;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Environment;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Environment\Environment2D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Environment\Environment3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Animation3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Volume;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Windows\ToolWindow2D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Shaders\BasicTessellation;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Landscape;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Mesh\OBJMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\DataTypes;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\DataTypes\DataTypeTrees\BSP;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\DataTypes\DataTypeTrees\BTT;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Environment\Lighting;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Sun;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Sun;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Persistance;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh\CustomMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh\DAEMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh\FBXMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh\OBJMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\BasicTessellation;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Windows\ToolWindow3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\EditorSystems;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Windows\BasicEditorWindows;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Third Party\DXTex;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\PostProcessing;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Environment\Lighting\DeferredShading;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Base;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Systems;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\AI;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Animation2D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Audio;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Camera;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Collision;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\DataTypes;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Font;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Generic;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Math;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Memory;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Parsers;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Performance;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Scripting;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\WinBase;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Base;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\D3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Environment2D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Environment3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Lighting;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Ocean;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Sky;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Terrain;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Vegitation\Grass;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Vegitation\Tree;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Water;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Basic;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Environment;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Ocean;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\PostProcess;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Sky;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Terrain;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Vegitation\Grass;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Vegitation\Tree;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Water;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Third Party;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\AI\LuaBehaviorTree;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Physics;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\SpriteGUI;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Environment2D\Platformer;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Environment2D\TopDown;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Geometry;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Third Party\tolua;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Third Party\lua;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Helpers;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Windows;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Environment;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Environment\Environment2D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Environment\Environment3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\General\Animation3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Volume;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Windows\ToolWindow2D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Shaders\BasicTessellation;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Landscape;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Mesh\OBJMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\DataTypes;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\DataTypes\DataTypeTrees\BSP;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\DataTypes\DataTypeTrees\BTT;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Environment\Lighting;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Sun;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Sun;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Game\Persistance;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh\CustomMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh\DAEMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh\FBXMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Mesh\OBJMesh;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\BasicTessellation;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Windows\ToolWindow3D;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\EditorSystems;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Editor\Windows\BasicEditorWindows;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Third Party\DXTex;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\PostProcessing;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Shaders\Environment\Lighting\DeferredShading;C:\Users\Dustin\Documents\Visual Studio 2013\Projects\ZShadeSandbox\Framework\Graphics\Lighting\DeferredShading;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -245,6 +245,7 @@
     <ClCompile Include="Framework\Graphics\Landscape\InfinitePlane.cpp" />
     <ClCompile Include="Framework\Graphics\Lighting\AmbientLight.cpp" />
     <ClCompile Include="Framework\Graphics\Lighting\CapsuleLight.cpp" />
+    <ClCompile Include="Framework\Graphics\Lighting\DeferredShading\DeferredShaderManager.cpp" />
     <ClCompile Include="Framework\Graphics\Lighting\DirectionalLight.cpp" />
     <ClCompile Include="Framework\Graphics\Lighting\Light.cpp" />
     <ClCompile Include="Framework\Graphics\Lighting\LightManager.cpp" />
@@ -263,8 +264,12 @@
     <ClCompile Include="Framework\Graphics\Mesh\CustomMesh\SkydomeMesh.cpp" />
     <ClCompile Include="Framework\Graphics\Mesh\CustomMesh\SphereMesh.cpp" />
     <ClCompile Include="Framework\Graphics\Mesh\CustomMesh\TriangleMesh.cpp" />
+    <ClCompile Include="Framework\Graphics\Mesh\MeshAttributes.cpp" />
     <ClCompile Include="Framework\Graphics\Mesh\OBJMesh\OBJMesh.cpp" />
     <ClCompile Include="Framework\Graphics\Mesh\Vertex.cpp" />
+    <ClCompile Include="Framework\Graphics\Ocean\OceanHeightfield.cpp" />
+    <ClCompile Include="Framework\Graphics\Ocean\OceanPatchTree.cpp" />
+    <ClCompile Include="Framework\Graphics\Ocean\OceanSurface.cpp" />
     <ClCompile Include="Framework\Graphics\ParticleSystem\Particle.cpp" />
     <ClCompile Include="Framework\Graphics\ParticleSystem\ParticleSystem.cpp" />
     <ClCompile Include="Framework\Graphics\ParticleSystem\ParticleTrajectoryTest.cpp" />
@@ -296,23 +301,28 @@
     <ClCompile Include="Framework\Graphics\Volume\Volume.cpp" />
     <ClCompile Include="Framework\Graphics\Water\LakeBed.cpp" />
     <ClCompile Include="Framework\Graphics\Water\Water.cpp" />
-    <ClCompile Include="Framework\Shaders\BasicTessellation\QuadMaterialTessellationShader.cpp" />
-    <ClCompile Include="Framework\Shaders\BasicTessellation\TriMaterialTessellationShader.cpp" />
+    <ClCompile Include="Framework\Shaders\BasicTessellation\MaterialLightTessellationShader.cpp" />
+    <ClCompile Include="Framework\Shaders\BasicTessellation\MaterialTessellationShader.cpp" />
     <ClCompile Include="Framework\Shaders\Basic\CSDesaturation.cpp" />
     <ClCompile Include="Framework\Shaders\Basic\FontShader.cpp" />
-    <ClCompile Include="Framework\Shaders\Basic\LightShader.cpp" />
+    <ClCompile Include="Framework\Shaders\Basic\MaterialLightShader.cpp" />
     <ClCompile Include="Framework\Shaders\Basic\MaterialShader.cpp" />
     <ClCompile Include="Framework\Shaders\Basic\Shader.cpp" />
     <ClCompile Include="Framework\Shaders\Basic\ShaderCompiler.cpp" />
     <ClCompile Include="Framework\Shaders\Basic\TextureShader.cpp" />
     <ClCompile Include="Framework\Shaders\Environment\BlurShader.cpp" />
-    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\DeferredShader.cpp" />
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\AmbientLightDeferredShader.cpp" />
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\CapsuleLightDeferredShader.cpp" />
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\DebugGBufferDeferredShader.cpp" />
     <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\DirectionalLightDeferredShader.cpp" />
-    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJDeferredShader.cpp" />
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\MaterialGBufferShader.cpp" />
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJGBufferShader.cpp" />
     <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\PointLightDeferredShader.cpp" />
+    <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\SpotLightDeferredShader.cpp" />
     <ClCompile Include="Framework\Shaders\Environment\Lighting\ShadowMapBuildShader.cpp" />
     <ClCompile Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshShader.cpp" />
     <ClCompile Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshTessellationShader.cpp" />
+    <ClCompile Include="Framework\Shaders\Ocean\OceanSurfaceShader.cpp" />
     <ClCompile Include="Framework\Shaders\Sky\SkyPlaneShader.cpp" />
     <ClCompile Include="Framework\Shaders\Sky\SkyShader.cpp" />
     <ClCompile Include="Framework\Shaders\Sun\SunShader.cpp" />
@@ -617,6 +627,7 @@
     <ClInclude Include="Framework\Graphics\Landscape\InfinitePlane.h" />
     <ClInclude Include="Framework\Graphics\Lighting\AmbientLight.h" />
     <ClInclude Include="Framework\Graphics\Lighting\CapsuleLight.h" />
+    <ClInclude Include="Framework\Graphics\Lighting\DeferredShading\DeferredShaderManager.h" />
     <ClInclude Include="Framework\Graphics\Lighting\DirectionalLight.h" />
     <ClInclude Include="Framework\Graphics\Lighting\Light.h" />
     <ClInclude Include="Framework\Graphics\Lighting\LightManager.h" />
@@ -637,10 +648,16 @@
     <ClInclude Include="Framework\Graphics\Mesh\CustomMesh\SkydomeMesh.h" />
     <ClInclude Include="Framework\Graphics\Mesh\CustomMesh\SphereMesh.h" />
     <ClInclude Include="Framework\Graphics\Mesh\CustomMesh\TriangleMesh.h" />
+    <ClInclude Include="Framework\Graphics\Mesh\MeshAttributes.h" />
+    <ClInclude Include="Framework\Graphics\Mesh\MeshRenderParameters.h" />
     <ClInclude Include="Framework\Graphics\Mesh\MeshRenderType.h" />
-    <ClInclude Include="Framework\Graphics\Mesh\OBJMesh\OBJMeshSurfaceMaterial.h" />
     <ClInclude Include="Framework\Graphics\Mesh\OBJMesh\OBJMesh.h" />
     <ClInclude Include="Framework\Graphics\Mesh\Vertex.h" />
+    <ClInclude Include="Framework\Graphics\Ocean\OceanHeightfield.h" />
+    <ClInclude Include="Framework\Graphics\Ocean\OceanParameters.h" />
+    <ClInclude Include="Framework\Graphics\Ocean\OceanPatch.h" />
+    <ClInclude Include="Framework\Graphics\Ocean\OceanPatchTree.h" />
+    <ClInclude Include="Framework\Graphics\Ocean\OceanSurface.h" />
     <ClInclude Include="Framework\Graphics\ParticleSystem\Particle.h" />
     <ClInclude Include="Framework\Graphics\ParticleSystem\ParticleSystem.h" />
     <ClInclude Include="Framework\Graphics\ParticleSystem\ParticleTrajectoryTest.h" />
@@ -678,24 +695,29 @@
     <ClInclude Include="Framework\Graphics\Volume\Volume.h" />
     <ClInclude Include="Framework\Graphics\Water\LakeBed.h" />
     <ClInclude Include="Framework\Graphics\Water\Water.h" />
-    <ClInclude Include="Framework\Shaders\BasicTessellation\QuadMaterialTessellationShader.h" />
-    <ClInclude Include="Framework\Shaders\BasicTessellation\TriMaterialTessellationShader.h" />
+    <ClInclude Include="Framework\Shaders\BasicTessellation\MaterialLightTessellationShader.h" />
+    <ClInclude Include="Framework\Shaders\BasicTessellation\MaterialTessellationShader.h" />
     <ClInclude Include="Framework\Shaders\Basic\CSDesaturation.h" />
     <ClInclude Include="Framework\Shaders\Basic\FontShader.h" />
-    <ClInclude Include="Framework\Shaders\Basic\LightShader.h" />
+    <ClInclude Include="Framework\Shaders\Basic\MaterialLightShader.h" />
     <ClInclude Include="Framework\Shaders\Basic\MaterialShader.h" />
     <ClInclude Include="Framework\Shaders\Basic\Shader.h" />
     <ClInclude Include="Framework\Shaders\Basic\ShaderCompiler.h" />
     <ClInclude Include="Framework\Shaders\Basic\ShaderStruct.h" />
     <ClInclude Include="Framework\Shaders\Basic\TextureShader.h" />
     <ClInclude Include="Framework\Shaders\Environment\BlurShader.h" />
-    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\DeferredShader.h" />
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\AmbientLightDeferredShader.h" />
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\CapsuleLightDeferredShader.h" />
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\DebugGBufferDeferredShader.h" />
     <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\DirectionalLightDeferredShader.h" />
-    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJDeferredShader.h" />
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\MaterialGBufferShader.h" />
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJGBufferShader.h" />
     <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\PointLightDeferredShader.h" />
+    <ClInclude Include="Framework\Shaders\Environment\Lighting\DeferredShading\SpotLightDeferredShader.h" />
     <ClInclude Include="Framework\Shaders\Environment\Lighting\ShadowMapBuildShader.h" />
     <ClInclude Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshShader.h" />
     <ClInclude Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshTessellationShader.h" />
+    <ClInclude Include="Framework\Shaders\Ocean\OceanSurfaceShader.h" />
     <ClInclude Include="Framework\Shaders\Sky\SkyPlaneShader.h" />
     <ClInclude Include="Framework\Shaders\Sky\SkyShader.h" />
     <ClInclude Include="Framework\Shaders\Sun\SunShader.h" />
@@ -781,6 +803,83 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="bin\ZShadeSandbox.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Framework\Shaders\BasicTessellation\QuadMaterialLightTessellation.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\BasicTessellation\QuadMaterialTessellation.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\BasicTessellation\TriMaterialLightTessellation.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\BasicTessellation\TriMaterialTessellation.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\CSDesaturation.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\MaterialLightShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\MaterialShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\Sprite.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Basic\Texture.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\AtmosphericFog.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Blur.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\AmbientLightDeferred.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\CapsuleLightDeferred.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\ClearGBuffer.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\DebugGBufferDeferred.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\DirectionalLightDeferred.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\MaterialGBuffer.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\OBJGBuffer.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\PointLightDeferred.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\SpotLightDeferred.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\UnpackGBuffer.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\Lighting.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Environment\Lighting\ShadowMap.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Mesh\OBJMesh\OBJMesh.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshTessellation.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

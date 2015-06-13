@@ -24,14 +24,15 @@
 #include "TextureManager.h"
 #include "CustomMeshParameters.h"
 #include "ShaderMaterial.h"
+#include "MeshAttributes.h"
 
 // Shader includes
 #include "MaterialShader.h"
-#include "LightShader.h"
 #include "ShadowMapBuildShader.h"
-#include "QuadMaterialTessellationShader.h"
-#include "TriMaterialTessellationShader.h"
-#include "DeferredShader.h"
+#include "MaterialGBufferShader.h"
+#include "MaterialLightShader.h"
+#include "MaterialTessellationShader.h"
+#include "MaterialLightTessellationShader.h"
 
 //===============================================================================================================================
 //===============================================================================================================================
@@ -74,58 +75,62 @@ public:
 	virtual void Initialize() {}
 	virtual void InitTessellation() {}
 	
+	void Init();
+	
 	void LoadFromFile(char* filename);
 
 	// This function must be called to use tessellation
 	void InitializeMesh();
 	
 	// Convenient functions to subdivide a custom mesh into smaller triangles
-	void Subdivide_VertexPos();
-	void GrabSubdividedGeometry_VertexPos(vector<ZShadeSandboxMesh::VertexPos> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexPos>& OutVerts, vector<UINT>& OutInd);
-	void Subdivide_VertexTex();
-	void GrabSubdividedGeometry_VertexTex(vector<ZShadeSandboxMesh::VertexTex> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexTex>& OutVerts, vector<UINT>& OutInd);
-	void Subdivide_VertexColor();
-	void GrabSubdividedGeometry_VertexColor(vector<ZShadeSandboxMesh::VertexColor> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexColor>& OutVerts, vector<UINT>& OutInd);
-	void Subdivide_VertexNormalTexTan();
-	void GrabSubdividedGeometry_VertexNormalTexTan(vector<ZShadeSandboxMesh::VertexNormalTexTan> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexNormalTexTan>& OutVerts, vector<UINT>& OutInd);
-	void Subdivide_VertexNormalTex();
-	void GrabSubdividedGeometry_VertexNormalTex(vector<ZShadeSandboxMesh::VertexNormalTex> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexNormalTex>& OutVerts, vector<UINT>& OutInd);
+	void Subdivide();
 
-	void ReplyMeshIndices(vector<UINT> ind);
+	//void Subdivide_VertexPos();
+	//void GrabSubdividedGeometry_VertexPos(vector<ZShadeSandboxMesh::VertexPos> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexPos>& OutVerts, vector<UINT>& OutInd);
+	//void Subdivide_VertexTex();
+	//void GrabSubdividedGeometry_VertexTex(vector<ZShadeSandboxMesh::VertexTex> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexTex>& OutVerts, vector<UINT>& OutInd);
+	//void Subdivide_VertexColor();
+	//void GrabSubdividedGeometry_VertexColor(vector<ZShadeSandboxMesh::VertexColor> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexColor>& OutVerts, vector<UINT>& OutInd);
+	//void Subdivide_VertexNormalTexTan();
+	//void GrabSubdividedGeometry_VertexNormalTexTan(vector<ZShadeSandboxMesh::VertexNormalTexTan> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexNormalTexTan>& OutVerts, vector<UINT>& OutInd);
+	//void Subdivide_VertexNormalTex();
+	//void GrabSubdividedGeometry_VertexNormalTex(vector<ZShadeSandboxMesh::VertexNormalTex> verts, vector<UINT> inds, vector<ZShadeSandboxMesh::VertexNormalTex>& OutVerts, vector<UINT>& OutInd);
+
+	//void ReplyMeshIndices(vector<UINT> ind);
 	
 	//For dynamic buffer to change values at runtime
 	void RegenVertexBuffer();
-
-	void SetBuffers(ERenderType::Type renderType);
+	void RegenInstanceBuffer();
+	
+	//void SetBuffers(ERenderType::Type renderType);
+	//void SetBuffersInstanced(ERenderType::Type renderType);
 	//void SetBuffersNoIndex(RenderType rt);
 
 	void Shade(ZShadeSandboxMesh::MeshRenderParameters mrp);
 	
 	//void SetTexture(ID3D11ShaderResourceView* texSRV);// { pTexture = texSRV; }
 
-	XMMATRIX WorldXM();
+	//XMMATRIX WorldXM();
 	
-	XMFLOAT3& Position() { return mPosition; }
-	XMFLOAT3& Rotation() { return mRotation; }
-	XMFLOAT3& Scale() { return mScale; }
+	XMFLOAT3& Position() { return mAttributes->mPosition; }
+	XMFLOAT3& Rotation() { return mAttributes->mRotation; }
+	XMFLOAT3& Scale() { return mAttributes->mScale; }
 	
-	XMFLOAT3 Position() const { return mPosition; }
-	XMFLOAT3 Rotation() const { return mRotation; }
-	XMFLOAT3 Scale() const { return mScale; }
+	XMFLOAT3 Position() const { return mAttributes->mPosition; }
+	XMFLOAT3 Rotation() const { return mAttributes->mRotation; }
+	XMFLOAT3 Scale() const { return mAttributes->mScale; }
 	
 	bool& RenderShader() { return m_RenderShader; }
 	bool RenderShader() const { return m_RenderShader; }
 	
 	EMeshType::Type MeshType() { return mMeshType; }
 	
-	// Adds the forward light buffers to the material
-	void SetLightBuffer(ZShadeSandboxLighting::LightBuffer* lb);
-	void SetLightBuffer(ZShadeSandboxLighting::SunLightBuffer* slb);
-	
 	void SetMaterialDiffuseTexture(ID3D11ShaderResourceView* texSRV);
 	string TextureName() const;
 
 	void RemoveTexture(int i);
+
+	void SetFarPlane(float fp) { mMaterial->fFarPlane = fp; }
 
 	//Texture*& MeshTexture() { return mTexture; }
 	//Texture* MeshTexture() const { return mTexture; }
@@ -136,20 +141,23 @@ public:
 	ZShadeSandboxMesh::MeshParameters MeshParams() const { return mMeshParameters; }
 
 	//Returns a billboard rotation to the camera
-	void BillboardWorldXM(Camera* camera);
+	//void BillboardWorldXM(Camera* camera);
 
 	//void SetClipPlane(XMFLOAT4 clipplane) { mClipPlane = clipplane; }
 
 	void SetWireframe(bool set) { m_Wireframe = set; }
 
-	UINT GetIndexCount() { return mIndexCount; }
-	int TriangleCount() const { return mTriangleCount; }
+	UINT GetIndexCount() { return mAttributes->mIndexCount; }
+	UINT GetInstanceCount() { return mAttributes->mInstanceCount; }
+	int TriangleCount() const { return mAttributes->mTriangleCount; }
 	
-	void SetShadowMapSRV(ID3D11ShaderResourceView* srv) { mMaterial->SetShadowMapTexture(srv); }
-	void SetSSAOMapSRV(ID3D11ShaderResourceView* srv) { mMaterial->SetSSAOTexture(srv); }
-	void EnableShadowMap(bool enable) { mMaterial->EnableShadowMap() = enable; }
-	void EnableSSAOMap(bool enable) { mMaterial->EnableSSAOMap() = enable; }
-
+	void SetShadowMapSRV(ID3D11ShaderResourceView* srv) { mMaterial->SetMaterialShadowMapTexture(srv); }
+	void SetSSAOMapSRV(ID3D11ShaderResourceView* srv) { mMaterial->SetMaterialSSAOMapTexture(srv); }
+	void EnableShadowMap(bool enable) { mMaterial->bHasShadowMap = enable; }
+	void EnableSSAOMap(bool enable) { mMaterial->bHasSSAOMap = enable; }
+	
+	void AddInstancePositions(vector<XMFLOAT3> v);
+	
 	// Physics
 	
 	// Does this mesh collide with another mesh
@@ -174,73 +182,62 @@ public:
 	virtual CustomMesh* Clone() { return NULL; }
 
 protected:
+	
 	void CreateBuffers();
+	void CreateInstanceBuffer();
+	
+	
+	
+	//XMFLOAT3   mPosition;
+	//XMFLOAT3   mRotation;
+	//XMFLOAT3   mScale;
+	//XMFLOAT4X4 mWorld;
+	//XMMATRIX   mBillboardWorld;
+	
+	// These shaders should only be created one time
+	static MaterialShader*					pMaterialShader;
+	static MaterialLightShader*				pLightShader;
+	static MaterialTessellationShader*		pQuadMaterialTessellationShader;
+	static MaterialTessellationShader*		pTriMaterialTessellationShader;
+	static MaterialLightTessellationShader*	pQuadMaterialLightTessellationShader;
+	static MaterialLightTessellationShader* pTriMaterialLightTessellationShader;
+	static ShadowMapBuildShader*			pShadowMapBuildShader;
+	static MaterialGBufferShader*			pMaterialGBufferShader;
+	
+	//vector<ZShadeSandboxMesh::VertexNormalTex>		mVerticesVNT;
+	//vector<ZShadeSandboxMesh::VertexNormalTexTan>	mVerticesVNTT;
+	//vector<ZShadeSandboxMesh::VertexPos>			mVerticesPos;
+	//vector<ZShadeSandboxMesh::VertexTex>			mVerticesTex;
+	//vector<ZShadeSandboxMesh::VertexColor>			mVerticesColor;
+	//vector<ZShadeSandboxMesh::InstancePos>			mInstancePos;
+	//vector<UINT>              mIndices;
 	
 	bool m_RenderShader;
-	
-	ZShadeSandboxMesh::MeshParameters mMeshParameters;
-
 	EMeshType::Type mMeshType;
 	ERenderType::Type mRenderType;
-
-	//string mTextureName;
-	//Texture* mTexture;
-	//Texture* mCloudTexture;
-	//Texture* mCloudPerturbTexture;
-	
 	bool m_Wireframe;
-
 	bool m_TranslateBillboard;
-
 	// Just so we can load a mesh that does not require an index buffer
 	bool m_DisableIndexBuffer;
 	
-	// Used to apply a color across all vertices
-	//XMFLOAT4   mDefaultColor;
-	
-	XMFLOAT3   mPosition;
-	XMFLOAT3   mRotation;
-	XMFLOAT3   mScale;
-	XMFLOAT4X4 mWorld;
-	XMMATRIX   mBillboardWorld;
-	
-	ZShadeSandboxLighting::ShaderMaterial* mMaterial;
-
-	// These shaders should only be created one time
-	static MaterialShader*					pMaterialShader;
-	static LightShader*						pLightShader;
-	static QuadMaterialTessellationShader* 	pQuadMaterialTessellationShader;
-	static TriMaterialTessellationShader* 	pTriMaterialTessellationShader;
-	static ShadowMapBuildShader*	 		pShadowMapBuildShader;
-	static DeferredShader*					pDeferredShader;
-	
-	//static TextureShader*            pTextureShader;
-	//static ColorShader*              pColorShader;
-	//static TransparentShader*        pTransparentShader;
-	//static QuadColorTessellationShader* pQuadColorTessellationShader;
-	//static QuadTextureTessellationShader* pQuadTextureTessellationShader;
-	//static TriColorTessellationShader* pTriColorTessellationShader;
-	//static TriTextureTessellationShader* pTriTextureTessellationShader;
-	
-	vector<ZShadeSandboxMesh::VertexNormalTex>		mVerticesVNT;
-	vector<ZShadeSandboxMesh::VertexNormalTexTan>	mVerticesVNTT;
-	vector<ZShadeSandboxMesh::VertexPos>			mVerticesPos;
-	vector<ZShadeSandboxMesh::VertexTex>			mVerticesTex;
-	vector<ZShadeSandboxMesh::VertexColor>			mVerticesColor;
-	
-	vector<UINT>              mIndices;
-	
 	//The physics body of the mesh
 	PhysicsBody* mBody;
+	ZShadeSandboxLighting::ShaderMaterial* mMaterial;
+	D3D*                      mD3DSystem;
+	EngineOptions*            mEngineOptions;
 	
-	D3D*                      pD3DSystem;
-	EngineOptions*            pEngineOptions;
-	ID3D11Buffer*             pVB;
-	ID3D11Buffer*             pIB;
-	UINT                      mVertexByteWidth;
-	UINT                      mVertexCount;
-	UINT                      mIndexCount;
-	int                       mTriangleCount;
+	ZShadeSandboxMesh::MeshAttributes* mAttributes;
+	ZShadeSandboxMesh::MeshParameters mMeshParameters;
+	
+	//ID3D11Buffer*             pVB;
+	//ID3D11Buffer*             pIB;
+	//ID3D11Buffer*             pInstanceBuffer;
+	//UINT                      mVertexByteWidth;
+	//UINT                      mInstanceByteWidth;
+	//UINT                      mVertexCount;
+	//UINT                      mIndexCount;
+	//UINT					  mInstanceCount;
+	//int                       mTriangleCount;
 };
 }
 //===============================================================================================================================

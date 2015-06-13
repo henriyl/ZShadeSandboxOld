@@ -82,7 +82,7 @@ void VolumeEnvironment::Render()
 	}
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem.get();
 	
 	//
 	// Render the cube with defaults

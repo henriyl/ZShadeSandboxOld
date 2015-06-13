@@ -2,6 +2,12 @@
 #include <algorithm>
 using ZShadeSandboxMesh::SphereMesh;
 //===============================================================================================================================
+SphereMesh::SphereMesh(D3D* d3d, ZShadeSandboxMesh::MeshParameters mp, char* filename)
+: ZShadeSandboxMesh::CustomMesh(d3d, mp, filename)
+{
+	mMeshType = ZShadeSandboxMesh::EMeshType::SPHERE;
+}
+//===============================================================================================================================
 SphereMesh::SphereMesh(float radius, UINT sliceCount, UINT stackCount, D3D* d3d, ZShadeSandboxMesh::MeshParameters mp)
 :   ZShadeSandboxMesh::CustomMesh( d3d, mp )
 ,   fRadius(radius)
@@ -20,7 +26,7 @@ SphereMesh::SphereMesh(ZShadeSandboxMath::SpherePrimitive sphere, D3D* d3d, ZSha
 {
 	// The translated position of the sphere mesh will be the center of the sphere
 	ZShadeSandboxMath::Vec3<XMFLOAT3> c = sphere.Center();
-	mPosition = XMFLOAT3(c.Vector().x, c.Vector().y, c.Vector().z);
+	mAttributes->mPosition = XMFLOAT3(c.Vector().x, c.Vector().y, c.Vector().z);
 	fRadius = sphere.Radius();
 	iSliceCount = sphere.SliceCount();
 	iStackCount = sphere.StackCount();
@@ -55,14 +61,14 @@ void SphereMesh::Initialize()
 	{
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTex:
 		{
-			//mVerticesVNT.resize( NUM_SPHERE_VERTS );
+			//mAttributes->mVerticesNormalTex.resize( NUM_SPHERE_VERTS );
 			
 			// Create the poles of the sphere
 			ZShadeSandboxMesh::VertexNormalTex topVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(0.0f, fRadius, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
 			ZShadeSandboxMesh::VertexNormalTex bottomVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(0.0f, -fRadius, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f);
 			
 			// Add the top vertex of the sphere
-			mVerticesVNT.push_back(topVertex);
+			mAttributes->mVerticesNormalTex.push_back(topVertex);
 			
 			UINT index = 0;
 			
@@ -90,27 +96,25 @@ void SphereMesh::Initialize()
 					vertex.texture.x = t / TWO_PI;
 					vertex.texture.y = p / PI;
 					
-					mVerticesVNT.push_back(vertex);
+					mAttributes->mVerticesNormalTex.push_back(vertex);
 				}
 			}
 			
-			mVerticesVNT.push_back(bottomVertex);
+			mAttributes->mVerticesNormalTex.push_back(bottomVertex);
 
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexNormalTex );
-
-			mVertexCount = mVerticesVNT.size();
+			mAttributes->mVertexCount = mAttributes->mVerticesNormalTex.size();
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
 		{
-			//mVerticesVNTT.resize( NUM_SPHERE_VERTS );
+			//mAttributes->mVerticesNormalTexTan.resize( NUM_SPHERE_VERTS );
 			
 			// Create the poles of the sphere
 			ZShadeSandboxMesh::VertexNormalTexTan topVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(0.0f, fRadius, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 			ZShadeSandboxMesh::VertexNormalTexTan bottomVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(0.0f, -fRadius, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f);
 			
 			// Add the top vertex of the sphere
-			mVerticesVNTT.push_back(topVertex);
+			mAttributes->mVerticesNormalTexTan.push_back(topVertex);
 			
 			UINT index = 0;
 			
@@ -146,27 +150,25 @@ void SphereMesh::Initialize()
 					XMVECTOR T = XMLoadFloat3(&vertex.tangentU);
 					XMStoreFloat3(&vertex.tangentU, XMVector3Normalize(T));
 
-					mVerticesVNTT.push_back(vertex);
+					mAttributes->mVerticesNormalTexTan.push_back(vertex);
 				}
 			}
 			
-			mVerticesVNTT.push_back(bottomVertex);
+			mAttributes->mVerticesNormalTexTan.push_back(bottomVertex);
 
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexNormalTexTan );
-
-			mVertexCount = mVerticesVNTT.size();
+			mAttributes->mVertexCount = mAttributes->mVerticesNormalTexTan.size();
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Pos:
 		{
-			//mVerticesPos.resize( NUM_SPHERE_VERTS );
+			//mAttributes->mVerticesPos.resize( NUM_SPHERE_VERTS );
 			
 			// Create the poles of the sphere
 			ZShadeSandboxMesh::VertexPos topVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexPos(0.0f, fRadius, 0.0f);
 			ZShadeSandboxMesh::VertexPos bottomVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexPos(0.0f, -fRadius, 0.0f);
 			
 			// Add the top vertex of the sphere
-			mVerticesPos.push_back(topVertex);
+			mAttributes->mVerticesPos.push_back(topVertex);
 			
 			UINT index = 0;
 			
@@ -187,28 +189,26 @@ void SphereMesh::Initialize()
 					vertex.position.y = fRadius * cosf(p);
 					vertex.position.z = fRadius * sinf(p) * sinf(t); // Last one was cosf
 					
-					mVerticesPos[index++] = vertex;
+					mAttributes->mVerticesPos[index++] = vertex;
 				}
 			}
 			
-			mVerticesPos.push_back(bottomVertex);
+			mAttributes->mVerticesPos.push_back(bottomVertex);
 
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexPos );
-
-			mVertexCount = mVerticesPos.size();
+			mAttributes->mVertexCount = mAttributes->mVerticesPos.size();
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Tex:
 		{
-			//mVerticesTex.resize( NUM_SPHERE_VERTS );
+			//mAttributes->mVerticesTex.resize( NUM_SPHERE_VERTS );
 			
 			// Create the poles of the sphere
 			ZShadeSandboxMesh::VertexTex topVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexTex(0.0f, fRadius, 0.0f, 0.0f, 1.0f);
 			ZShadeSandboxMesh::VertexTex bottomVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexTex(0.0f, -fRadius, 0.0f, 0.0f, -1.0f);
 			
 			// Add the top vertex of the sphere
-			//mVerticesTex[0] = topVertex;
-			mVerticesTex.push_back(topVertex);
+			//mAttributes->mVerticesTex[0] = topVertex;
+			mAttributes->mVerticesTex.push_back(topVertex);
 			
 			UINT index = 0;
 			
@@ -233,29 +233,28 @@ void SphereMesh::Initialize()
 					vertex.texture.x = t / TWO_PI;
 					vertex.texture.y = p / PI;
 					
-					//mVerticesTex[index++] = vertex;
-					mVerticesTex.push_back(vertex);
+					//mAttributes->mVerticesTex[index++] = vertex;
+					mAttributes->mVerticesTex.push_back(vertex);
 				}
 			}
 			
-			mVerticesTex.push_back(bottomVertex);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexTex );
+			mAttributes->mVerticesTex.push_back(bottomVertex);
 
-			mVertexCount = mVerticesTex.size();
+			mAttributes->mVertexCount = mAttributes->mVerticesTex.size();
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
-			//mVerticesColor.resize( NUM_SPHERE_VERTS );
+			//mAttributes->mVerticesColor.resize( NUM_SPHERE_VERTS );
 			
-			XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+			XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
 			// Create the poles of the sphere
 			ZShadeSandboxMesh::VertexColor topVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(0.0f, fRadius, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w);
 			ZShadeSandboxMesh::VertexColor bottomVertex = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(0.0f, -fRadius, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w);
 			
 			// Add the top vertex of the sphere
-			mVerticesColor.push_back(topVertex);
+			mAttributes->mVerticesColor.push_back(topVertex);
 			
 			UINT index = 0;
 			
@@ -279,20 +278,18 @@ void SphereMesh::Initialize()
 					// Add the color for the vertex
 					vertex.color = diffuseColor;
 					
-					mVerticesColor.push_back(vertex);
+					mAttributes->mVerticesColor.push_back(vertex);
 				}
 			}
 			
-			mVerticesColor.push_back(bottomVertex);
+			mAttributes->mVerticesColor.push_back(bottomVertex);
 
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexColor );
-
-			mVertexCount = mVerticesColor.size();
+			mAttributes->mVertexCount = mAttributes->mVerticesColor.size();
 		}
 		break;
 	}
 	
-	mTriangleCount = mVertexCount / 3;
+	mAttributes->mTriangleCount = mAttributes->mVertexCount / 3;
 	
 	//
 	// Load Indices
@@ -302,15 +299,15 @@ void SphereMesh::Initialize()
 	
 	//mIndexCount = NUM_SPHERE_INDICES;
 	
-	//mIndices.resize( NUM_SPHERE_INDICES );
+	//mAttributes->mIndices.resize( NUM_SPHERE_INDICES );
 	
 	// Create the indices for the top stack
 	int index = 0;
 	for (UINT i = 1; i <= iSliceCount; ++i)
 	{
-		mIndices.push_back(0);
-		mIndices.push_back(i + 1);
-		mIndices.push_back(i);
+		mAttributes->mIndices.push_back(0);
+		mAttributes->mIndices.push_back(i + 1);
+		mAttributes->mIndices.push_back(i);
 	}
 	
 	// Create the indices for the inner stack (poles not included)
@@ -322,18 +319,18 @@ void SphereMesh::Initialize()
 	{
 		for (UINT j = 0; j <= iSliceCount; ++j)
 		{
-			mIndices.push_back(baseIndex + i * ringVertexCount + j);
-			mIndices.push_back(baseIndex + i * ringVertexCount + j + 1);
-			mIndices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+			mAttributes->mIndices.push_back(baseIndex + i * ringVertexCount + j);
+			mAttributes->mIndices.push_back(baseIndex + i * ringVertexCount + j + 1);
+			mAttributes->mIndices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
 			
-			mIndices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-			mIndices.push_back(baseIndex + i * ringVertexCount + j + 1);
-			mIndices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
+			mAttributes->mIndices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+			mAttributes->mIndices.push_back(baseIndex + i * ringVertexCount + j + 1);
+			mAttributes->mIndices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
 		}
 	}
 	
 	// Create the indices for the bottom stack
-	UINT southPoleIndex = (UINT)mVertexCount - 1;
+	UINT southPoleIndex = (UINT)mAttributes->mVertexCount - 1;
 	
 	// Offset the indices to the index of the first vertex in the last ring
 	baseIndex = southPoleIndex - ringVertexCount;
@@ -341,17 +338,17 @@ void SphereMesh::Initialize()
 	index = 0;
 	for (UINT i = 0; i < iSliceCount; ++i)
 	{
-		mIndices.push_back(southPoleIndex);
-		mIndices.push_back(baseIndex + i);
-		mIndices.push_back(baseIndex + i + 1);
+		mAttributes->mIndices.push_back(southPoleIndex);
+		mAttributes->mIndices.push_back(baseIndex + i);
+		mAttributes->mIndices.push_back(baseIndex + i + 1);
 	}
 
-	mIndexCount = mIndices.size();
+	mAttributes->mIndexCount = mAttributes->mIndices.size();
 }
 //===============================================================================================================================
 ZShadeSandboxMesh::CustomMesh* SphereMesh::Clone()
 {
-	SphereMesh* mesh = new SphereMesh(fRadius, iSliceCount, iStackCount, pD3DSystem, mMeshParameters);
+	SphereMesh* mesh = new SphereMesh(fRadius, iSliceCount, iStackCount, mD3DSystem, mMeshParameters);
 
 	return mesh;
 }

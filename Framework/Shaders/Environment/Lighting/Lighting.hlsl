@@ -7,11 +7,122 @@
 //
 // -Created on 4/20/2015 by Dustin Watson
 //==============================================================================
-#include "../Environment/Lighting/LightingHelper.hlsl"
+
+// Maximum amount of lights that can be seen in the scene
+#define MAX_LIGHTS  16
+
+struct AmbientLight
+{
+	float4	g_AmbientColor;
+	float3	ambientpadding;
+	int		g_Toggle;
+};
+
+struct DirectionalLight
+{
+	float3	g_LightDirection;
+	float	g_Intensity;
+	float4	g_AmbientColor;
+	float4	g_DiffuseColor;
+	float3	directionalpadding;
+	int		g_Toggle;
+};
+
+struct SpotLight
+{
+	float4	g_AmbientColor;
+	float4	g_DiffuseColor;
+	float3	g_LightPosition;
+	float	g_Intensity;
+	float	g_LightRange;
+	float	g_SpotCosOuterCone;
+	float	g_SpotInnerConeReciprocal;
+	float	g_CosineAngle;
+	float3	spotpadding;
+	int		g_Toggle;
+};
+
+struct PointLight
+{
+	float3	g_LightPosition;
+	float	g_LightRange;
+	float3	g_Attenuation;
+	float	g_Intensity;
+	float4	g_AmbientColor;
+	float4	g_DiffuseColor;
+	float3	pointpadding;
+	int		g_Toggle;
+};
+
+struct CapsuleLight
+{
+	float3 	g_LightPosition;
+	float 	g_LightRange;
+	float3 	g_LightDirection;
+	float 	g_LightLength;
+	float3 	g_CapsuleDirectionLength;
+	float 	g_CapsuleIntensity;
+	float4	g_AmbientColor;
+	float4	g_DiffuseColor;
+	float3	capsulepadding;
+	int		g_Toggle;
+};
+
+cbuffer cbLightBuffer : register(b0)
+{
+	AmbientLight	 g_AmbientLight[MAX_LIGHTS];
+	DirectionalLight g_DirectionalLight[MAX_LIGHTS];
+	SpotLight		 g_SpotLight[MAX_LIGHTS];
+	PointLight		 g_PointLight[MAX_LIGHTS];
+	CapsuleLight	 g_CapsuleLight[MAX_LIGHTS];
+	
+	int				 g_DirectionalLightCount;
+	int				 g_SpotLightCount;
+	int				 g_PointLightCount;
+	int              g_CapsuleLightCount;
+	
+	float3			 g_AmbientDown;
+	int				 g_AmbientLightCount;
+	float3			 g_AmbientUp;
+	float			 lightpadding;
+};
+
+cbuffer cbSunLightBuffer : register(b1)
+{
+	float3		g_SunDir;
+	int			g_EnableSun;
+	float4		g_SunDiffuseColor;
+	float3		sunpadding1;
+	float		g_SunShineness;
+	float3		sunpadding2;
+	float		g_SunIntensity;
+};
 
 //
 // Global Functions
 //
+
+float DotProduct(float3 pos, float3 pos3D, float3 normal)
+{
+    float3 dir = normalize(pos3D - pos);
+    return dot(-dir, normal);    
+}
+
+float4 DepthColor(float4 pos2D)
+{
+	return pos2D.z / pos2D.w;
+}
+
+float4 dot4x4(float4 aX, float4 aY, float4 aZ, float4 bX, float4 bY, float4 bZ)
+{
+	return aX * bX + aY * bY + aZ * bZ;
+}
+
+float4 dot4x1(float4 aX, float4 aY, float4 aZ, float3 b)
+{
+	return aX * b.xxxx + aY * b.yyyy + aZ * b.zzzz;
+}
+
 //==============================================================================
 // Ambient Light
 
@@ -32,6 +143,21 @@ float3 CalculateAmbientColor(float3 normal, float3 diffuseColor, float3 ambientD
 	// Apply the ambient color to the diffuse color
 	return ambient * diffuseColor;
 }
+
+float3 FinalAmbientColor(float3 normal, float3 diffuseColor, float3 ambientDown, float3 ambientUp)
+{
+	float3 ambientColor = DiffuseColorToLinearSpace(float4(diffuseColor, 1)).rgb;
+	
+	// Convert from [-1, 1] to [0, 1]
+	float up = normal.y * 0.5 + 0.5;
+	
+	// Calculate the ambient value
+	float3 ambient = ambientDown + up * ambientUp;
+	
+	// Apply the ambient color to the diffuse color
+	return ambientColor + (ambient * diffuseColor);
+}
+
 //==============================================================================
 // Directional Light (sun or moon)
 // When time of day is dynamic we need multiple values for different parts of the day.
@@ -46,6 +172,7 @@ float3 DirectionalLightColor
 (	float3 pixelPosition
 ,   float3 eyePosition
 ,   float3 lightDirection
+,	float lightIntensity
 ,   float3 directionLightColor
 ,   float3 materialNormal
 ,   float4 materialDiffuseColor
@@ -71,7 +198,7 @@ float3 DirectionalLightColor
 	float NDotH = saturate(dot(halfWay, materialNormal));
 	lightColor += directionLightColor.rgb * pow(NDotH, materialSpecularExponent) * materialSpecularIntensity;// * shadowColor;
 	
-	return lightColor * materialDiffuseColor.rgb;
+	return lightColor * materialDiffuseColor.rgb * lightIntensity;
 }
 //==============================================================================
 // Point Light
@@ -84,6 +211,7 @@ float3 PointLightColor
 ,   float3 eyePosition
 ,   float3 pointColor
 ,   float3 lightPosition
+,	float lightIntensity
 ,   float pointLightRangeReciprocal
 ,   float3 materialNormal
 ,   float4 materialDiffuseColor
@@ -118,7 +246,7 @@ float3 PointLightColor
 	
 	float distToLightNormal = 1.0 - saturate(distToLight * pointLightRangeReciprocal);
 	float attenuation = distToLightNormal * distToLightNormal;
-	lightColor *= materialDiffuseColor.rgb * attenuation;
+	lightColor *= materialDiffuseColor.rgb * attenuation * lightIntensity;
 	
 	return lightColor;
 }
@@ -131,6 +259,7 @@ float3 SpotLightColor
 ,	float3 eyePosition
 ,	float3 spotColor
 ,   float3 spotLightPosition
+,	float lightIntensity
 ,	float spotLightRangeReciprocal
 ,	float3 spotLightDirection // Inverted Direction (Not Used)
 ,	float spotCosOuterCone
@@ -176,7 +305,7 @@ float3 SpotLightColor
 	
 	float distToLightNormal = 1.0 - saturate(distToLight * spotLightRangeReciprocal);
 	float attenuation = distToLightNormal * distToLightNormal;
-	lightColor *= materialDiffuseColor.rgb * attenuation * coneAtt;
+	lightColor *= materialDiffuseColor.rgb * attenuation * coneAtt * lightIntensity;
 	
 	return lightColor;
 }
@@ -484,6 +613,7 @@ float4 SunDirectionalColor
 		(	pixelPosition
 		,	eyePosition
 		,	g_SunDir
+		,	g_SunIntensity
 		,	g_SunDiffuseColor
 		,	materialNormal
 		,	materialDiffuseColor
@@ -516,18 +646,18 @@ float4 CalculateLightColor
 ,	float ssaoColor
 )
 {
-	float4 finalColor					= float4(0, 0, 0, 0);
-	float4 finalSunColor 				= float4(0, 0, 0, 0);
-	float4 finalAmbientLightColor		= float4(0, 0, 0, 0);
-	float4 finalDirectionalLightColor 	= float4(0, 0, 0, 0);
-	float4 finalPointLightColor 		= float4(0, 0, 0, 0);
-	float4 finalSpotLightColor 			= float4(0, 0, 0, 0);
-	float4 finalCapsuleLightColor 		= float4(0, 0, 0, 0);
+	float4 finalColor					= float4(0, 0, 0, 1);
+	float4 finalSunColor 				= float4(0, 0, 0, 1);
+	float4 finalAmbientLightColor		= float4(0, 0, 0, 1);
+	float4 finalDirectionalLightColor 	= float4(0, 0, 0, 1);
+	float4 finalPointLightColor 		= float4(0, 0, 0, 1);
+	float4 finalSpotLightColor 			= float4(0, 0, 0, 1);
+	float4 finalCapsuleLightColor 		= float4(0, 0, 0, 1);
 	
-	float4 finalDirectionalAmbientColor = float4(0, 0, 0, 0);
-	float4 finalPointAmbientColor 		= float4(0, 0, 0, 0);
-	float4 finalSpotAmbientColor 		= float4(0, 0, 0, 0);
-	float4 finalCapsuleAmbientColor 	= float4(0, 0, 0, 0);
+	float4 finalDirectionalAmbientColor = float4(0, 0, 0, 1);
+	float4 finalPointAmbientColor 		= float4(0, 0, 0, 1);
+	float4 finalSpotAmbientColor 		= float4(0, 0, 0, 1);
+	float4 finalCapsuleAmbientColor 	= float4(0, 0, 0, 1);
 	
 	finalSunColor = SunDirectionalColor
 	(	pixelPosition
@@ -547,7 +677,10 @@ float4 CalculateLightColor
 	{
 		AmbientLight al = g_AmbientLight[i];
 		
-		finalAmbientLightColor *= al.g_AmbientColor;
+		if (al.g_Toggle == 1)
+		{
+			finalAmbientLightColor *= al.g_AmbientColor;
+		}
 	}
 	
 	[loop]
@@ -555,21 +688,23 @@ float4 CalculateLightColor
 	{
 		DirectionalLight dl = g_DirectionalLight[i];
 		
-		finalDirectionalLightColor += dl.g_AmbientColor;
-		
-		finalDirectionalLightColor.rgb += DirectionalLightColor
-		(	pixelPosition
-		,	eyePosition
-		,	dl.g_LightDirection
-		,	dl.g_DiffuseColor
-		,	materialNormal
-		,	materialDiffuseColor
-		,	materialSpecularExponent
-		,	materialSpecularIntensity
-		,   shadowColor
-		);
-		
-		finalDirectionalLightColor.a = 1.0f;
+		if (dl.g_Toggle == 1)
+		{
+			finalDirectionalLightColor += dl.g_AmbientColor;
+			finalDirectionalLightColor.rgb += DirectionalLightColor
+			(	pixelPosition
+			,	eyePosition
+			,	dl.g_LightDirection
+			,	dl.g_Intensity
+			,	dl.g_DiffuseColor
+			,	materialNormal
+			,	materialDiffuseColor
+			,	materialSpecularExponent
+			,	materialSpecularIntensity
+			,   shadowColor
+			);
+			finalDirectionalLightColor.a = 1.0f;
+		}
 	}
 	
 	[loop]
@@ -577,21 +712,23 @@ float4 CalculateLightColor
 	{
 		PointLight pl = g_PointLight[i];
 		
-		finalPointLightColor.rgb += PointLightColor
-		(	pixelPosition
-		,	eyePosition
-		,	pl.g_DiffuseColor
-		,	pl.g_LightPosition
-		,	1.0 / pl.g_LightRange
-		,	materialNormal
-		,	materialDiffuseColor
-		,	materialSpecularExponent
-		,	materialSpecularIntensity
-		);
-		
-		finalPointLightColor.a = 1.0f;
-		
-		finalPointAmbientColor += ssaoColor * pl.g_AmbientColor;
+		if (pl.g_Toggle == 1)
+		{
+			finalPointAmbientColor += pl.g_AmbientColor;
+			finalPointLightColor.rgb += PointLightColor
+			(	pixelPosition
+			,	eyePosition
+			,	pl.g_DiffuseColor
+			,	pl.g_LightPosition
+			,	pl.g_Intensity
+			,	1.0 / pl.g_LightRange
+			,	materialNormal
+			,	materialDiffuseColor
+			,	materialSpecularExponent
+			,	materialSpecularIntensity
+			);
+			finalPointLightColor.a = 1.0f;
+		}
 	}
 	
 	[loop]
@@ -599,25 +736,27 @@ float4 CalculateLightColor
 	{
 		SpotLight sl = g_SpotLight[i];
 		
-		finalSpotLightColor.rgb += SpotLightColor
-		(	pixelPosition
-		,	eyePosition
-		,	sl.g_DiffuseColor
-		,	sl.g_LightPosition
-		,	1 / sl.g_LightRange
-		,	float3(0,0,0)
-		,	sl.g_SpotCosOuterCone
-		,	sl.g_SpotInnerConeReciprocal
-		,	sl.g_CosineAngle
-		,	materialNormal
-		,	materialDiffuseColor
-		,	materialSpecularExponent
-		,	materialSpecularIntensity
-		);
-		
-		finalSpotLightColor.a = 1.0f;
-		
-		finalSpotAmbientColor += ssaoColor * sl.g_AmbientColor;
+		if (sl.g_Toggle == 1)
+		{
+			finalSpotAmbientColor += sl.g_AmbientColor;
+			finalSpotLightColor.rgb += SpotLightColor
+			(	pixelPosition
+			,	eyePosition
+			,	sl.g_DiffuseColor
+			,	sl.g_LightPosition
+			,	sl.g_Intensity
+			,	1 / sl.g_LightRange
+			,	float3(0,0,0)
+			,	sl.g_SpotCosOuterCone
+			,	sl.g_SpotInnerConeReciprocal
+			,	sl.g_CosineAngle
+			,	materialNormal
+			,	materialDiffuseColor
+			,	materialSpecularExponent
+			,	materialSpecularIntensity
+			);
+			finalSpotLightColor.a = 1.0f;
+		}
 	}
 	
 	[loop]
@@ -625,42 +764,37 @@ float4 CalculateLightColor
 	{
 		CapsuleLight cl = g_CapsuleLight[i];
 		
-		finalCapsuleLightColor.rgb += CapsuleLightColor
-		(	pixelPosition
-		,	eyePosition
-		,	cl.g_LightPosition
-		,	cl.g_LightRange
-		,	1.0 / cl.g_LightRange
-		,	cl.g_LightDirection
-		,	cl.g_LightLength
-		,	cl.g_DiffuseColor
-		,	cl.g_CapsuleDirectionLength
-		,	cl.g_CapsuleIntensity
-		,	materialNormal
-		,	materialDiffuseColor
-		,	materialSpecularExponent
-		,	materialSpecularIntensity
-		);
-		
-		finalCapsuleLightColor.a = 1.0f;
-		
-		finalCapsuleAmbientColor += ssaoColor * cl.g_AmbientColor;
+		if (cl.g_Toggle == 1)
+		{
+			finalCapsuleAmbientColor += cl.g_AmbientColor;
+			finalCapsuleLightColor.rgb += CapsuleLightColor
+			(	pixelPosition
+			,	eyePosition
+			,	cl.g_LightPosition
+			,	cl.g_LightRange
+			,	1.0 / cl.g_LightRange
+			,	cl.g_LightDirection
+			,	cl.g_LightLength
+			,	cl.g_DiffuseColor
+			,	cl.g_CapsuleDirectionLength
+			,	cl.g_CapsuleIntensity
+			,	materialNormal
+			,	materialDiffuseColor
+			,	materialSpecularExponent
+			,	materialSpecularIntensity
+			);
+			finalCapsuleLightColor.a = 1.0f;
+		}
 	}
 	
-	//ambientColor = (finalDirectionalAmbientColor + finalPointAmbientColor + finalSpotAmbientColor + finalCapsuleAmbientColor);
 	// saturate the final light color with base ambient light
-	//finalColor += (finalDirectionalAmbientColor + finalPointAmbientColor + finalSpotAmbientColor + finalCapsuleAmbientColor);
-	//finalColor = saturate(finalColor + materialAmbientColor);
-	
-	float4 ambientColor = DiffuseColorToLinearSpace(envDiffuseColor);
-	ambientColor.rgb += CalculateAmbientColor(materialNormal, materialDiffuseColor, g_AmbientDown, g_AmbientUp);
-	ambientColor.a = 1.0;
-	
-	float4 sceneAmbience = ssaoColor * (ambientColor + materialAmbientColor);
+	float4 lightAmbientColor = (finalDirectionalAmbientColor + finalPointAmbientColor + finalSpotAmbientColor + finalCapsuleAmbientColor);
+	float4 ambientColor = float4(FinalAmbientColor(materialNormal, materialDiffuseColor, g_AmbientDown, g_AmbientUp), 1);
+	float4 sceneAmbience = ssaoColor * (ambientColor + materialAmbientColor + lightAmbientColor);
 	float4 color = finalSunColor + finalAmbientLightColor + finalDirectionalLightColor + finalPointLightColor + finalSpotLightColor + finalCapsuleLightColor + sceneAmbience;
 	
 	// Combine all the light colors together
-	finalColor = finalDirectionalLightColor * shadowColor;
+	finalColor = color * shadowColor;
 	finalColor = saturate(finalColor);
 	
 	return finalColor;

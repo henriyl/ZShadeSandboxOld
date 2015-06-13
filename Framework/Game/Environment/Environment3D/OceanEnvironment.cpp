@@ -23,7 +23,9 @@ bool OceanEnvironment::Init()
 	bEnableReflections = true;
 	bEnableRefractions = true;
 	bEnableShadows = false;
-	
+
+	bEnableDeferredShading = false;
+
 	bRenderHighDetailOcean = false;
 	bRenderMediumDetailOcean = false;
 	bRenderLowDetailOcean = true;
@@ -32,8 +34,6 @@ bool OceanEnvironment::Init()
 	m_CameraSystem->SetRenderReflectionView( bEnableReflections );
 	m_CameraSystem->SetPositionY(5.0f);
 
-	mSky = new Sky(m_D3DSystem, m_GameDirectory3D->m_textures_path, "sky_cube.dds", 8000.0f);
-	
 	WaterParameters wp;
 	wp.g_LightDirection = XMFLOAT3(0.936016f, -0.343206f, 0.0780013f);
 	wp.g_RefractionTint = XMFLOAT4(0.07f, 0.15f, 0.2f, 1.0f);// 0.0f, 0.8f, 1.0f, 1.0f);
@@ -43,7 +43,7 @@ bool OceanEnvironment::Init()
 	wp.g_SpecularShininess = 20;
 	wp.g_WaveHeight = 0.3f;
 	wp.g_waterHeight = fSeaLevel;
-	wp.g_waterRadius = 5000.0f;
+	wp.g_waterRadius = 2000.0f;
 	wp.g_TexScale = 2.5f;
 	
 	mWater = new Water();
@@ -157,7 +157,6 @@ void OceanEnvironment::Update()
 		}
 	}
 
-	mSky->SetWireframe( bWireframeMode );
 	mWater->SetWireframe( bWireframeMode );
 	//mOceanSurface->SetWireframe(bWireframeMode);
 	mCubeAboveWater->SetWireframe(bWireframeMode);
@@ -189,11 +188,11 @@ void OceanEnvironment::Update()
 //===============================================================================================================================
 void OceanEnvironment::Render()
 {
-	mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
-	mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
 	//Quick wireframe mode
 	if( Quickwire() )
@@ -219,12 +218,14 @@ void OceanEnvironment::Render()
 	//
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
-	mrp.pLightCamera = mDirLight1->Perspective();
-	mrp.dirLight = mDirLight1;
+	mrp.camera = m_CameraSystem.get();
+	mrp.light = mDirLight1;
+	mrp.useInstancing = false;
 	
+	mCubeAboveWater->SetFarPlane(m_EngineOptions->fFarPlane);
 	mCubeAboveWater->SetShadowMapSRV(mShadowTexture->SRView);
 	mCubeAboveWater->Render(mrp);
+	mCubeBelowWater->SetFarPlane(m_EngineOptions->fFarPlane);
 	mCubeBelowWater->SetShadowMapSRV(mShadowTexture->SRView);
 	mCubeBelowWater->Render(mrp);
 	
@@ -244,27 +245,60 @@ void OceanEnvironment::Render()
 	//mOceanSurface->SetRefractionMap(mRefractionTexture->SRView);
 	//mOceanSurface->Render(m_CameraSystem.get(), fSeaLevel, fFrameTime);
 	if (!bWireframeMode && !Quickwire()) m_D3DSystem->TurnOnCulling();
-
-	//
-	// Render the normal sky
-	//
-	
-	if (!Quickwire() && ! bWireframeMode)
-		RenderSky(false);
 }
 //===============================================================================================================================
 void OceanEnvironment::RenderDeferred()
 {
+	//Quick wireframe mode
+	if (Quickwire())
+	{
+		mWater->SetWireframe(true);
+		//mOceanSurface->SetWireframe(true);
+		mSky->SetWireframe(true);
+		mCubeAboveWater->SetWireframe(true);
+		mCubeBelowWater->SetWireframe(true);
+		mLakeBed->SetWireframe(true);
+		m_D3DSystem->TurnOnWireframe();
+	}
 
+	ZShadeSandboxMesh::MeshRenderParameters mrp;
+	mrp.camera = m_CameraSystem.get();
+	mrp.light = mDirLight1;
+	mrp.useInstancing = false;
+	mrp.renderDeferred = true;
+
+	mCubeAboveWater->SetFarPlane(m_EngineOptions->fFarPlane);
+	mCubeAboveWater->SetShadowMapSRV(mShadowTexture->SRView);
+	mCubeAboveWater->Render(mrp);
+	mCubeBelowWater->SetFarPlane(m_EngineOptions->fFarPlane);
+	mCubeBelowWater->SetShadowMapSRV(mShadowTexture->SRView);
+	mCubeBelowWater->Render(mrp);
+
+	////
+	//// Render the ocean
+	////
+
+	//if (!bWireframeMode && !Quickwire()) m_D3DSystem->TurnOffCulling();
+	//if (Quickwire())
+	//{
+	//	mWater->SetWireframe(true);
+	//	m_D3DSystem->TurnOnWireframe();
+	//}
+	//mWater->SetFarPlane(m_EngineOptions->fFarPlane);
+	//mWater->Render(m_CameraSystem.get(), mReflectionTexture->SRView, mRefractionTexture->SRView);
+	////mOceanSurface->SetReflectionMap(mReflectionTexture->SRView);
+	////mOceanSurface->SetRefractionMap(mRefractionTexture->SRView);
+	////mOceanSurface->Render(m_CameraSystem.get(), fSeaLevel, fFrameTime);
+	//if (!bWireframeMode && !Quickwire()) m_D3DSystem->TurnOnCulling();
 }
 //===============================================================================================================================
 void OceanEnvironment::RenderShadowMap()
 {
-	mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
-	mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
 	//
 	// Render the lake bed + cube to produce a shadow map texture for depth calculation with caustics
@@ -276,20 +310,20 @@ void OceanEnvironment::RenderShadowMap()
 	mLakeBed->Render(m_CameraSystem.get(), mDirLight1->Perspective(), true);
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
-	mrp.pLightCamera = mDirLight1->Perspective();
-	mrp.bShadowMap = true;
+	mrp.camera = m_CameraSystem.get();
+	mrp.light = mDirLight1;
+	mrp.shadowMap = true;
 	mCubeAboveWater->Render(mrp);
 	mCubeBelowWater->Render(mrp);
 }
 //===============================================================================================================================
 void OceanEnvironment::RenderRefraction(XMFLOAT4 clipplane)
 {
-	mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
-	mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
 	//
 	// Render the lake bed + cube using the refraction clip plane to produce the refraction effect
@@ -301,9 +335,9 @@ void OceanEnvironment::RenderRefraction(XMFLOAT4 clipplane)
 	mLakeBed->Render(m_CameraSystem.get(), mDirLight1->Perspective(), false, clipplane, false);
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
-	mrp.pLightCamera = mDirLight1->Perspective();
-	mrp.bReflection = false;
+	mrp.camera = m_CameraSystem.get();
+	mrp.light = mDirLight1;
+	mrp.reflection = false;
 	mrp.clipplane = clipplane;
 	mCubeAboveWater->SetShadowMapSRV(mShadowTexture->SRView);
 	mCubeAboveWater->Render(mrp);
@@ -313,11 +347,11 @@ void OceanEnvironment::RenderRefraction(XMFLOAT4 clipplane)
 //===============================================================================================================================
 void OceanEnvironment::RenderReflection(XMFLOAT4 clipplane)
 {
-	mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mCubeAboveWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
-	mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+	//mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+	//mCubeBelowWater->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 
 	//
 	// Render the lake bed + cube + sky using the reflection view matrix and reflection clip plane
@@ -329,47 +363,13 @@ void OceanEnvironment::RenderReflection(XMFLOAT4 clipplane)
 	mLakeBed->Render(m_CameraSystem.get(), mDirLight1->Perspective(), false, clipplane, true);
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
-	mrp.pLightCamera = mDirLight1->Perspective();
-	mrp.bReflection = true;
+	mrp.camera = m_CameraSystem.get();
+	mrp.light = mDirLight1;
+	mrp.reflection = true;
 	mrp.clipplane = clipplane;
 	mCubeAboveWater->SetShadowMapSRV(mShadowTexture->SRView);
 	mCubeAboveWater->Render(mrp);
 	mCubeBelowWater->SetShadowMapSRV(mShadowTexture->SRView);
 	mCubeBelowWater->Render(mrp);
-	
-	if (!Quickwire() && !bWireframeMode)
-		RenderSky(true);
-}
-//===============================================================================================================================
-void OceanEnvironment::RenderSky(bool reflection)
-{
-	m_D3DSystem->TurnOffCulling();
-	m_D3DSystem->TurnOnAdditiveBlending();
-	
-	if (bWireframeMode)
-	{
-		m_D3DSystem->TurnOnWireframe();
-	}
-	
-	//Quickwire stuff that default environment supports
-	if( Quickwire() )
-	{
-		mSky->SetWireframe(true);
-		m_D3DSystem->TurnOnWireframe();
-	}
-	
-	if (reflection)
-	{
-		mSky->RenderWithReflection(m_D3DSystem, m_CameraSystem.get(), fSeaLevel);
-	}
-	else// Normal Sky
-	{
-		mSky->Render(m_D3DSystem, m_CameraSystem.get(), false);
-	}
-	
-	m_D3DSystem->TurnOffAdditiveBlending();
-	m_D3DSystem->TurnOnCulling();
-	m_D3DSystem->TurnOnZBuffer();
 }
 //===============================================================================================================================

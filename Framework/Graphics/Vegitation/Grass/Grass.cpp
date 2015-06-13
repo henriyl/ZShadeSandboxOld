@@ -77,7 +77,7 @@ void GrassField::Render(Camera* camera)
 	m_pGFM->SetGrassDiffuseBodySRV(m_pDiffuseBodySRV);
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = camera;
+	mrp.camera = camera;
 	m_pGFM->Render(mrp);
 }
 //===============================================================================================================================

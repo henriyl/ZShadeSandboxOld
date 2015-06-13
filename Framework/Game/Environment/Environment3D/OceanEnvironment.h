@@ -17,7 +17,6 @@
 #pragma region "Includes"
 #include "TextureManager.h"
 #include "Environment3D.h"
-#include "Sky.h"
 #include "Water.h"
 #include "LakeBed.h"
 //#include "OceanSurface.h"
@@ -43,8 +42,6 @@ public:
 	void Render();
 	void RenderDeferred();
 	
-	void RenderSky(bool reflection);
-	
 	void RenderReflection(XMFLOAT4 clipplane);
 	void RenderRefraction(XMFLOAT4 clipplane);
 	void RenderShadowMap();
@@ -53,7 +50,6 @@ private:
 	
 	Water* mWater;
 	LakeBed* mLakeBed;
-	Sky* mSky;
 	
 	bool bRenderHighDetailOcean;
 	bool bRenderMediumDetailOcean;

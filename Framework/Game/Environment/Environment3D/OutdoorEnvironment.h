@@ -46,7 +46,6 @@ public:
 	~OutdoorEnvironment();
 	
 	virtual bool Init();
-	bool InitializeSky();
 	bool InitializeWater();
 	bool InitializeOcean();
 	bool InitializeTerrain();
@@ -56,7 +55,7 @@ public:
 	virtual void Update();
 	virtual void Render();
 	virtual void RenderDeferred();
-	bool RenderSky(bool reflection);
+	
 	bool RenderWater();
 	bool RenderOcean();
 	bool RenderTerrain(XMFLOAT4 clipplane, bool bReflection, bool bRefraction);
@@ -86,12 +85,6 @@ protected:
 	ZShadeSandboxTerrain::QuadTreeMesh* m_pQuadTreeMesh;
 	ZShadeSandboxTerrain::QuadTreeRenderer* m_pQuadTreeRenderer;
 
-	//
-	// Sky
-	//
-	Sky* mSky;
-	SkyPlane* mSkyPlane;
-	
 	//
 	// Sun (Currently does not work)
 	//
@@ -126,8 +119,6 @@ protected:
 	bool bToggleTerrain;
 	bool bToggleWater;
 	bool bRenderOcean;
-	bool bToggleSky;
-	bool bToggleSkyPlane;
 };
 
 //===============================================================================================================================

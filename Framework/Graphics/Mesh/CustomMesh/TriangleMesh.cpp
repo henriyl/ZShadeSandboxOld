@@ -47,14 +47,12 @@ void TriangleMesh::Initialize()
 				t1, t2, t3
 			};
 			
-			mVerticesVNT.resize( numVerts );
+			mAttributes->mVerticesNormalTex.resize( numVerts );
 			
 			for (int i = 0; i < numVerts; i++)
 			{
-				mVerticesVNT[i] = verts[i];
+				mAttributes->mVerticesNormalTex[i] = verts[i];
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTex);
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
@@ -68,14 +66,12 @@ void TriangleMesh::Initialize()
 				t1, t2, t3
 			};
 			
-			mVerticesVNTT.resize( numVerts );
+			mAttributes->mVerticesNormalTexTan.resize(numVerts);
 			
 			for (int i = 0; i < numVerts; i++)
 			{
-				mVerticesVNTT[i] = verts[i];
+				mAttributes->mVerticesNormalTexTan[i] = verts[i];
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTexTan);
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Pos:
@@ -89,14 +85,12 @@ void TriangleMesh::Initialize()
 				t1, t2, t3
 			};
 			
-			mVerticesPos.resize( numVerts );
+			mAttributes->mVerticesPos.resize(numVerts);
 			
 			for (int i = 0; i < numVerts; i++)
 			{
-				mVerticesPos[i] = verts[i];
+				mAttributes->mVerticesPos[i] = verts[i];
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexPos);
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Tex:
@@ -110,19 +104,17 @@ void TriangleMesh::Initialize()
 				t1, t2, t3
 			};
 			
-			mVerticesTex.resize( numVerts );
+			mAttributes->mVerticesTex.resize(numVerts);
 			
 			for (int i = 0; i < numVerts; i++)
 			{
-				mVerticesTex[i] = verts[i];
+				mAttributes->mVerticesTex[i] = verts[i];
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexTex);
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
-			XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+			XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
 			ZShadeSandboxMesh::VertexColor t1 = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(-1.0f, 1.0f, -1.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w);
 			ZShadeSandboxMesh::VertexColor t2 = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(1.0f, 1.0f, -1.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w);
@@ -133,20 +125,18 @@ void TriangleMesh::Initialize()
 				t1, t2, t3
 			};
 			
-			mVerticesColor.resize( numVerts );
+			mAttributes->mVerticesColor.resize(numVerts);
 			
 			for (int i = 0; i < numVerts; i++)
 			{
-				mVerticesColor[i] = verts[i];
+				mAttributes->mVerticesColor[i] = verts[i];
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexColor);
 		}
 		break;
 	}
 	
-	mVertexCount = numVerts;
-	mTriangleCount = mVertexCount / 3;
+	mAttributes->mVertexCount = numVerts;
+	mAttributes->mTriangleCount = mAttributes->mVertexCount / 3;
 	
 	//
 	// Load Indices
@@ -157,11 +147,11 @@ void TriangleMesh::Initialize()
 		0, 1, 2,
 	};
 
-	mIndices.resize( numInd );
+	mAttributes->mIndices.resize(numInd);
 
 	for (int i = 0; i < numInd; i++)
 	{
-		mIndices[i] = indices[i];
+		mAttributes->mIndices[i] = indices[i];
 	}
 }
 //===============================================================================================================================

@@ -5,91 +5,55 @@
 #include "MeshUtil.h"
 using ZShadeSandboxMesh::CustomMesh;
 //===============================================================================================================================
-MaterialShader*					CustomMesh::pMaterialShader = 0;
-LightShader*					CustomMesh::pLightShader = 0;
-QuadMaterialTessellationShader* CustomMesh::pQuadMaterialTessellationShader = 0;
-TriMaterialTessellationShader* 	CustomMesh::pTriMaterialTessellationShader = 0;
-ShadowMapBuildShader*			CustomMesh::pShadowMapBuildShader = 0;
-DeferredShader*					CustomMesh::pDeferredShader = 0;
+MaterialShader*						CustomMesh::pMaterialShader = 0;
+MaterialLightShader*				CustomMesh::pLightShader = 0;
+MaterialTessellationShader*			CustomMesh::pQuadMaterialTessellationShader = 0;
+MaterialTessellationShader* 		CustomMesh::pTriMaterialTessellationShader = 0;
+MaterialLightTessellationShader*	CustomMesh::pQuadMaterialLightTessellationShader = 0;
+MaterialLightTessellationShader*	CustomMesh::pTriMaterialLightTessellationShader = 0;
+ShadowMapBuildShader*				CustomMesh::pShadowMapBuildShader = 0;
+MaterialGBufferShader*				CustomMesh::pMaterialGBufferShader = 0;
 //===============================================================================================================================
 CustomMesh::CustomMesh(D3D* d3d, ZShadeSandboxMesh::MeshParameters mp, char* filename)
-:   pD3DSystem(d3d)
-,   mPosition(mp.pos)
-,   mRotation(mp.rot)
-,   mScale(mp.scale)
+:   mD3DSystem(d3d)
+//,   mPosition(mp.pos)
+//,   mRotation(mp.rot)
+//,   mScale(mp.scale)
 ,   m_Wireframe(false)
 ,   m_DisableIndexBuffer(false)
 ,   m_TranslateBillboard(false)
 ,   m_RenderShader(true)
-,   mTriangleCount(0)
+//,   mTriangleCount(0)
 ,   mMeshParameters(mp)
 {
-	pEngineOptions = d3d->GetEngineOptions();
+	Init();
 	
-	// Create the shaders only once if they do not exist
-	if (CustomMesh::pMaterialShader == 0
-	&&	CustomMesh::pLightShader == 0
-	&&	CustomMesh::pQuadMaterialTessellationShader == 0
-	&&	CustomMesh::pTriMaterialTessellationShader == 0
-	&&	CustomMesh::pShadowMapBuildShader == 0
-	&&	CustomMesh::pDeferredShader == 0)
-	{
-		CustomMesh::pMaterialShader = new MaterialShader(d3d);
-		CustomMesh::pLightShader = new LightShader(d3d);
-		CustomMesh::pQuadMaterialTessellationShader = new QuadMaterialTessellationShader(d3d);
-		CustomMesh::pTriMaterialTessellationShader = new TriMaterialTessellationShader(d3d);
-		CustomMesh::pShadowMapBuildShader = new ShadowMapBuildShader(d3d);
-		CustomMesh::pDeferredShader = new DeferredShader(d3d);
-	}
-
+	mEngineOptions = d3d->GetEngineOptions();
+	
 	LoadFromFile(filename);
-
+	
 	CreateBuffers();
-
+	
 	mMaterial = mp.material;
-
-	//Load the world matrix
-	XMStoreFloat4x4(&mWorld, XMMatrixIdentity());
-
-	CreatePhysicsBody();
 }
 //===============================================================================================================================
 CustomMesh::CustomMesh(D3D* d3d, ZShadeSandboxMesh::MeshParameters mp)
-:	pD3DSystem(d3d)
-,	mPosition(mp.pos)
-,	mRotation(mp.rot)
-,	mScale(mp.scale)
+:	mD3DSystem(d3d)
+//,	mPosition(mp.pos)
+//,	mRotation(mp.rot)
+//,	mScale(mp.scale)
 ,	m_Wireframe(false)
 ,	m_DisableIndexBuffer(false)
 ,	m_TranslateBillboard(false)
 ,   m_RenderShader(true)
-,   mTriangleCount(0)
+//,   mTriangleCount(0)
 ,   mMeshParameters(mp)
 {
-	pEngineOptions = d3d->GetEngineOptions();
-	
-	// Create the shaders only once if they do not exist
-	if (CustomMesh::pMaterialShader == 0
-	&&	CustomMesh::pLightShader == 0
-	&&	CustomMesh::pQuadMaterialTessellationShader == 0
-	&&	CustomMesh::pTriMaterialTessellationShader == 0
-	&&	CustomMesh::pShadowMapBuildShader == 0
-	&&	CustomMesh::pDeferredShader == 0)
-	{
-		CustomMesh::pMaterialShader = new MaterialShader(d3d);
-		CustomMesh::pLightShader = new LightShader(d3d);
-		CustomMesh::pQuadMaterialTessellationShader = new QuadMaterialTessellationShader(d3d);
-		CustomMesh::pTriMaterialTessellationShader = new TriMaterialTessellationShader(d3d);
-		CustomMesh::pShadowMapBuildShader = new ShadowMapBuildShader(d3d);
-		CustomMesh::pDeferredShader = new DeferredShader(d3d);
-	}
+	Init();
 
+	mEngineOptions = d3d->GetEngineOptions();
+	
 	mMaterial = mp.material;
-	
-	//Load the world matrix
-	XMStoreFloat4x4(&mWorld, XMMatrixIdentity());
-	
-	CreatePhysicsBody();
 }
 //===============================================================================================================================
 CustomMesh::~CustomMesh()
@@ -101,83 +65,78 @@ void CustomMesh::LoadFromFile(char* filename)
 {
 	MeshData* md = MeshUtil::LoadMesh(filename, mMeshParameters.vertexType);
 
-	mVertexCount = md->vertexCount;
-	mIndexCount = md->indexCount;
-	mIndices.resize(mIndexCount);
+	mAttributes->mVertexCount = md->vertexCount;
+	mAttributes->mIndexCount = md->indexCount;
+	mAttributes->mIndices.resize(mAttributes->mIndexCount);
 
-	mTriangleCount = mVertexCount / 3;
+	mAttributes->mTriangleCount = mAttributes->mVertexCount / 3;
 
 	switch (mMeshParameters.vertexType)
 	{
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTex:
 		{
-			mVerticesVNT.resize(mVertexCount);
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTex);
-
+			mAttributes->mVerticesNormalTex.resize(mAttributes->mVertexCount);
+			
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesVNT[i].position = md->dataVNT[i].position;
-				mVerticesVNT[i].normal = md->dataVNT[i].normal;
-				mVerticesVNT[i].texture = md->dataVNT[i].texture;
-				mIndices[i] = i;
+				mAttributes->mVerticesNormalTex[i].position = md->dataVNT[i].position;
+				mAttributes->mVerticesNormalTex[i].normal = md->dataVNT[i].normal;
+				mAttributes->mVerticesNormalTex[i].texture = md->dataVNT[i].texture;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
 		{
-			mVerticesVNTT.resize(mVertexCount);
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTexTan);
-
+			mAttributes->mVerticesNormalTexTan.resize(mAttributes->mVertexCount);
+			
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesVNTT[i].position = md->dataVNTT[i].position;
-				mVerticesVNTT[i].normal = md->dataVNTT[i].normal;
-				mVerticesVNTT[i].texture = md->dataVNTT[i].texture;
-				mVerticesVNTT[i].tangentU = md->dataVNTT[i].tangentU;
-				mIndices[i] = i;
+				mAttributes->mVerticesNormalTexTan[i].position = md->dataVNTT[i].position;
+				mAttributes->mVerticesNormalTexTan[i].normal = md->dataVNTT[i].normal;
+				mAttributes->mVerticesNormalTexTan[i].texture = md->dataVNTT[i].texture;
+				mAttributes->mVerticesNormalTexTan[i].tangentU = md->dataVNTT[i].tangentU;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Pos:
 		{
-			mVerticesPos.resize(mVertexCount);
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexPos);
+			mAttributes->mVerticesPos.resize(mAttributes->mVertexCount);
 
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesPos[i].position = md->dataPos[i].position;
-				mIndices[i] = i;
+				mAttributes->mVerticesPos[i].position = md->dataPos[i].position;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Tex:
 		{
-			mVerticesTex.resize(mVertexCount);
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexTex);
-
+			mAttributes->mVerticesTex.resize(mAttributes->mVertexCount);
+			
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesTex[i].position = md->dataTex[i].position;
-				mVerticesTex[i].texture = md->dataTex[i].texture;
-				mIndices[i] = i;
+				mAttributes->mVerticesTex[i].position = md->dataTex[i].position;
+				mAttributes->mVerticesTex[i].texture = md->dataTex[i].texture;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
-			mVerticesColor.resize(mVertexCount);
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexColor);
-
+			mAttributes->mVerticesColor.resize(mAttributes->mVertexCount);
+			
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesColor[i].position = md->dataColor[i].position;
-				mVerticesColor[i].color = md->dataColor[i].color;
-				mIndices[i] = i;
+				mAttributes->mVerticesColor[i].position = md->dataColor[i].position;
+				mAttributes->mVerticesColor[i].color = md->dataColor[i].color;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;
@@ -190,6 +149,45 @@ void CustomMesh::InitializeMesh()
 		InitTessellation();
 	else
 		Initialize();
+}
+//===============================================================================================================================
+void CustomMesh::Init()
+{
+	// Create the shaders only once if they do not exist
+	if (CustomMesh::pMaterialShader == 0
+		&& CustomMesh::pLightShader == 0
+		&& CustomMesh::pQuadMaterialTessellationShader == 0
+		&& CustomMesh::pTriMaterialTessellationShader == 0
+		&& CustomMesh::pQuadMaterialLightTessellationShader == 0
+		&& CustomMesh::pTriMaterialLightTessellationShader == 0
+		&& CustomMesh::pShadowMapBuildShader == 0
+		&& CustomMesh::pMaterialGBufferShader == 0)
+	{
+		CustomMesh::pMaterialShader = new MaterialShader(mD3DSystem);
+		CustomMesh::pLightShader = new MaterialLightShader(mD3DSystem);
+		CustomMesh::pQuadMaterialTessellationShader = new MaterialTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eQuad);
+		CustomMesh::pTriMaterialTessellationShader = new MaterialTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eTri);
+		CustomMesh::pQuadMaterialLightTessellationShader = new MaterialLightTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eQuad);
+		CustomMesh::pTriMaterialLightTessellationShader = new MaterialLightTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eTri);
+		CustomMesh::pShadowMapBuildShader = new ShadowMapBuildShader(mD3DSystem);
+		CustomMesh::pMaterialGBufferShader = new MaterialGBufferShader(mD3DSystem);
+	}
+	
+	//pVB = 0;
+	//pInstanceBuffer = 0;
+	//mInstanceCount = 0;
+	
+	//Load the world matrix
+	//XMStoreFloat4x4(&mWorld, XMMatrixIdentity());
+	
+	mAttributes = new MeshAttributes();
+	mAttributes->mD3D = mD3DSystem;
+
+	mAttributes->mPosition = mMeshParameters.pos;
+	mAttributes->mScale = mMeshParameters.scale;
+	mAttributes->mRotation = mMeshParameters.rot;
+
+	CreatePhysicsBody();
 }
 //===============================================================================================================================
 //void CustomMesh::SetTexture(ID3D11ShaderResourceView* texSRV)
@@ -223,7 +221,7 @@ string CustomMesh::TextureName() const
 	return "";
 }
 //===============================================================================================================================
-void CustomMesh::ReplyMeshIndices(vector<UINT> ind)
+/*void CustomMesh::ReplyMeshIndices(vector<UINT> ind)
 {
 	mIndexCount = ind.size();
 	
@@ -661,52 +659,67 @@ void CustomMesh::GrabSubdividedGeometry_VertexNormalTex(vector<ZShadeSandboxMesh
 		OutInd.push_back(i * 6 + 1);
 		OutInd.push_back(i * 6 + 4);
 	}
+}*/
+//===============================================================================================================================
+void CustomMesh::Update(float dt)
+{
+	if (mMeshParameters.rotationAxisX)
+		mAttributes->mRotation.x += dt;
+	
+	if (mMeshParameters.rotationAxisY)
+		mAttributes->mRotation.y += dt;
+	
+	if (mMeshParameters.rotationAxisZ)
+		mAttributes->mRotation.z += dt;
 }
 //===============================================================================================================================
 void CustomMesh::Render(ZShadeSandboxMesh::MeshRenderParameters rp)
 {
 	// Cannot do anything if there is no camera
-	if (rp.pCamera == 0) return;
+	if (rp.camera == 0) return;
 	
 	//
 	// Render the mesh buffers
 	//
-
-	SetBuffers(rp.renderType);
+	
+	if (rp.useInstancing)
+		mAttributes->SetBuffersInstanced(rp.renderType);
+	else
+		mAttributes->SetBuffers(rp.renderType);
 	
 	//
 	// Render the shader
 	//
 	
-	if (rp.bReflection)
-		rp.view = rp.pCamera->ReflectionView4x4();
+	if (rp.reflection)
+		rp.view = rp.camera->ReflectionView4x4();
 	else
-		rp.view = rp.pCamera->View4x4();
+		rp.view = rp.camera->View4x4();
 	
-	if (!rp.bSpecifyWorld)
+	if (!rp.specifyWorld)
 	{
 		// Center the camera in this mesh
-		if (rp.bCenterCam)
+		if (rp.centerCam)
 		{
 			XMMATRIX scale, rx, ry, rz, translate;
 
-			scale = XMMatrixScaling(mScale.x, mScale.y, mScale.z);
-			rx = XMMatrixRotationX(mRotation.x);
-			ry = XMMatrixRotationY(mRotation.y);
-			rz = XMMatrixRotationZ(mRotation.z);
+			scale = XMMatrixScaling(mAttributes->mScale.x, mAttributes->mScale.y, mAttributes->mScale.z);
+			rx = XMMatrixRotationX(mAttributes->mRotation.x);
+			ry = XMMatrixRotationY(mAttributes->mRotation.y);
+			rz = XMMatrixRotationZ(mAttributes->mRotation.z);
 
 			//Get the position of the camera
-			XMFLOAT3 eyeVertex = rp.pCamera->Position();
+			XMFLOAT3 eyeVertex = rp.camera->Position();
 
-			if (rp.bReflection)
+			if (rp.reflection)
 			{
 				//Invert the Y coordinate of the camera around the water plane height for the reflected camera position
-				eyeVertex.y = -eyeVertex.y + (rp.fplaneHeight * 2.0f);
+				eyeVertex.y = -eyeVertex.y + (rp.seaLevel * 2.0f);
 			}
 			
 			translate = XMMatrixTranslation(eyeVertex.x, eyeVertex.y, eyeVertex.z);
 
-			XMMATRIX world = XMLoadFloat4x4(&mWorld);
+			XMMATRIX world = XMMatrixIdentity();
 
 			world = XMMatrixMultiply(world, scale);
 			world = XMMatrixMultiply(world, rx);
@@ -718,23 +731,14 @@ void CustomMesh::Render(ZShadeSandboxMesh::MeshRenderParameters rp)
 		}
 		else
 		{
-			rp.world = WorldXM();
+			if (rp.translateBillboard)
+				rp.world = mAttributes->BillboardWorldXM(rp.camera->Position());
+			else
+				rp.world = mAttributes->WorldXM();
 		}
 	}
 	
 	Shade( rp );
-}
-//===============================================================================================================================
-void CustomMesh::Update(float dt)
-{
-	if (mMeshParameters.rotationAxisX)
-		mRotation.x += dt;
-	
-	if (mMeshParameters.rotationAxisY)
-		mRotation.y += dt;
-	
-	if (mMeshParameters.rotationAxisZ)
-		mRotation.z += dt;
 }
 //===============================================================================================================================
 void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
@@ -742,98 +746,24 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 	// Need to shade the convex hull also (Not that important)
 	ZShadeSandboxMath::XMMath4 cp = ZShadeSandboxMath::XMMath4(mrp.clipplane.x, mrp.clipplane.y, mrp.clipplane.z, mrp.clipplane.w);
 	
-	if (mrp.bRenderDeferred)
+	if (mrp.renderDeferred)
 	{
-		ID3D11ShaderResourceView* diffusemap = 0;
-		
-		for (int i = 0; i < mMaterial->TextureCount(); i++)
-		{
-			switch (mMaterial->GetMaterialTextureType(i))
-			{
-				case ZShadeSandboxLighting::EMaterialTextureType::eDiffuse:
-					diffusemap = mMaterial->GetTexture(i)->getTexture11();
-				break;
-			}
-		}
-		
-		CustomMesh::pDeferredShader->SetWireframe(m_Wireframe);
-		CustomMesh::pDeferredShader->Render11(
-			mIndexCount,
-			mrp.pCamera,
-			mrp.world,
-			XMFLOAT2(10, 300), // Add this to the material
-			mMaterial->SpecularIntensity(),
-			mMaterial->SpecularPower(),
-			diffusemap
+		CustomMesh::pMaterialGBufferShader->SetWireframe(m_Wireframe);
+		CustomMesh::pMaterialGBufferShader->Render11(
+			mAttributes->mIndexCount,
+			mrp,
+			mMaterial
 		);
 		
 		return;
 	}
 	
 	// Create a shadow map of the mesh
-	if (mrp.bShadowMap)
+	if (mrp.shadowMap)
 	{
-		CustomMesh::pShadowMapBuildShader->Render(mIndexCount, mrp.world, mrp.pLightCamera);
+		CustomMesh::pShadowMapBuildShader->Render(mAttributes->mIndexCount, mrp.world, mrp.light->Perspective());
 		return;
 	}
-	
-	// Get the material information
-	
-	/*XMFLOAT3 materialDiffuseColor = mMaterial->DiffuseColor();
-	XMFLOAT3 materialAmbientColor = mMaterial->AmbientColor();
-	float materialSpecularPower = mMaterial->SpecularPower();
-	float materialSpecularIntensity = mMaterial->SpecularIntensity();
-	
-	ID3D11ShaderResourceView* diffuseArray = 0;
-	ID3D11ShaderResourceView* diffusemap = 0;
-	ID3D11ShaderResourceView* normalmap = 0;
-	ID3D11ShaderResourceView* blendmap = 0;
-	ID3D11ShaderResourceView* detailmap = 0;
-	ID3D11ShaderResourceView* alphamap = 0;
-	
-	for (int i = 0; i < mMaterial->TextureCount(); i++)
-	{
-		switch (mMaterial->GetMaterialTextureType(i))
-		{
-			case ZShadeSandboxLighting::EMaterialTextureType::eDiffuseArray:
-				diffuseArray = mMaterial->GetTexture(i)->getTexture11();
-			break;
-			case ZShadeSandboxLighting::EMaterialTextureType::eDiffuse:
-				diffusemap = mMaterial->GetTexture(i)->getTexture11();
-			break;
-			case ZShadeSandboxLighting::EMaterialTextureType::eNormal:
-				normalmap = mMaterial->GetTexture(i)->getTexture11();
-			break;
-			case ZShadeSandboxLighting::EMaterialTextureType::eBlend:
-				blendmap = mMaterial->GetTexture(i)->getTexture11();
-			break;
-			case ZShadeSandboxLighting::EMaterialTextureType::eDetail:
-				detailmap = mMaterial->GetTexture(i)->getTexture11();
-			break;
-			case ZShadeSandboxLighting::EMaterialTextureType::eAlpha:
-				alphamap = mMaterial->GetTexture(i)->getTexture11();
-			break;
-		}
-	}
-	
-	// Same as texture shader but has a blend amount
-	if (mrp.bTransparent && (mMeshParameters.vertexType == ZShadeSandboxMesh::EVertexType::VT_Tex))
-	{
-		//CustomMesh::pTransparentShader->SetWireframe(m_Wireframe);
-		//CustomMesh::pTransparentShader->UseCustomWorld(true);
-		//CustomMesh::pTransparentShader->SetCustomWorld(mrp.world);
-		//CustomMesh::pTransparentShader->UseCustomView(true);
-		//CustomMesh::pTransparentShader->SetCustomView(mrp.view);
-		//CustomMesh::pTransparentShader->Render11(mIndexCount, cp, mrp.pCamera, diffuseTexture, mrp.blendAmount);
-		
-		CustomMesh::pMaterialShader->SetWireframe(m_Wireframe);
-		CustomMesh::pMaterialShader->UseCustomWorld(true);
-		CustomMesh::pMaterialShader->SetCustomWorld(mrp.world);
-		CustomMesh::pMaterialShader->UseCustomView(true);
-		CustomMesh::pMaterialShader->SetCustomView(mrp.view);
-		CustomMesh::pMaterialShader->Render11(mIndexCount, cp, mrp.pCamera, mMaterial);
-		return;
-	}*/
 	
 	if (mMeshParameters.useCustomShader)
 	{
@@ -843,15 +773,7 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 		
 		if (mMeshParameters.shader != 0)
 		{
-			mMeshParameters.shader->RenderFunc(mIndexCount, mrp, mMaterial);
-			//if (mMeshParameters.useTexture)
-			//{
-			//	mMeshParameters.shader->RenderFunc(mIndexCount, mrp, mMaterial);
-			//}
-			//else
-			//{
-			//	mMeshParameters.shader->RenderFunc(mIndexCount, mrp);
-			//}
+			mMeshParameters.shader->RenderFunc(mAttributes->mIndexCount, mrp, mMaterial);
 		}
 		else
 		{
@@ -862,28 +784,20 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 		return;
 	}
 	
-	if (mrp.bTessellate)
+	if (mrp.tessellate)
 	{
 		switch (mrp.renderType)
 		{
 			case ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList:
 			{
 				CustomMesh::pTriMaterialTessellationShader->SetWireframe(m_Wireframe);
-				CustomMesh::pTriMaterialTessellationShader->UseCustomWorld(true);
-				CustomMesh::pTriMaterialTessellationShader->SetCustomWorld(mrp.world);
-				CustomMesh::pTriMaterialTessellationShader->UseCustomView(true);
-				CustomMesh::pTriMaterialTessellationShader->SetCustomView(mrp.view);
-				CustomMesh::pTriMaterialTessellationShader->Render11(mIndexCount, mrp.clipplane, mrp.pCamera, mrp.fTessellationFactor, mMaterial);
+				CustomMesh::pTriMaterialTessellationShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
 			}
 			break;
 			case ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList:
 			{
 				CustomMesh::pQuadMaterialTessellationShader->SetWireframe(m_Wireframe);
-				CustomMesh::pQuadMaterialTessellationShader->UseCustomWorld(true);
-				CustomMesh::pQuadMaterialTessellationShader->SetCustomWorld(mrp.world);
-				CustomMesh::pQuadMaterialTessellationShader->UseCustomView(true);
-				CustomMesh::pQuadMaterialTessellationShader->SetCustomView(mrp.view);
-				CustomMesh::pQuadMaterialTessellationShader->Render11(mIndexCount, mrp.clipplane, mrp.pCamera, mrp.fTessellationFactor, mMaterial);
+				CustomMesh::pQuadMaterialTessellationShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
 			}
 			break;
 			default:
@@ -897,12 +811,9 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 	else
 	{
 		CustomMesh::pMaterialShader->SetWireframe(m_Wireframe);
-		CustomMesh::pMaterialShader->UseCustomWorld(true);
-		CustomMesh::pMaterialShader->SetCustomWorld(mrp.world);
-		CustomMesh::pMaterialShader->UseCustomView(true);
-		CustomMesh::pMaterialShader->SetCustomView(mrp.view);
-		CustomMesh::pMaterialShader->Render11(mIndexCount, cp, mrp.pCamera, mrp.pLightCamera, mMaterial);
-
+		// mAttributes->mInstanceCount
+		CustomMesh::pMaterialShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
+		
 		/*CustomMesh::pLightShader->SetWireframe(m_Wireframe);
 		CustomMesh::pLightShader->UseCustomWorld(true);
 		CustomMesh::pLightShader->SetCustomWorld(mrp.world);
@@ -910,121 +821,19 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 		CustomMesh::pLightShader->SetCustomView(mrp.view);
 		CustomMesh::pLightShader->Render11(mIndexCount, cp, mrp.pCamera, mrp.dirLight, mMaterial);*/
 	}
-	
-	/*switch (mMeshParameters.vertexType)
-	{
-		case ZShadeSandboxMesh::EVertexType::VT_Color:
-		{
-			if (mrp.bTessellate)
-			{
-				switch (mrp.renderType)
-				{
-					case ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList:
-					{
-						CustomMesh::pTriColorTessellationShader->SetWireframe(m_Wireframe);
-						CustomMesh::pTriColorTessellationShader->UseCustomWorld(true);
-						CustomMesh::pTriColorTessellationShader->SetCustomWorld(mrp.world);
-						CustomMesh::pTriColorTessellationShader->UseCustomView(true);
-						CustomMesh::pTriColorTessellationShader->SetCustomView(mrp.view);
-						CustomMesh::pTriColorTessellationShader->Render(mIndexCount, mrp.pCamera, mrp.fTessellationFactor);
-					}
-					break;
-					case ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList:
-					{
-						CustomMesh::pQuadColorTessellationShader->SetWireframe(m_Wireframe);
-						CustomMesh::pQuadColorTessellationShader->UseCustomWorld(true);
-						CustomMesh::pQuadColorTessellationShader->SetCustomWorld(mrp.world);
-						CustomMesh::pQuadColorTessellationShader->UseCustomView(true);
-						CustomMesh::pQuadColorTessellationShader->SetCustomView(mrp.view);
-						CustomMesh::pQuadColorTessellationShader->Render(mIndexCount, mrp.pCamera, mrp.fTessellationFactor);
-					}
-					break;
-					default:
-					{
-						//The shader was not defined
-						ZShadeMessageCenter::MsgBoxError(NULL, "CustomMesh: Tessellation Shader was not defined !!!");
-					}
-					break;
-				}
-			}
-			else
-			{
-				//CustomMesh::pColorShader->SetWireframe(m_Wireframe);
-				//CustomMesh::pColorShader->UseCustomWorld(true);
-				//CustomMesh::pColorShader->SetCustomWorld(mrp.world);
-				//CustomMesh::pColorShader->UseCustomView(true);
-				//CustomMesh::pColorShader->SetCustomView(mrp.view);
-				//CustomMesh::pColorShader->Render11(mIndexCount, cp, mrp.pCamera);
-			}
-		}
-		break;
-		case ZShadeSandboxMesh::EVertexType::VT_Tex:
-		{
-			if (mrp.bTessellate)
-			{
-				switch (mrp.renderType)
-				{
-					case ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList:
-					{
-						CustomMesh::pTriTextureTessellationShader->SetWireframe(m_Wireframe);
-						CustomMesh::pTriTextureTessellationShader->UseCustomWorld(true);
-						CustomMesh::pTriTextureTessellationShader->SetCustomWorld(mrp.world);
-						CustomMesh::pTriTextureTessellationShader->UseCustomView(true);
-						CustomMesh::pTriTextureTessellationShader->SetCustomView(mrp.view);
-						CustomMesh::pTriTextureTessellationShader->Render(mIndexCount, mrp.pCamera, mrp.fTessellationFactor,
-							diffusemap);
-					}
-					break;
-					case ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList:
-					{
-						CustomMesh::pQuadTextureTessellationShader->SetWireframe(m_Wireframe);
-						CustomMesh::pQuadTextureTessellationShader->UseCustomWorld(true);
-						CustomMesh::pQuadTextureTessellationShader->SetCustomWorld(mrp.world);
-						CustomMesh::pQuadTextureTessellationShader->UseCustomView(true);
-						CustomMesh::pQuadTextureTessellationShader->SetCustomView(mrp.view);
-						CustomMesh::pQuadTextureTessellationShader->Render(mIndexCount, mrp.pCamera, mrp.fTessellationFactor,
-							diffusemap);
-					}
-					break;
-					default:
-					{
-						//The shader was not defined
-						ZShadeMessageCenter::MsgBoxError(NULL, "CustomMesh: Tessellation Shader was not defined !!!");
-					}
-					break;
-				}
-			}
-			else
-			{
-				//CustomMesh::pTextureShader->SetWireframe(m_Wireframe);
-				//CustomMesh::pTextureShader->UseCustomWorld(true);
-				//CustomMesh::pTextureShader->SetCustomWorld(mrp.world);
-				//CustomMesh::pTextureShader->UseCustomView(true);
-				//CustomMesh::pTextureShader->SetCustomView(mrp.view);
-				//CustomMesh::pTextureShader->Render11(mIndexCount, cp, mrp.pCamera, diffuseTexture);
-			}
-		}
-		break;
-		default:
-		{
-			//The shader was not defined
-			ZShadeMessageCenter::MsgBoxError(NULL, "CustomMesh: Shader was not defined !!!");
-		}
-		break;
-	}*/
 }
 //===============================================================================================================================
-void CustomMesh::SetBuffers(ZShadeSandboxMesh::ERenderType::Type renderType)
+/*void CustomMesh::SetBuffers(ERenderType::Type renderType)
 {
 	mRenderType = renderType;
 
 	unsigned int stride;
 	unsigned int offset;
-
-	//Set the vertex buffer stride and offset
+	
+	//Set the vertex buffer stride and offset for the vertex buffer and instance buffer
 	stride = mVertexByteWidth;
 	offset = 0;
-
+	
 	pD3DSystem->GetDeviceContext()->IASetVertexBuffers(0, 1, &pVB, &stride, &offset);
 
 	if (!m_DisableIndexBuffer)
@@ -1058,14 +867,52 @@ void CustomMesh::SetBuffers(ZShadeSandboxMesh::ERenderType::Type renderType)
 	}
 }
 //===============================================================================================================================
-void CustomMesh::SetLightBuffer(ZShadeSandboxLighting::LightBuffer* lb)
+void CustomMesh::SetBuffersInstanced(ZShadeSandboxMesh::ERenderType::Type renderType)
 {
-	mMaterial->SetLightBuffer(lb);
-}
-//===============================================================================================================================
-void CustomMesh::SetLightBuffer(ZShadeSandboxLighting::SunLightBuffer* slb)
-{
-	mMaterial->SetLightBuffer(slb);
+	mRenderType = renderType;
+
+	unsigned int strides[2];
+	unsigned int offsets[2];
+	
+	//Set the vertex buffer stride and offset for the vertex buffer and instance buffer
+	strides[0] = mVertexByteWidth;
+	offsets[0] = 0;
+	strides[1] = mInstanceByteWidth;
+	offsets[1] = 0;
+	
+	ID3D11Buffer* buf_arr[2] = { pVB, pInstanceBuffer };
+	
+	pD3DSystem->GetDeviceContext()->IASetVertexBuffers(0, 2, buf_arr, strides, offsets);
+
+	if (!m_DisableIndexBuffer)
+	{
+		//Set the index buffer to active in the input assembler so it can be rendered
+		pD3DSystem->GetDeviceContext()->IASetIndexBuffer(pIB, DXGI_FORMAT_R32_UINT, 0);
+	}
+	
+	//Set the type of primitive that should be rendered from this vertex buffer
+	switch (mRenderType)
+	{
+		case ZShadeSandboxMesh::ERenderType::eTriangleList: pD3DSystem->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
+		case ZShadeSandboxMesh::ERenderType::eTriangleStrip: pD3DSystem->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); break;
+		case ZShadeSandboxMesh::ERenderType::ePointList: pD3DSystem->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST); break;
+		case ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList:
+		{
+			pD3DSystem->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+		}
+		break;
+		case ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList:
+		{
+			pD3DSystem->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+		}
+		break;
+		default:
+		{
+			//The shader was not defined
+			ZShadeMessageCenter::MsgBoxError(NULL, "CustomMesh: Mesh Render Type was not defined !!!");
+		}
+		break;
+	}
 }
 //===============================================================================================================================
 XMMATRIX CustomMesh::WorldXM()
@@ -1096,6 +943,28 @@ XMMATRIX CustomMesh::WorldXM()
 	}
 }
 //===============================================================================================================================
+void CustomMesh::AddInstancePositions(vector<XMFLOAT3> v)
+{
+	bool used = false;
+	
+	if (mInstancePos.size() > 0)
+	{
+		used = true;
+		mInstancePos.clear();
+	}
+	
+	mInstanceCount = v.size();
+	mInstancePos.resize(mInstanceCount);
+	mInstanceByteWidth = sizeof(ZShadeSandboxMesh::InstancePos);
+	
+	for (int i = 0; i < mInstanceCount; i++)
+	{
+		mInstancePos[i].position = v[i];
+	}
+	
+	(used) ? RegenInstanceBuffer() : CreateInstanceBuffer();
+}
+//===============================================================================================================================
 void CustomMesh::BillboardWorldXM(Camera* camera)
 {
 	// Calculate the rotation that needs to be applied to the billboard model to face the current camera position using the arc tangent function.
@@ -1122,6 +991,11 @@ void CustomMesh::BillboardWorldXM(Camera* camera)
 	// Finally combine the rotation and translation matrices to create the final world matrix for the billboard model.
 	//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &translateMatrix);
 	mBillboardWorld = scale * mBillboardWorld * mBillboardTrans;
+}*/
+//===============================================================================================================================
+void CustomMesh::AddInstancePositions(vector<XMFLOAT3> v)
+{
+	mAttributes->AddInstancePositions(v);
 }
 //===============================================================================================================================
 void CustomMesh::CreateBuffers()
@@ -1129,10 +1003,12 @@ void CustomMesh::CreateBuffers()
 	//
 	// Create Vertex Buffer
 	//
-
-	HRESULT result;
-	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-	D3D11_SUBRESOURCE_DATA vertexData, indexData;
+	
+	mAttributes->BuildVertexBuffer(mMeshParameters.vertexType);
+	
+	/*HRESULT result;
+	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc, instanceBufferDesc;
+	D3D11_SUBRESOURCE_DATA vertexData, indexData, instanceData;
 
 	//Setup the description of the static vertex buffer
 	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -1183,17 +1059,18 @@ void CustomMesh::CreateBuffers()
 	//Create the vertex buffer
 	result = pD3DSystem->GetDevice11()->CreateBuffer(&vertexBufferDesc, &vertexData, &pVB);
 	if (FAILED(result)) return;
-
+	*/
+	
 	//
 	// Create Index Buffer
 	//
 
 	if (!m_DisableIndexBuffer)
 	{
-		mIndexCount = mIndices.size();
-
+		mAttributes->BuildIndexBuffer();
+		
 		//Setup the description of the static index buffer
-		indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		/*indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 		indexBufferDesc.ByteWidth = sizeof(UINT) * mIndexCount;
 		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		indexBufferDesc.CPUAccessFlags = 0;
@@ -1207,13 +1084,40 @@ void CustomMesh::CreateBuffers()
 
 		//Create the index buffer
 		result = pD3DSystem->GetDevice11()->CreateBuffer(&indexBufferDesc, &indexData, &pIB);
-		if (FAILED(result)) return;
+		if (FAILED(result)) return;*/
 	}
+}
+//===============================================================================================================================
+void CustomMesh::CreateInstanceBuffer()
+{
+	mAttributes->BuildInstanceBuffer();
+	
+	/*if (mInstancePos.size() > 0)
+	{
+		//Setup the description of the instance buffer
+		instanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		instanceBufferDesc.ByteWidth = mInstanceByteWidth * mInstanceCount;
+		instanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		instanceBufferDesc.CPUAccessFlags = 0;
+		instanceBufferDesc.MiscFlags = 0;
+		instanceBufferDesc.StructureByteStride = 0;
+
+		//Give the subresource a pointer to the instance data
+		instanceData.pSysMem = &mInstancePos[0];
+		instanceData.SysMemPitch = 0;
+		instanceData.SysMemSlicePitch = 0;
+
+		//Create the instance buffer
+		result = pD3DSystem->GetDevice11()->CreateBuffer(&instanceBufferDesc, &instanceData, &pInstanceBuffer);
+		if (FAILED(result)) return;
+	}*/
 }
 //===============================================================================================================================
 void CustomMesh::RegenVertexBuffer()
 {
-	if (mVerticesPos.size() > 0)
+	mAttributes->ReBuildVertexBuffer(mMeshParameters.vertexType);
+	
+	/*if (mVerticesPos.size() > 0)
 	{
 		D3D11_MAPPED_SUBRESOURCE resource;
 		pD3DSystem->GetDeviceContext()->Map(pVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
@@ -1251,7 +1155,20 @@ void CustomMesh::RegenVertexBuffer()
 		pD3DSystem->GetDeviceContext()->Map(pVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 		memcpy(resource.pData, &mVerticesVNT[0], mVertexByteWidth * mVertexCount);
 		pD3DSystem->GetDeviceContext()->Unmap(pVB, 0);
-	}
+	}*/
+}
+//===============================================================================================================================
+void CustomMesh::RegenInstanceBuffer()
+{
+	mAttributes->ReBuildInstanceBuffer();
+	
+	/*if (mInstancePos.size() > 0)
+	{
+		D3D11_MAPPED_SUBRESOURCE resource;
+		pD3DSystem->GetDeviceContext()->Map(pInstanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+		memcpy(resource.pData, &mInstancePos[0], mInstanceByteWidth * mInstanceCount);
+		pD3DSystem->GetDeviceContext()->Unmap(pInstanceBuffer, 0);
+	}*/
 }
 //===============================================================================================================================
 void CustomMesh::UpdateAABB(XMFLOAT3 center, XMFLOAT3 scale)
@@ -1283,11 +1200,27 @@ float CustomMesh::DistanceAABBToPoint(XMFLOAT3 point)
 //===============================================================================================================================
 void CustomMesh::CreatePhysicsBody()
 {
-	mBody = new PhysicsBody(pD3DSystem);
+	mBody = new PhysicsBody(mD3DSystem);
 	mBody->InitAABB(mMeshParameters.pos, mMeshParameters.scale);
-	mBody->AddPoints(mVerticesTex);
-	mBody->ColorTheHull(ZShadeSandboxMath::XMMath4(1, 0, 0, 1));
-	mBody->CreateConvexHull();
+	
+	//switch (mMeshParameters.vertexType)
+	//{
+	//	//case ZShadeSandboxMesh::EVertexType::Type::VT_Pos: mBody->AddPoints(mAttributes->mVerticesPos); break;
+	//	//case ZShadeSandboxMesh::EVertexType::Type::VT_Color: mBody->AddPoints(mAttributes->mVerticesColor); break;
+	//	case ZShadeSandboxMesh::EVertexType::Type::VT_Tex: mBody->AddPoints(mAttributes->mVerticesTex); break;
+	//	//case ZShadeSandboxMesh::EVertexType::Type::VT_NormalTex: mBody->AddPoints(mAttributes->mVerticesNormalTex); break;
+	//	//case ZShadeSandboxMesh::EVertexType::Type::VT_NormalTexTan: mBody->AddPoints(mAttributes->mVerticesNormalTexTan); break;
+	//	//case ZShadeSandboxMesh::EVertexType::Type::VT_NormalTexTanBi: mBody->AddPoints(mAttributes->mVerticesNormalTexTanBi); break;
+	//	default:
+	//	{
+	//		//The shader was not defined
+	//		ZShadeMessageCenter::MsgBoxError(NULL, "Mesh Vertex Type was not defined !!!");
+	//	}
+	//	break;
+	//}
+
+	//mBody->ColorTheHull(ZShadeSandboxMath::XMMath4(1, 0, 0, 1));
+	//mBody->CreateConvexHull();
 }
 //===============================================================================================================================
 void CustomMesh::UpdatePhysicsBody()

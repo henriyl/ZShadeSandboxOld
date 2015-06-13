@@ -22,7 +22,6 @@
 #include "CircleMesh.h"
 #include "PlaneMesh.h"
 #include "OBJMesh.h"
-#include "Sky.h"
 
 //===============================================================================================================================
 //===============================================================================================================================
@@ -50,8 +49,6 @@ public:
 	
 protected:
 	
-	Sky* mSky;
-
 	// Create a textured plane with lighting in the center of the environment
 	ZShadeSandboxMesh::PlaneMesh* mPlane;
 	

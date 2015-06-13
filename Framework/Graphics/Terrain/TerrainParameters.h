@@ -76,27 +76,27 @@ struct TerrainShadingConst
 	float       	g_seaLevel;
 	XMFLOAT4      	g_waterBodyColor;
 	
-	// The direction and color of the sun
-	XMFLOAT3	g_SunDir;
-	int			g_EnableSun;
-	XMFLOAT4    g_SunDiffuseColor;
-	float		g_SunShineness;
+	//// The direction and color of the sun
+	//XMFLOAT3	g_SunDir;
+	//int			g_EnableSun;
+	//XMFLOAT4    g_SunDiffuseColor;
+	//float		g_SunShineness;
 	
-	// Forward lighting
-	ZShadeSandboxLighting::AmbientLightBuffer		g_AmbientLight[MAX_LIGHTS];
-	ZShadeSandboxLighting::DirectionalLightBuffer	g_DirectionalLight[MAX_LIGHTS];
-	ZShadeSandboxLighting::SpotLightBuffer			g_SpotLight[MAX_LIGHTS];
-	ZShadeSandboxLighting::PointLightBuffer		g_PointLight[MAX_LIGHTS];
-	ZShadeSandboxLighting::CapsuleLightBuffer		g_CapsuleLight[MAX_LIGHTS];
-	
-	int				 g_AmbientLightCount;
-	int				 g_DirectionalLightCount;
-	int				 g_SpotLightCount;
-	int				 g_PointLightCount;
-	int              g_CapsuleLightCount;
-	
-	XMFLOAT3	g_AmbientDown;
-	XMFLOAT3	g_AmbientUp;
+	//// Forward lighting
+	//ZShadeSandboxLighting::AmbientLightBuffer		g_AmbientLight[MAX_LIGHTS];
+	//ZShadeSandboxLighting::DirectionalLightBuffer	g_DirectionalLight[MAX_LIGHTS];
+	//ZShadeSandboxLighting::SpotLightBuffer			g_SpotLight[MAX_LIGHTS];
+	//ZShadeSandboxLighting::PointLightBuffer		g_PointLight[MAX_LIGHTS];
+	//ZShadeSandboxLighting::CapsuleLightBuffer		g_CapsuleLight[MAX_LIGHTS];
+	//
+	//int				 g_AmbientLightCount;
+	//int				 g_DirectionalLightCount;
+	//int				 g_SpotLightCount;
+	//int				 g_PointLightCount;
+	//int              g_CapsuleLightCount;
+	//
+	//XMFLOAT3	g_AmbientDown;
+	//XMFLOAT3	g_AmbientUp;
 	
 	// Terrain Material
 	XMFLOAT4	g_MaterialDiffuseColor;

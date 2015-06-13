@@ -54,13 +54,13 @@ void WaterShader::RenderFunc(int indexCount, ZShadeSandboxMesh::MeshRenderParame
 	cbMatrixBuffer cMB;
 	
 	cMB.g_matWorld = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mrp.world));
-	cMB.g_matView = mrp.pCamera->View4x4();
-	cMB.g_matReflView = mrp.pCamera->ReflectionView4x4();
+	cMB.g_matView = mrp.camera->View4x4();
+	cMB.g_matReflView = mrp.camera->ReflectionView4x4();
 	
 	if (m_pD3DSystem->GetEngineOptions()->m_DimType == DimType::ZSHADE_2D)
-		cMB.g_matProj = mrp.pCamera->Ortho4x4();
+		cMB.g_matProj = mrp.camera->Ortho4x4();
 	else if (m_pD3DSystem->GetEngineOptions()->m_DimType == DimType::ZSHADE_3D)
-		cMB.g_matProj = mrp.pCamera->Proj4x4();
+		cMB.g_matProj = mrp.camera->Proj4x4();
 	
 	cWB.g_WaveHeight = mWaterParameters->g_WaveHeight;
 	cWB.g_SpecularShininess = mWaterParameters->g_SpecularShininess;

@@ -62,39 +62,40 @@ void GeosphereMesh::Initialize()
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTex:
 		{
 #pragma region "Vertex Normal Tex"
-			mVerticesVNT.resize(NUM_SPHERE_VERTS);
+			mAttributes->mVerticesNormalTex.resize(NUM_SPHERE_VERTS);
 			
 			for(UINT i = 0; i < NUM_SPHERE_VERTS; ++i)
-				mVerticesVNT[i].position = pos[i];
+				mAttributes->mVerticesNormalTex[i].position = pos[i];
 			
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexNormalTex );
-			mVertexCount = NUM_SPHERE_VERTS;
+			mAttributes->mVertexCount = NUM_SPHERE_VERTS;
 			
 			//
 			// Load Indices
 			//
 			
 			NUM_SPHERE_INDICES = 60;
-			mIndexCount = NUM_SPHERE_INDICES;
-			mIndices.resize( NUM_SPHERE_INDICES );
+			mAttributes->mIndexCount = NUM_SPHERE_INDICES;
+			mAttributes->mIndices.resize(NUM_SPHERE_INDICES);
 			
 			for(UINT i = 0; i < NUM_SPHERE_INDICES; ++i)
-				mIndices[i] = k[i];
+				mAttributes->mIndices[i] = k[i];
 			
 			//
 			// Subdivide and create the mesh
 			//
 			
 			for (UINT i = 0; i < iSubdivisions; ++i)
-				Subdivide_VertexNormalTex();
+			{
+				mAttributes->Subdivide(mMeshParameters.vertexType);
+			}
 			
 			ZShadeSandboxMesh::VertexNormalTex vertex;
 
 			// Project vertices onto sphere and scale.
-			for (UINT i = 0; i < mVertexCount; ++i)
+			for (UINT i = 0; i < mAttributes->mVertexCount; ++i)
 			{
 				// Project onto a unit sphere
-				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mVerticesVNT[i].position;
+				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mAttributes->mVerticesNormalTex[i].position;
 				
 				n.Normalize();
 				
@@ -114,7 +115,7 @@ void GeosphereMesh::Initialize()
 				vertex.texture.x = theta / TWO_PI;
 				vertex.texture.y = phi / PI;
 
-				mVerticesVNT[i] = vertex;
+				mAttributes->mVerticesNormalTex[i] = vertex;
 			}
 #pragma endregion
 		}
@@ -122,39 +123,40 @@ void GeosphereMesh::Initialize()
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
 		{
 #pragma region "Vertex Normal Tex Tan"
-			mVerticesVNTT.resize(NUM_SPHERE_VERTS);
+			mAttributes->mVerticesNormalTexTan.resize(NUM_SPHERE_VERTS);
 			
 			for(UINT i = 0; i < NUM_SPHERE_VERTS; ++i)
-				mVerticesVNTT[i].position = pos[i];
+				mAttributes->mVerticesNormalTexTan[i].position = pos[i];
 			
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexNormalTexTan );
-			mVertexCount = NUM_SPHERE_VERTS;
+			mAttributes->mVertexCount = NUM_SPHERE_VERTS;
 			
 			//
 			// Load Indices
 			//
 			
 			NUM_SPHERE_INDICES = 60;
-			mIndexCount = NUM_SPHERE_INDICES;
-			mIndices.resize( NUM_SPHERE_INDICES );
+			mAttributes->mIndexCount = NUM_SPHERE_INDICES;
+			mAttributes->mIndices.resize(NUM_SPHERE_INDICES);
 			
 			for(UINT i = 0; i < NUM_SPHERE_INDICES; ++i)
-				mIndices[i] = k[i];
+				mAttributes->mIndices[i] = k[i];
 			
 			//
 			// Subdivide and create the mesh
 			//
 			
 			for (UINT i = 0; i < iSubdivisions; ++i)
-				Subdivide_VertexNormalTexTan();
+			{
+				mAttributes->Subdivide(mMeshParameters.vertexType);
+			}
 			
 			ZShadeSandboxMesh::VertexNormalTexTan vertex;
 
 			// Project vertices onto sphere and scale.
-			for (UINT i = 0; i < mVertexCount; ++i)
+			for (UINT i = 0; i < mAttributes->mVertexCount; ++i)
 			{
 				// Project onto a unit sphere
-				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mVerticesVNTT[i].position;
+				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mAttributes->mVerticesNormalTexTan[i].position;
 				
 				n.Normalize();
 				
@@ -185,7 +187,7 @@ void GeosphereMesh::Initialize()
 				
 				vertex.tangentU = T.Vector();
 
-				mVerticesVNTT[i] = vertex;
+				mAttributes->mVerticesNormalTexTan[i] = vertex;
 			}
 #pragma endregion
 		}
@@ -193,39 +195,40 @@ void GeosphereMesh::Initialize()
 		case ZShadeSandboxMesh::EVertexType::VT_Pos:
 		{
 #pragma region "Vertex Pos"
-			mVerticesPos.resize(NUM_SPHERE_VERTS);
+			mAttributes->mVerticesPos.resize(NUM_SPHERE_VERTS);
 			
 			for(UINT i = 0; i < NUM_SPHERE_VERTS; ++i)
-				mVerticesPos[i].position = pos[i];
+				mAttributes->mVerticesPos[i].position = pos[i];
 			
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexPos );
-			mVertexCount = NUM_SPHERE_VERTS;
+			mAttributes->mVertexCount = NUM_SPHERE_VERTS;
 			
 			//
 			// Load Indices
 			//
 			
 			NUM_SPHERE_INDICES = 60;
-			mIndexCount = NUM_SPHERE_INDICES;
-			mIndices.resize( NUM_SPHERE_INDICES );
+			mAttributes->mIndexCount = NUM_SPHERE_INDICES;
+			mAttributes->mIndices.resize(NUM_SPHERE_INDICES);
 			
 			for(UINT i = 0; i < NUM_SPHERE_INDICES; ++i)
-				mIndices[i] = k[i];
+				mAttributes->mIndices[i] = k[i];
 			
 			//
 			// Subdivide and create the mesh
 			//
 			
 			for (UINT i = 0; i < iSubdivisions; ++i)
-				Subdivide_VertexPos();
+			{
+				mAttributes->Subdivide(mMeshParameters.vertexType);
+			}
 			
 			ZShadeSandboxMesh::VertexPos vertex;
 
 			// Project vertices onto sphere and scale.
-			for (UINT i = 0; i < mVertexCount; ++i)
+			for (UINT i = 0; i < mAttributes->mVertexCount; ++i)
 			{
 				// Project onto a unit sphere
-				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mVerticesPos[i].position;
+				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mAttributes->mVerticesPos[i].position;
 				
 				n.Normalize();
 				
@@ -236,7 +239,7 @@ void GeosphereMesh::Initialize()
 
 				vertex.position = p;
 
-				mVerticesPos[i] = vertex;
+				mAttributes->mVerticesPos[i] = vertex;
 			}
 #pragma endregion
 		}
@@ -244,39 +247,40 @@ void GeosphereMesh::Initialize()
 		case ZShadeSandboxMesh::EVertexType::VT_Tex:
 		{
 #pragma region "Vertex Tex"
-			mVerticesTex.resize(NUM_SPHERE_VERTS);
+			mAttributes->mVerticesTex.resize(NUM_SPHERE_VERTS);
 			
 			for(UINT i = 0; i < NUM_SPHERE_VERTS; ++i)
-				mVerticesTex[i].position = pos[i];
+				mAttributes->mVerticesTex[i].position = pos[i];
 			
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexTex );
-			mVertexCount = NUM_SPHERE_VERTS;
+			mAttributes->mVertexCount = NUM_SPHERE_VERTS;
 			
 			//
 			// Load Indices
 			//
 			
 			NUM_SPHERE_INDICES = 60;
-			mIndexCount = NUM_SPHERE_INDICES;
-			mIndices.resize( NUM_SPHERE_INDICES );
+			mAttributes->mIndexCount = NUM_SPHERE_INDICES;
+			mAttributes->mIndices.resize(NUM_SPHERE_INDICES);
 			
 			for(UINT i = 0; i < NUM_SPHERE_INDICES; ++i)
-				mIndices[i] = k[i];
+				mAttributes->mIndices[i] = k[i];
 			
 			//
 			// Subdivide and create the mesh
 			//
 			
 			for (UINT i = 0; i < iSubdivisions; ++i)
-				Subdivide_VertexTex();
+			{
+				mAttributes->Subdivide(mMeshParameters.vertexType);
+			}
 			
 			ZShadeSandboxMesh::VertexTex vertex;
 
 			// Project vertices onto sphere and scale.
-			for (UINT i = 0; i < mVertexCount; ++i)
+			for (UINT i = 0; i < mAttributes->mVertexCount; ++i)
 			{
 				// Project onto a unit sphere
-				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mVerticesTex[i].position;
+				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mAttributes->mVerticesTex[i].position;
 				
 				n.Normalize();
 				
@@ -295,7 +299,7 @@ void GeosphereMesh::Initialize()
 				vertex.texture.x = theta / TWO_PI;
 				vertex.texture.y = phi / PI;
 
-				mVerticesTex[i] = vertex;
+				mAttributes->mVerticesTex[i] = vertex;
 			}
 #pragma endregion
 		}
@@ -303,41 +307,42 @@ void GeosphereMesh::Initialize()
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
 #pragma region "Vertex Color"
-			XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+			XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
-			mVerticesColor.resize(NUM_SPHERE_VERTS);
+			mAttributes->mVerticesColor.resize(NUM_SPHERE_VERTS);
 			
 			for(UINT i = 0; i < NUM_SPHERE_VERTS; ++i)
-				mVerticesColor[i].position = pos[i];
+				mAttributes->mVerticesColor[i].position = pos[i];
 			
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexColor );
-			mVertexCount = NUM_SPHERE_VERTS;
+			mAttributes->mVertexCount = NUM_SPHERE_VERTS;
 			
 			//
 			// Load Indices
 			//
 			
 			NUM_SPHERE_INDICES = 60;
-			mIndexCount = NUM_SPHERE_INDICES;
-			mIndices.resize( NUM_SPHERE_INDICES );
+			mAttributes->mIndexCount = NUM_SPHERE_INDICES;
+			mAttributes->mIndices.resize(NUM_SPHERE_INDICES);
 			
 			for(UINT i = 0; i < NUM_SPHERE_INDICES; ++i)
-				mIndices[i] = k[i];
+				mAttributes->mIndices[i] = k[i];
 			
 			//
 			// Subdivide and create the mesh
 			//
 			
 			for (UINT i = 0; i < iSubdivisions; ++i)
-				Subdivide_VertexColor();
+			{
+				mAttributes->Subdivide(mMeshParameters.vertexType);
+			}
 			
 			ZShadeSandboxMesh::VertexColor vertex;
 
 			// Project vertices onto sphere and scale.
-			for (UINT i = 0; i < mVertexCount; ++i)
+			for (UINT i = 0; i < mAttributes->mVertexCount; ++i)
 			{
 				// Project onto a unit sphere
-				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mVerticesColor[i].position;
+				ZShadeSandboxMath::Vec3<XMFLOAT3> n = mAttributes->mVerticesColor[i].position;
 				
 				n.Normalize();
 				
@@ -349,13 +354,13 @@ void GeosphereMesh::Initialize()
 				vertex.position = p;
 				vertex.color = diffuseColor;
 
-				mVerticesColor[i] = vertex;
+				mAttributes->mVerticesColor[i] = vertex;
 			}
 #pragma endregion
 		}
 		break;
 	}
 	
-	mTriangleCount = mVertexCount / 3;
+	mAttributes->mTriangleCount = mAttributes->mVertexCount / 3;
 }
 //===============================================================================================================================

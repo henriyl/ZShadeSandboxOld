@@ -468,20 +468,17 @@ void D3D::GBufferEnd()
 {
 	mGBuffer->End();
 	
-	m_deviceContext->ClearDepthStencilView(m_pBackbufferDS->GetDSView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	//m_deviceContext->ClearDepthStencilView(m_pBackbufferDS->GetDSView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	
 	//Set the depth stencil state
 	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
 	
 	SetBackBufferRenderTarget();
+	//ID3D11RenderTargetView* rtv[1] = { m_pBackbufferRT->RTView };
+	//m_deviceContext->OMSetRenderTargets(1, rtv, NULL);
 	
 	//Reset the viewport back to the original
 	ResetViewport();
-}
-//===============================================================================================================================
-RenderTarget2D* D3D::GBufferCubeColorTarget()
-{
-	return mGBuffer->CubeColorTarget();
 }
 //===============================================================================================================================
 RenderTarget2D* D3D::GBufferColorTarget()
@@ -497,11 +494,6 @@ RenderTarget2D* D3D::GBufferNormalTarget()
 RenderTarget2D* D3D::GBufferDepthTarget()
 {
 	return mGBuffer->DepthTarget();
-}
-//===============================================================================================================================
-RenderTarget2D*& D3D::GBufferCubeColorTargetRef()
-{
-	return mGBuffer->CubeColorTargetRef();
 }
 //===============================================================================================================================
 RenderTarget2D*& D3D::GBufferColorTargetRef()

@@ -6,7 +6,7 @@
 #include "Scripting.h"
 //===============================================================================================================================
 //===============================================================================================================================
-bool ZShadeXMLLoader::LoadMaterialXML(string filename, D3D* d3d)
+bool ZShadeXMLLoader::LoadMaterialXML(string basePath, string filename, D3D* d3d)
 {
 	string fname;
 	fname.append(filename);
@@ -56,6 +56,10 @@ bool ZShadeXMLLoader::LoadMaterialXML(string filename, D3D* d3d)
 	XMLElement* specularColorElement = rootElement->FirstChildElement("SpecularColor");
 	const char* specular_color_str = specularColorElement->GetText();
 	
+	// Get the materials emissive color
+	XMLElement* emissiveColorElement = rootElement->FirstChildElement("EmissiveColor");
+	const char* emissive_color_str = emissiveColorElement->GetText();
+
 	// Get the specular exponent value for specular lighting
 	XMLElement* specularPowerElement = rootElement->FirstChildElement("SpecularPower");
 	const char* specular_power_str = specularPowerElement->GetText();
@@ -65,13 +69,53 @@ bool ZShadeXMLLoader::LoadMaterialXML(string filename, D3D* d3d)
 	const char* specular_intensity_str = specularIntensityElement->GetText();
 	
 	// Get the emissive, reflectivity and transmittivity values for radiance of light
-	XMLElement* emissiveElement = rootElement->FirstChildElement("Emissive");
+	XMLElement* emissiveElement = rootElement->FirstChildElement("Emissivity");
 	const char* emissive_str = emissiveElement->GetText();
 	XMLElement* reflectivityElement = rootElement->FirstChildElement("Reflectivity");
 	const char* reflectivity_str = reflectivityElement->GetText();
 	XMLElement* transmissivityElement = rootElement->FirstChildElement("Transmissivity");
 	const char* transmissivity_str = transmissivityElement->GetText();
 	
+	// Get the materials transmission filter
+	XMLElement* transmissionFilterElement = rootElement->FirstChildElement("TransmissionFilter");
+	const char* transmission_filter_str = transmissionFilterElement->GetText();
+
+	// Get the materials alpha value
+	XMLElement* alphaElement = rootElement->FirstChildElement("Alpha");
+	const char* alpha_str = alphaElement->GetText();
+
+	// Get the materials refraction index
+	XMLElement* refractionIndexElement = rootElement->FirstChildElement("RefractionIndex");
+	const char* refraction_index_str = refractionIndexElement->GetText();
+
+	// Get the materials No Distance Tessellation Factor
+	XMLElement* noDistTessFactorElement = rootElement->FirstChildElement("NoDistTessFactor");
+	const char* no_dist_tess_factor_str = noDistTessFactorElement->GetText();
+
+	// Get the materials min tessellation distance
+	XMLElement* minTessDistElement = rootElement->FirstChildElement("MinTessDist");
+	const char* min_tess_dist_str = minTessDistElement->GetText();
+
+	// Get the materials max tessellation distance
+	XMLElement* maxTessDistElement = rootElement->FirstChildElement("MaxTessDist");
+	const char* max_tess_dist_str = maxTessDistElement->GetText();
+
+	// Get the materials min tessellation factor
+	XMLElement* minTessFactorElement = rootElement->FirstChildElement("MinTessFactor");
+	const char* min_tess_factor_str = minTessFactorElement->GetText();
+
+	// Get the materials max tessellation factor
+	XMLElement* maxTessFactorElement = rootElement->FirstChildElement("MaxTessFactor");
+	const char* max_tess_factor_str = maxTessFactorElement->GetText();
+
+	// Does the material have distance based tessellation enabled
+	XMLElement* enableDistTessElement = rootElement->FirstChildElement("EnableDistTess");
+	const char* enable_dist_tess_str = enableDistTessElement->GetText();
+
+	// Get the materials illumination model
+	XMLElement* illuminationModelElement = rootElement->FirstChildElement("IlluminationModel");
+	const char* illumination_model_str = illuminationModelElement->GetText();
+
 	// Load the diffuse array texture names
 	XMLElement* images_tag = rootElement->FirstChildElement("DiffuseArray");
 	
@@ -93,6 +137,18 @@ bool ZShadeXMLLoader::LoadMaterialXML(string filename, D3D* d3d)
 	// Get the diffuse texture of the material
 	XMLElement* diffuseTextureElement = rootElement->FirstChildElement("DiffuseTexture");
 	const char* diffuse_texture_str = diffuseTextureElement->GetText();
+
+	// Get the ambient texture of the material
+	XMLElement* ambientTextureElement = rootElement->FirstChildElement("AmbientTexture");
+	const char* ambient_texture_str = ambientTextureElement->GetText();
+
+	// Get the specular texture of the material
+	XMLElement* specularTextureElement = rootElement->FirstChildElement("SpecularTexture");
+	const char* specular_texture_str = specularTextureElement->GetText();
+
+	// Get the emissive texture of the material
+	XMLElement* emissiveTextureElement = rootElement->FirstChildElement("EmissiveTexture");
+	const char* emissive_texture_str = emissiveTextureElement->GetText();
 	
 	// Get the detail texture of the material
 	XMLElement* detailTextureElement = rootElement->FirstChildElement("DetailTexture");
@@ -120,12 +176,26 @@ bool ZShadeXMLLoader::LoadMaterialXML(string filename, D3D* d3d)
 	XMFLOAT4 ambientColor;
 	XMFLOAT4 diffuseColor;
 	XMFLOAT4 specularColor;
+	XMFLOAT4 emissiveColor;
 	float specularPower;
 	float specularIntensity;
 	float emissive;
 	float reflectivity;
 	float transmissivity;
+	float alpha;
+	XMFLOAT3 transmissionFilter;
+	float refractionIndex;
+	float noDistTessFactor;
+	float minTessDist;
+	float maxTessDist;
+	float minTessFactor;
+	float maxTessFactor;
+	bool enableDistTess;
+	int illuminationModel;
 	string diffuseTextureName(diffuse_texture_str);
+	string ambientTextureName(ambient_texture_str);
+	string specularTextureName(specular_texture_str);
+	string emissiveTextureName(emissive_texture_str);
 	string detailTextureName(detail_texture_str);
 	string normalTextureName(normal_texture_str);
 	string blendTextureName(blend_texture_str);
@@ -135,9 +205,16 @@ bool ZShadeXMLLoader::LoadMaterialXML(string filename, D3D* d3d)
 	(BetterString(enable_ssao_str) == "true") ? enableSSAO = true : enableSSAO = false;
 	(BetterString(transparency_str) == "true") ? enableTransparency = true : enableTransparency = false;
 	(BetterString(enable_lighting_str) == "true") ? enableLighting = true : enableLighting = false;
+	(BetterString(enable_dist_tess_str) == "true") ? enableDistTess = true : enableDistTess = false;
 	
 	detailBrightness = atof(detail_brightness_str);
 	
+	BetterString transmissionFilterStr(transmission_filter_str);
+	vector<string> transmission_filter_values = transmissionFilterStr.split(' ');
+	transmissionFilter.x = atof(transmission_filter_values[0].c_str());
+	transmissionFilter.y = atof(transmission_filter_values[1].c_str());
+	transmissionFilter.z = atof(transmission_filter_values[2].c_str());
+
 	BetterString alphaStr(alpha_to_coverage_str);
 	vector<string> alpha_values = alphaStr.split(' ');
 	alphaToCoverage.x = atof(alpha_values[0].c_str());
@@ -165,67 +242,118 @@ bool ZShadeXMLLoader::LoadMaterialXML(string filename, D3D* d3d)
 	specularColor.z = atof(specular_values[2].c_str());
 	specularColor.w = atof(specular_values[3].c_str());
 	
+	BetterString emissiveStr(emissive_color_str);
+	vector<string> emissive_values = emissiveStr.split(' ');
+	emissiveColor.x = atof(emissive_values[0].c_str());
+	emissiveColor.y = atof(emissive_values[1].c_str());
+	emissiveColor.z = atof(emissive_values[2].c_str());
+	emissiveColor.w = atof(emissive_values[3].c_str());
+
 	specularPower = atof(specular_power_str);
 	specularIntensity = atof(specular_intensity_str);
 	emissive = atof(emissive_str);
 	reflectivity = atof(reflectivity_str);
 	transmissivity = atof(transmissivity_str);
-	
+	alpha = atof(alpha_str);
+	refractionIndex = atof(refraction_index_str);
+	noDistTessFactor = atof(no_dist_tess_factor_str);
+	minTessDist = atof(min_tess_dist_str);
+	maxTessDist = atof(max_tess_dist_str);
+	minTessFactor = atof(min_tess_factor_str);
+	maxTessFactor = atof(max_tess_factor_str);
+	illuminationModel = atoi(illumination_model_str);
+
 	//
 	// Load the material into the material manager
 	//
 	
 	ZShadeSandboxLighting::ShaderMaterial* material = new ZShadeSandboxLighting::ShaderMaterial(d3d, name);
 	
-	material->EnableShadowMap() = enableShadowMap;
-	material->EnableSSAOMap() = enableSSAO;
-	material->EnableTransparency() = enableTransparency;
-	material->EnableLighting() = enableLighting;
-	material->DetailBrightness() = detailBrightness;
-	material->AlphaToCoverageValue() = alphaToCoverage;
-	material->AmbientColor() = ambientColor;
-	material->DiffuseColor() = diffuseColor;
-	material->SpecularColor() = specularColor;
-	
+	material->bHasShadowMap = enableShadowMap;
+	material->bHasSSAOMap = enableSSAO;
+	material->bHasTransparency = enableTransparency;
+	material->bEnableLighting = enableLighting;
+	material->fDetailBrightness = detailBrightness;
+	material->vAlphaToCoverageValue = alphaToCoverage;
+	material->vAmbientColor = ambientColor;
+	material->vDiffuseColor = diffuseColor;
+	material->vSpecularColor = specularColor;
+	material->vEmissiveColor = emissiveColor;
+
 	bool hasDiffuseArrayTexture;
 	(BetterString(names[0]) == "NONE") ? hasDiffuseArrayTexture = false : hasDiffuseArrayTexture = true;
 	if (hasDiffuseArrayTexture)
 		material->CreateTexture2DArray(names);
 	
-	material->SpecularPower() = specularPower;
-	material->SpecularIntensity() = specularIntensity;
-	material->Emissivity() = emissive;
-	material->Reflectivity() = reflectivity;
-	material->Transmissivity() = transmissivity;
-	
+	material->fSpecularPower = specularPower;
+	material->fSpecularIntensity = specularIntensity;
+	material->fEmissivity = emissive;
+	material->fReflectivity = reflectivity;
+	material->fTransmissivity = transmissivity;
+	material->fAlpha = alpha;
+	material->vTransmissionFilter = transmissionFilter;
+	material->fRefractionIndex = refractionIndex;
+	material->fNoDistTessFactor = noDistTessFactor;
+	material->fMinTessDist = minTessDist;
+	material->fMaxTessDist = maxTessDist;
+	material->fMinTessFactor = minTessFactor;
+	material->fMaxTessFactor = maxTessFactor;
+	material->bEnableDistTess = enableDistTess;
+	material->iIlluminationModel = illuminationModel;
+
 	// Need to add the material path for 3D
 	//string game_material_path = 
 	
 	bool hasDiffuseTexture;
 	(BetterString(diffuseTextureName) == "NONE") ? hasDiffuseTexture = false : hasDiffuseTexture = true;
 	if (hasDiffuseTexture)
-		material->AddDiffuseTexture("", diffuseTextureName);
+		material->AddDiffuseTexture(basePath, diffuseTextureName);
 	
+	bool hasAmbientTexture;
+	(BetterString(ambientTextureName) == "NONE") ? hasAmbientTexture = false : hasAmbientTexture = true;
+	if (hasAmbientTexture)
+		material->AddAmbientTexture(basePath, ambientTextureName);
+
+	bool hasSpecularTexture;
+	(BetterString(specularTextureName) == "NONE") ? hasSpecularTexture = false : hasSpecularTexture = true;
+	if (hasSpecularTexture)
+		material->AddSpecularTexture(basePath, specularTextureName);
+
+	bool hasEmissiveTexture;
+	(BetterString(emissiveTextureName) == "NONE") ? hasEmissiveTexture = false : hasEmissiveTexture = true;
+	if (hasEmissiveTexture)
+		material->AddEmissiveTexture(basePath, emissiveTextureName);
+
 	bool hasDetailTexture;
 	(BetterString(detailTextureName) == "NONE") ? hasDetailTexture = false : hasDetailTexture = true;
 	if (hasDetailTexture)
-		material->AddDetailMapTexture("", detailTextureName);
+		material->AddDetailMapTexture(basePath, detailTextureName);
 	
 	bool hasNormalMapTexture;
 	(BetterString(normalTextureName) == "NONE") ? hasNormalMapTexture = false : hasNormalMapTexture = true;
 	if (hasNormalMapTexture)
-		material->AddNormalMapTexture("", normalTextureName);
+		material->AddNormalMapTexture(basePath, normalTextureName);
 	
 	bool hasBlendMapTexture;
 	(BetterString(blendTextureName) == "NONE") ? hasBlendMapTexture = false : hasBlendMapTexture = true;
 	if (hasBlendMapTexture)
-		material->AddBlendMapTexture("", blendTextureName);
+		material->AddBlendMapTexture(basePath, blendTextureName);
 	
 	bool hasAlphaMapTexture;
 	(BetterString(alphaTextureName) == "NONE") ? hasAlphaMapTexture = false : hasAlphaMapTexture = true;
 	if (hasAlphaMapTexture)
-		material->AddAlphaMapTexture("", alphaTextureName);
+		material->AddAlphaMapTexture(basePath, alphaTextureName);
 	
+	material->bHasDiffuseArrayTexture = hasDiffuseArrayTexture;
+	material->bHasDiffuseTexture = hasDiffuseTexture;
+	material->bHasAmbientTexture = hasAmbientTexture;
+	material->bHasSpecularTexture = hasSpecularTexture;
+	material->bHasEmissiveTexture = hasEmissiveTexture;
+	material->bHasDetailMapTexture = hasDetailTexture;
+	material->bHasNormalMapTexture = hasNormalMapTexture;
+	material->bHasBlendMapTexture = hasBlendMapTexture;
+	material->bHasAlphaMapTexture = hasAlphaMapTexture;
+
 	MaterialManager::Instance()->Add(material);
 	
 	return true;

@@ -12,14 +12,51 @@
 #define __CAMERA_H
 //==================================================================================================================================
 //==================================================================================================================================
+
+//
+// Includes
+//
+
 #include "D3D.h"
 #include "ZMath.h"
 #include "Ray.h"
 #define _XM_NO_INTRINSICS_
 #include <DirectXMath.h>
 using namespace DirectX;
-//using namespace ZMath;
+
 //==================================================================================================================================
+//==================================================================================================================================
+
+namespace ZShadeSandboxLighting {
+	class Light;
+}
+
+//==================================================================================================================================
+
+struct cbInvMatrixBuffer
+{
+	XMFLOAT4X4	g_InvViewProj;
+};
+
+struct cbMatrixBuffer
+{
+	XMFLOAT4X4	g_matWorld;
+	XMFLOAT4X4	g_matView;
+	XMFLOAT4X4	g_matProj;
+};
+
+struct cbMatrixBufferLight
+{
+	XMFLOAT4X4	g_matWorld;
+	XMFLOAT4X4	g_matView;
+	XMFLOAT4X4	g_matProj;
+	XMFLOAT4X4	g_ShadowMatrix;
+	XMFLOAT4X4  g_LightView;
+	XMFLOAT4X4  g_LightProj;
+};
+
+//==================================================================================================================================
+
 struct Arm
 {
 	XMFLOAT3 mTargetPosition;
@@ -27,6 +64,7 @@ struct Arm
 	Arm();
 	Arm(XMFLOAT3 pos, float dist);
 };
+
 //==================================================================================================================================
 static XMVECTOR gDefaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 static XMVECTOR gDefaultUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -114,10 +152,16 @@ class Camera
 	void BuildFrustumConeSphere();
 
 public:
+	
 	Camera(EngineOptions* eo);
 	Camera(const Camera& other);
 	~Camera();
 	
+	void BuildCameraInvConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer);
+	void BuildCameraConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer, XMMATRIX world, bool reflection);
+	void BuildCameraConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light, XMMATRIX world, bool reflection);
+	
+
 	Frustum* ViewingFrustum() { return m_ViewingFrustum; }
 	ZShadeSandboxMath::SpherePrimitive Sphere() { return m_Sphere; }
 	ZShadeSandboxMath::ConePrimitive Cone() { return m_Cone; }

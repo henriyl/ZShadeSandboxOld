@@ -7,8 +7,8 @@
 // -Created on 5/18/2015 by henriyl
 // -Updated 5/21/2015 for the engine by Dustin Watson
 //===============================================================================================================================
-#ifndef __WAVEFRONTOBJ_H
-#define __WAVEFRONTOBJ_H
+#ifndef __OBJMESH_H
+#define __OBJMESH_H
 //===============================================================================================================================
 //===============================================================================================================================
 
@@ -25,8 +25,10 @@
 #include "GameDirectory.h"
 #include "OBJMeshShader.h"
 #include "OBJMeshTessellationShader.h"
-#include "OBJMeshSurfaceMaterial.h"
-#include "OBJDeferredShader.h"
+#include "ShaderMaterial.h"
+#include "OBJGBufferShader.h"
+#include "AABB.h"
+#include "SpherePrimitive.h"
 
 //===============================================================================================================================
 //===============================================================================================================================
@@ -36,44 +38,46 @@ typedef unsigned int IndexType;
 // SamplerStates etc in hlsl files do nothing if Effect framework is not used
 // MaleLow.obj has quads, retriangulated in VS. Some of the triangles still have wrong winding order...
 
+// Need a separate vertex array that includes the real positions of the vertices
+
 namespace ZShadeSandboxMesh
 {
-struct OBJMeshRenderParameters
-{
-	Camera* camera;
-	LightCamera* lightCamera;
-	ERenderType::Type renderType;
-	bool tessellate;
-	//float tessFactor;
-	float minTessDist;
-	float maxTessDist;
-	float minTess;
-	float maxTess;
-	bool reflection;
-	bool bRenderDeferred;
-	XMFLOAT4 clipplane;
-
-	OBJMeshRenderParameters()
-	{
-		camera = 0;
-		renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
-		tessellate = false;
-		//tessFactor = 6.0f;
-		minTessDist = 20.0f;
-		maxTessDist = 500.0f;
-		minTess = -1.0f;
-		maxTess = 64.0f;
-		reflection = false;
-		bRenderDeferred = false;
-		clipplane = XMFLOAT4(0, 0, 0, 0);
-	}
-};
+//struct OBJMeshRenderParameters
+//{
+//	Camera* camera;
+//	LightCamera* lightCamera;
+//	ERenderType::Type renderType;
+//	bool tessellate;
+//	//float tessFactor;
+//	float minTessDist;
+//	float maxTessDist;
+//	float minTess;
+//	float maxTess;
+//	bool reflection;
+//	bool bRenderDeferred;
+//	XMFLOAT4 clipplane;
+//
+//	OBJMeshRenderParameters()
+//	{
+//		camera = 0;
+//		renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
+//		tessellate = false;
+//		//tessFactor = 6.0f;
+//		minTessDist = 20.0f;
+//		maxTessDist = 500.0f;
+//		minTess = -1.0f;
+//		maxTess = 64.0f;
+//		reflection = false;
+//		bRenderDeferred = false;
+//		clipplane = XMFLOAT4(0, 0, 0, 0);
+//	}
+//};
 
 class OBJMesh
 {
 	struct Group
 	{
-		OBJMeshSurfaceMaterial Material;
+		ZShadeSandboxLighting::ShaderMaterial Material;
 		string Name;
 		int IndexStart;
 		int IndexCount;
@@ -87,13 +91,22 @@ class OBJMesh
 		~Mesh();
 		
 		bool Load(string filename, bool bRebuildNormals, bool isRHCoordSys);
-		void Render(OBJMeshRenderParameters render_param);
+		void Render(MeshRenderParameters render_param);
 		void SetWireframe(bool wire);
 		void SetFarPlane(float farPlane);
 
-		XMFLOAT3& Scale();
-		XMFLOAT3& Rotate();
-		XMFLOAT3& Position();
+		void Scale(XMFLOAT3 v);
+		void Rotate(XMFLOAT3 v);
+		void Position(XMFLOAT3 v);
+		
+		ZShadeSandboxMath::AABB* GetAABB();
+		bool IntersectsAABB(XMFLOAT3 point);
+		float DistanceAABBToPoint(XMFLOAT3 point);
+		void UpdateAABB(XMFLOAT3 center, XMFLOAT3 scale);
+		
+		ZShadeSandboxMath::SpherePrimitive* GetSphere();
+		bool IntersectsSphere(XMFLOAT3 point);
+		float DistanceSphereToPoint(XMFLOAT3 point);
 
 	private:
 
@@ -106,13 +119,16 @@ class OBJMesh
 		ID3D11Buffer*				mIB;
 		OBJMeshShader*      	   	mShader;
 		OBJMeshTessellationShader*  mTessellationShader;
-		OBJDeferredShader*			mOBJDeferredShader;
+		OBJGBufferShader*			mOBJGBufferShader;
 		D3D*						mD3DSystem;
 		XMMATRIX					mWorld;
 		XMFLOAT3					mPosition;
 		XMFLOAT3					mScale;
 		XMFLOAT3					mRotation;
 		vector<Group>				mGroups;
+
+		ZShadeSandboxMath::AABB* mAABB;
+		ZShadeSandboxMath::SpherePrimitive* mSphere;
 	};
 
 public:
@@ -121,27 +137,44 @@ public:
 	~OBJMesh();
 
 	void Load(string filename, bool bRebuildNormals = false, bool isRHCoordSys = false);
-	void Render(OBJMeshRenderParameters render_param);
+	void Render(MeshRenderParameters render_param);
 	void SetWireframe(bool wire);
 	void SetFarPlane(float farPlane);
 
-	XMFLOAT3& Scale();
-	XMFLOAT3& Rotate();
-	XMFLOAT3& Position();
-
+	void Scale(XMFLOAT3 v);
+	void Rotate(XMFLOAT3 v);
+	void Position(XMFLOAT3 v);
+	
+	ZShadeSandboxMath::AABB* GetAABB();
+	bool IntersectsAABB(XMFLOAT3 point);
+	float DistanceAABBToPoint(XMFLOAT3 point);
+	void UpdateAABB(XMFLOAT3 center, XMFLOAT3 scale);
+	
+	ZShadeSandboxMath::SpherePrimitive* GetSphere();
+	bool IntersectsSphere(XMFLOAT3 point);
+	float DistanceSphereToPoint(XMFLOAT3 point);
+	
 private:
-
+	
 	static GameDirectory3D* mGD3D;
-
-	D3D*  mD3DSystem;
+	static D3D*  mD3DSystem;
+	
 	Mesh* m_pMesh;
-
-	static bool LoadMtl(string filename, D3D* d3d, map<string, OBJMeshSurfaceMaterial>& materials);
-	static void InitMaterial(OBJMeshSurfaceMaterial* mat);
-	static bool LoadObj(string filename, D3D* d3d, vector<VertexNormalTex>& vertices,
-		vector<IndexType>& indices, vector<Group>& groups, bool& hadNormals, bool isRHCoordSys);
+	
+	static bool LoadMtl(string filename, D3D* d3d, map<string, ZShadeSandboxLighting::ShaderMaterial>& materials);
+	//static void InitMaterial(OBJMeshSurfaceMaterial* mat);
+	
+	static bool LoadObj(
+		string filename,
+		D3D* d3d,
+		vector<VertexNormalTex>& vertices,
+		vector<IndexType>& indices,
+		vector<Group>& groups,
+		bool& hadNormals,
+		bool isRHCoordSys
+	);
 };
 }
 //===============================================================================================================================
 //===============================================================================================================================
-#endif//__WAVEFRONTOBJ_H
+#endif//__OBJMESH_H

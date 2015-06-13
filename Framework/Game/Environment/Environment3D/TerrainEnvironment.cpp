@@ -39,12 +39,6 @@ void TerrainEnvironment::Init()
 	ZShadeSandboxLighting::LightManager::Instance()->ToggleDirectionalLights(true);
 	
 	//
-	// Initialize the sky
-	//
-	
-	mSky = new Sky(m_D3DSystem, m_GameDirectory3D->m_textures_path, "sky_cube.dds", 50.0f);//sky_cube.dds
-	
-	//
 	// Initialize the terrain
 	//
 	
@@ -218,7 +212,6 @@ void TerrainEnvironment::Update()
 		(*it)->SetWireframe(bWireframeMode);
 	}
 	
-	mSky->SetWireframe(bWireframeMode);
 	m_pQuadTreeRenderer->SetWireframe(bWireframeMode);
 	
 	XMFLOAT3 SpotLightPos = mSpotLight1->Position();
@@ -311,7 +304,7 @@ void TerrainEnvironment::Update()
 //===============================================================================================================================
 void TerrainEnvironment::Render()
 {
-	vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
+	/*vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
 	for (; it != m_SpawnedMeshContainer.end(); it++)
 	{
 		(*it)->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
@@ -322,7 +315,7 @@ void TerrainEnvironment::Render()
 	{
 		mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
 		mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
-	}
+	}*/
 
 	RenderTerrainShadowSSAO();
 	
@@ -383,8 +376,8 @@ void TerrainEnvironment::Render()
 					mp.shader = 0;
 					mPickingSphere = new ZShadeSandboxMesh::SphereMesh(2, 10, 10, m_D3DSystem, mp);
 
-					mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-					mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
+					//mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
+					//mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 				}
 				else
 				{
@@ -414,12 +407,12 @@ void TerrainEnvironment::Render()
 	}
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
-	mrp.pLightCamera = mDirLight1->Perspective();
-	mrp.bTessellate = false;
+	mrp.camera = m_CameraSystem.get();
+	mrp.light = mDirLight1;
+	mrp.tessellate = false;
 	mrp.renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
 	
-	it = m_SpawnedMeshContainer.begin();
+	vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
 	for (; it != m_SpawnedMeshContainer.end(); it++)
 	{
 		if ((*it)->MeshType() == ZShadeSandboxMesh::EMeshType::CYLINDER)
@@ -455,93 +448,16 @@ void TerrainEnvironment::Render()
 	tsc.g_seaLevel = fSeaLevel;
 	tsc.g_waterBodyColor = XMFLOAT4(0.07f, 0.15f, 0.2f, 0.0f);
 	
-	// Capture the sun
-	tsc.g_SunDir = mSunLightBuffer->g_SunDir;
-	tsc.g_SunDiffuseColor = mSunLightBuffer->g_SunDiffuseColor;
-	tsc.g_SunShineness = mSunLightBuffer->g_SunShineness;
-	tsc.g_EnableSun = 0;// mSunLightBuffer->g_EnableSun;
-	
-#pragma region "Light Buffers"
-	int ambientLightID = 0;
-	int directionLightID = 0;
-	int spotLightID = 0;
-	int pointLightID = 0;
-	int capsuleLightID = 0;
-	
-	// Get the lights in the scene
-	for (int i = 0; i < ZShadeSandboxLighting::LightManager::Instance()->LightCount(); i++)
-	{
-		ZShadeSandboxLighting::AmbientLight* ambientLight = ZShadeSandboxLighting::LightManager::Instance()->GetAmbientLight(i);
-		if (ambientLight != NULL)
-		{
-			ZShadeSandboxLighting::AmbientLightBuffer alb;
-			alb.g_AmbientColor = ambientLight->AmbientColor();
-			tsc.g_AmbientLight[ambientLightID++] = alb;
-		}
-		
-		ZShadeSandboxLighting::DirectionalLight* dirLight = ZShadeSandboxLighting::LightManager::Instance()->GetDirectionalLight(i);
-		if (dirLight != NULL)
-		{
-			ZShadeSandboxLighting::DirectionalLightBuffer dlb;
-			dlb.g_LightDirection = dirLight->Direction();
-			dlb.g_DiffuseColor = dirLight->DiffuseColor();
-			dlb.g_AmbientColor = XMFLOAT4(0, 0, 0, 0);
-			tsc.g_DirectionalLight[directionLightID++] = dlb;
-		}
-		
-		ZShadeSandboxLighting::SpotLight* spotLight = ZShadeSandboxLighting::LightManager::Instance()->GetSpotLight(i);
-		if (spotLight != NULL)
-		{
-			ZShadeSandboxLighting::SpotLightBuffer slb;
-			slb.g_DiffuseColor = spotLight->DiffuseColor();
-			slb.g_LightPosition = spotLight->Position();
-			slb.g_LightRange = spotLight->Range();
-			slb.g_SpotCosOuterCone = spotLight->SpotCosOuterCone();
-			slb.g_SpotInnerConeReciprocal = spotLight->SpotInnerConeReciprocal();
-			slb.g_CosineAngle = spotLight->SpotAngle();
-			slb.g_AmbientColor = XMFLOAT4(0, 0, 0, 0);
-			tsc.g_SpotLight[spotLightID++] = slb;
-		}
-		
-		ZShadeSandboxLighting::PointLight* pointLight = ZShadeSandboxLighting::LightManager::Instance()->GetPointLight(i);
-		if (pointLight != NULL)
-		{
-			ZShadeSandboxLighting::PointLightBuffer plb;
-			plb.g_LightPosition = pointLight->Position();
-			plb.g_LightRange = pointLight->Range();
-			plb.g_Attenuation = XMFLOAT3(0, 0, 0);
-			plb.g_AmbientColor = XMFLOAT4(0, 0, 0, 0);
-			plb.g_DiffuseColor = pointLight->DiffuseColor();
-			tsc.g_PointLight[pointLightID++] = plb;
-		}
-		
-		ZShadeSandboxLighting::CapsuleLight* capsuleLight = ZShadeSandboxLighting::LightManager::Instance()->GetCapsuleLight(i);
-		if (capsuleLight != NULL)
-		{
-			ZShadeSandboxLighting::CapsuleLightBuffer clb;
-			clb.g_LightPosition = capsuleLight->Position();
-			clb.g_DiffuseColor = capsuleLight->DiffuseColor();
-			clb.g_AmbientColor = capsuleLight->AmbientColor();
-			clb.g_LightRange = capsuleLight->Range();
-			clb.g_LightLength = capsuleLight->LightLength();
-			clb.g_CapsuleIntensity = capsuleLight->CapsuleIntensity();
-			clb.g_CapsuleDirectionLength = capsuleLight->CapsuleDirectionLength();
-			clb.g_LightDirection = capsuleLight->Direction();
-			tsc.g_CapsuleLight[capsuleLightID++] = clb;
-		}
-	}
-#pragma endregion
-	
 	float    fMinTessellation = 0.0f;
 	float    fMaxTessellation = 64.0f;
 
-	tsc.g_AmbientDown = mAmbientDown;
+	/*tsc.g_AmbientDown = mAmbientDown;
 	tsc.g_AmbientLightCount = ZShadeSandboxLighting::LightManager::Instance()->AmbientLightCount();
 	tsc.g_DirectionalLightCount = ZShadeSandboxLighting::LightManager::Instance()->DirectionalLightCount();
 	tsc.g_SpotLightCount = ZShadeSandboxLighting::LightManager::Instance()->SpotLightCount();
 	tsc.g_PointLightCount = ZShadeSandboxLighting::LightManager::Instance()->PointLightCount();
 	tsc.g_CapsuleLightCount = ZShadeSandboxLighting::LightManager::Instance()->CapsuleLightCount();
-	tsc.g_AmbientUp = mAmbientUp;
+	tsc.g_AmbientUp = mAmbientUp;*/
 	tsc.g_useClippingPlane = 0;
 	tsc.g_UseSobelFilter = 0;
 	tsc.g_useNormalMap = (bToggleTerrainNormalMap == true) ? 1 : 0;
@@ -579,37 +495,14 @@ void TerrainEnvironment::Render()
 	// Render the sphere mesh for the lights in the scene
 	//
 	
-	bool toggleMesh = true;
-	bool reflect = false;
-	ZShadeSandboxLighting::LightManager::Instance()->RenderLightMesh(m_CameraSystem.get(), mDirLight1->Perspective(), toggleMesh, reflect, bWireframeMode);
-	
-	//
-	//Render the sky
-	//
-	
-	{
-		if (bWireframeMode)
-		{
-			m_D3DSystem->TurnOnWireframe();
-		}
-		else
-		{
-			m_D3DSystem->TurnOffCulling();
-		}
-		
-		//Quickwire stuff that default environment supports
-		if( Quickwire() )
-		{
-			mSky->SetWireframe(true);
-			m_D3DSystem->TurnOnWireframe();
-		}
-		
-		mSky->Render(m_D3DSystem, m_CameraSystem.get());
-		
-		m_D3DSystem->TurnOnZBuffer();
-	}
-	
-	m_D3DSystem->TurnOffCulling();
+	ZShadeSandboxLighting::LightRenderParameters lrp;
+	lrp.camera = m_CameraSystem.get();
+	lrp.clipplane = XMFLOAT4(0, 0, 0, 0);
+	lrp.reflect = false;
+	lrp.renderDeferred = false;
+	lrp.toggleMesh = true;
+	lrp.toggleWireframe = bWireframeMode;
+	ZShadeSandboxLighting::LightManager::Instance()->RenderLightMesh(lrp);
 }
 //===============================================================================================================================
 void TerrainEnvironment::RenderDeferred()
@@ -633,91 +526,16 @@ void TerrainEnvironment::RenderTerrainShadowSSAO()
 	tsc.g_seaLevel = fSeaLevel;
 	tsc.g_waterBodyColor = XMFLOAT4(0.07f, 0.15f, 0.2f, 0.0f);
 
-	// Capture the sun
-	tsc.g_SunDir = mSunLightBuffer->g_SunDir;
-	tsc.g_SunDiffuseColor = mSunLightBuffer->g_SunDiffuseColor;
-	tsc.g_SunShineness = mSunLightBuffer->g_SunShineness;
-	tsc.g_EnableSun = 0;// mSunLightBuffer->g_EnableSun;
-
-	int ambientLightID = 0;
-	int directionLightID = 0;
-	int spotLightID = 0;
-	int pointLightID = 0;
-	int capsuleLightID = 0;
-
-	// Get the lights in the scene
-	for (int i = 0; i < ZShadeSandboxLighting::LightManager::Instance()->LightCount(); i++)
-	{
-		ZShadeSandboxLighting::AmbientLight* ambientLight = ZShadeSandboxLighting::LightManager::Instance()->GetAmbientLight(i);
-		if (ambientLight != NULL)
-		{
-			ZShadeSandboxLighting::AmbientLightBuffer alb;
-			alb.g_AmbientColor = ambientLight->AmbientColor();
-			tsc.g_AmbientLight[ambientLightID++] = alb;
-		}
-
-		ZShadeSandboxLighting::DirectionalLight* dirLight = ZShadeSandboxLighting::LightManager::Instance()->GetDirectionalLight(i);
-		if (dirLight != NULL)
-		{
-			ZShadeSandboxLighting::DirectionalLightBuffer dlb;
-			dlb.g_LightDirection = dirLight->Direction();
-			dlb.g_DiffuseColor = dirLight->DiffuseColor();
-			dlb.g_AmbientColor = XMFLOAT4(0, 0, 0, 0);
-			tsc.g_DirectionalLight[directionLightID++] = dlb;
-		}
-
-		ZShadeSandboxLighting::SpotLight* spotLight = ZShadeSandboxLighting::LightManager::Instance()->GetSpotLight(i);
-		if (spotLight != NULL)
-		{
-			ZShadeSandboxLighting::SpotLightBuffer slb;
-			slb.g_DiffuseColor = spotLight->DiffuseColor();
-			slb.g_LightPosition = spotLight->Position();
-			slb.g_LightRange = spotLight->Range();
-			slb.g_SpotCosOuterCone = spotLight->SpotCosOuterCone();
-			slb.g_SpotInnerConeReciprocal = spotLight->SpotInnerConeReciprocal();
-			slb.g_CosineAngle = spotLight->SpotAngle();
-			slb.g_AmbientColor = XMFLOAT4(0, 0, 0, 0);
-			tsc.g_SpotLight[spotLightID++] = slb;
-		}
-
-		ZShadeSandboxLighting::PointLight* pointLight = ZShadeSandboxLighting::LightManager::Instance()->GetPointLight(i);
-		if (pointLight != NULL)
-		{
-			ZShadeSandboxLighting::PointLightBuffer plb;
-			plb.g_LightPosition = pointLight->Position();
-			plb.g_LightRange = pointLight->Range();
-			plb.g_Attenuation = XMFLOAT3(0, 0, 0);
-			plb.g_AmbientColor = XMFLOAT4(0, 0, 0, 0);
-			plb.g_DiffuseColor = pointLight->DiffuseColor();
-			tsc.g_PointLight[pointLightID++] = plb;
-		}
-
-		ZShadeSandboxLighting::CapsuleLight* capsuleLight = ZShadeSandboxLighting::LightManager::Instance()->GetCapsuleLight(i);
-		if (capsuleLight != NULL)
-		{
-			ZShadeSandboxLighting::CapsuleLightBuffer clb;
-			clb.g_LightPosition = capsuleLight->Position();
-			clb.g_DiffuseColor = capsuleLight->DiffuseColor();
-			clb.g_AmbientColor = capsuleLight->AmbientColor();
-			clb.g_LightRange = capsuleLight->Range();
-			clb.g_LightLength = capsuleLight->LightLength();
-			clb.g_CapsuleIntensity = capsuleLight->CapsuleIntensity();
-			clb.g_CapsuleDirectionLength = capsuleLight->CapsuleDirectionLength();
-			clb.g_LightDirection = capsuleLight->Direction();
-			tsc.g_CapsuleLight[capsuleLightID++] = clb;
-		}
-	}
-
 	float    fMinTessellation = 0.0f;
 	float    fMaxTessellation = 64.0f;
 
-	tsc.g_AmbientDown = mAmbientDown;
+	/*tsc.g_AmbientDown = mAmbientDown;
 	tsc.g_AmbientLightCount = ZShadeSandboxLighting::LightManager::Instance()->AmbientLightCount();
 	tsc.g_DirectionalLightCount = ZShadeSandboxLighting::LightManager::Instance()->DirectionalLightCount();
 	tsc.g_SpotLightCount = ZShadeSandboxLighting::LightManager::Instance()->SpotLightCount();
 	tsc.g_PointLightCount = ZShadeSandboxLighting::LightManager::Instance()->PointLightCount();
 	tsc.g_CapsuleLightCount = ZShadeSandboxLighting::LightManager::Instance()->CapsuleLightCount();
-	tsc.g_AmbientUp = mAmbientUp;
+	tsc.g_AmbientUp = mAmbientUp;*/
 	tsc.g_useClippingPlane = 0;
 	tsc.g_UseSobelFilter = 0;
 	tsc.g_useNormalMap = (bToggleTerrainNormalMap == true) ? 1 : 0;

@@ -182,7 +182,7 @@ void Water::Render(Camera* pCamera, ID3D11ShaderResourceView* pReflectionMap, ID
 	mWaterShader->SetWireframe(m_Wireframe);
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = pCamera;
+	mrp.camera = pCamera;
 	mPlane->Render(mrp);
 
 	return;

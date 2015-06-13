@@ -14,19 +14,14 @@
 #include "D3D.h"
 #include "Shader.h"
 #include "Vertex.h"
+#include "ShaderMaterial.h"
+#include "MeshRenderParameters.h"
 using namespace std;
 //===============================================================================================================================
 //===============================================================================================================================
 class OBJMeshTessellationShader : public ZShadeSandboxShader::Shader
 {
-	struct cbOBJShadingConst
-	{
-		XMFLOAT4	g_DifColor;
-		XMFLOAT3	padding;
-		int			g_hasTexture;
-	};
-	
-	struct cbTessellationBuffer
+	/*struct cbTessellationBuffer
 	{
 		XMFLOAT3 	g_EyePosW;
 		float		g_TessellationFactor;
@@ -37,20 +32,42 @@ class OBJMeshTessellationShader : public ZShadeSandboxShader::Shader
 		float 		g_MaxTess;
 	};
 	
-	struct cbDomainConst
+	struct cbDomainBuffer
 	{
 		XMFLOAT4 	g_ClipPlane;
 		XMFLOAT3	padding;
 		float		g_FarPlane;
+		XMFLOAT4X4	g_World;
+		XMFLOAT4X4	g_View;
+		XMFLOAT4X4	g_Proj;
 	};
 	
-	struct cbMatrixBuffer
+	struct cbOBJShadingBuffer
 	{
-		//XMFLOAT4X4	g_World;
-		//XMFLOAT4X4	g_View;
-		//XMFLOAT4X4	g_Proj;
-		XMFLOAT4X4	g_WVPMatrix;
-	};
+		XMFLOAT4	g_DiffuseColor;
+		XMFLOAT4	g_AmbientColor;
+		XMFLOAT4	g_SpecularColor;
+		XMFLOAT4	g_EmissiveColor;
+		XMFLOAT3	g_TransmissionFilter;
+		float		g_Alpha;
+		float		g_SpecularPower;
+		float		g_SpecularIntensity;
+		float		g_RefractionIndex;
+		float		g_DetailBrightness;
+		int			g_IlluminationModel;
+		int			g_HasDiffuseTexture;
+		int			g_HasAmbientTexture;
+		int			g_HasSpecularTexture;
+		int			g_SpecularToggle;
+		int			g_HasEmissiveTexture;
+		int			g_HasNormalMap;
+		int			g_HasDetailMap;
+		XMFLOAT2	padding;
+		int			g_HasTransparency;
+		int			g_HasAlphaTexture;
+		XMFLOAT3	g_EyePosW;
+		float		padding2;
+	};*/
 	
 public:
 	
@@ -61,20 +78,20 @@ public:
 	bool Initialize();
 	void Shutdown();
 	
-	void SetFarPlane(float farPlane) { fFarPlane = farPlane; }
-
-	bool Render(int startIndex, int indexCount, float minTessDist, float maxTessDist, float minTess, float maxTess,
-		Camera* camera, XMMATRIX wvp, XMFLOAT4 clipplane, XMFLOAT4 difColor, bool hasTexture,
-		ID3D11ShaderResourceView* texture);
+	bool Render
+	(	int startIndex
+	,	int indexCount
+	,	ZShadeSandboxMesh::MeshRenderParameters mrp
+	,	ZShadeSandboxLighting::ShaderMaterial* material
+	);
 
 private:
 	
-	float fFarPlane;
-
 	ID3D11Buffer* m_pTessellationCB;
 	ID3D11Buffer* m_pDomainCB;
-	ID3D11Buffer* m_pOBJShadingCB;
-	ID3D11Buffer* m_pMatrixBufferCB;
+	ID3D11Buffer* m_pShadingCB;
+	ID3D11Buffer* m_pLightCB;
+	ID3D11Buffer* m_pSunCB;
 };
 //===============================================================================================================================
 //===============================================================================================================================

@@ -21,7 +21,7 @@ LightManager::LightManager(D3D* d3d)
 {
 	mLights.resize(MAX_LIGHTS);
 
-	mLightBuffer = new ZShadeSandboxLighting::LightBuffer();
+	//mLightBuffer = new ZShadeSandboxLighting::LightBuffer();
 	mSunLightBuffer = new ZShadeSandboxLighting::SunLightBuffer();
 	
 	bToggleAmbientLights = true;
@@ -46,7 +46,7 @@ LightManager* LightManager::Instance()
 	return instance;
 }
 //==============================================================================================================================
-void LightManager::BuildLightingBuffers(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown, ZShadeSandboxLighting::SunLightBuffer buff)
+/*void LightManager::BuildLightingBuffers(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown, ZShadeSandboxLighting::SunLightBuffer buff)
 {
 	RebuildLightBuffer(ambientUp, ambientDown);
 	RebuildSunBuffer(buff);
@@ -68,6 +68,7 @@ void LightManager::RebuildLightBuffer(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown)
 		{
 			ZShadeSandboxLighting::AmbientLightBuffer alb;
 			alb.g_AmbientColor = ambientLight->AmbientColor();
+			alb.g_Toggle = ambientLight->ToggleLight();
 			mLightBuffer->g_AmbientLight[ambientLightID++] = alb;
 		}
 
@@ -78,6 +79,8 @@ void LightManager::RebuildLightBuffer(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown)
 			dlb.g_LightDirection = dirLight->Direction();
 			dlb.g_DiffuseColor = dirLight->DiffuseColor();
 			dlb.g_AmbientColor = XMFLOAT4(0, 0, 0, 0);
+			dlb.g_Toggle = dirLight->ToggleLight();
+			dlb.g_Intensity = dirLight->Intensity();
 			mLightBuffer->g_DirectionalLight[directionLightID++] = dlb;
 		}
 
@@ -92,6 +95,8 @@ void LightManager::RebuildLightBuffer(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown)
 			slb.g_SpotInnerConeReciprocal = spotLight->SpotInnerConeReciprocal();
 			slb.g_CosineAngle = spotLight->SpotAngle();
 			slb.g_AmbientColor = XMFLOAT4(0, 0, 0, 0);
+			slb.g_Toggle = spotLight->ToggleLight();
+			slb.g_Intensity = spotLight->Intensity();
 			mLightBuffer->g_SpotLight[spotLightID++] = slb;
 		}
 
@@ -104,6 +109,8 @@ void LightManager::RebuildLightBuffer(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown)
 			plb.g_Attenuation = XMFLOAT3(0, 0, 0);
 			plb.g_AmbientColor = XMFLOAT4(0, 0, 0, 0);
 			plb.g_DiffuseColor = pointLight->DiffuseColor();
+			plb.g_Toggle = pointLight->ToggleLight();
+			plb.g_Intensity = pointLight->Intensity();
 			mLightBuffer->g_PointLight[pointLightID++] = plb;
 		}
 
@@ -116,9 +123,10 @@ void LightManager::RebuildLightBuffer(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown)
 			clb.g_AmbientColor = capsuleLight->AmbientColor();
 			clb.g_LightRange = capsuleLight->Range();
 			clb.g_LightLength = capsuleLight->LightLength();
-			clb.g_CapsuleIntensity = capsuleLight->CapsuleIntensity();
+			clb.g_CapsuleIntensity = capsuleLight->Intensity();
 			clb.g_CapsuleDirectionLength = capsuleLight->CapsuleDirectionLength();
 			clb.g_LightDirection = capsuleLight->Direction();
+			clb.g_Toggle = capsuleLight->ToggleLight();
 			mLightBuffer->g_CapsuleLight[capsuleLightID++] = clb;
 		}
 	}
@@ -135,7 +143,7 @@ void LightManager::RebuildLightBuffer(XMFLOAT3 ambientUp, XMFLOAT3 ambientDown)
 	{
 		mLights[i]->AddMeshLightBuffer(mLightBuffer);
 	}
-}
+}*/
 //==============================================================================================================================
 void LightManager::RebuildSunBuffer(ZShadeSandboxLighting::SunLightBuffer buff)
 {
@@ -143,10 +151,284 @@ void LightManager::RebuildSunBuffer(ZShadeSandboxLighting::SunLightBuffer buff)
 	mSunLightBuffer->g_SunDiffuseColor = buff.g_SunDiffuseColor;
 	mSunLightBuffer->g_SunShineness = buff.g_SunShineness;
 	mSunLightBuffer->g_EnableSun = buff.g_EnableSun;
+	mSunLightBuffer->g_SunIntensity = buff.g_SunIntensity;
 
-	for (int i = 0; i < LightManager::mCount; i++)
+	//for (int i = 0; i < LightManager::mCount; i++)
+	//{
+	//	mLights[i]->AddMeshLightBuffer(mSunLightBuffer);
+	//}
+}
+//==============================================================================================================================
+void LightManager::BuildFinalLightBuffers
+(	ID3D11Buffer*& lightBuffer
+,	ID3D11Buffer*& sunLightBuffer
+)
+{
+	ZShadeSandboxLighting::cbLightBuffer cLB;
+	ZShadeSandboxLighting::cbSunLightBuffer cSLB;
+	
+	ZShadeSandboxLighting::cbAmbientLightBuffer alb;
+	ZShadeSandboxLighting::cbDirectionalLightBuffer dlb;
+	ZShadeSandboxLighting::cbSpotLightBuffer slb;
+	ZShadeSandboxLighting::cbPointLightBuffer plb;
+	ZShadeSandboxLighting::cbCapsuleLightBuffer clb;
+
+	for (int i = 0; i < ZShadeSandboxLighting::LightManager::mAmbientLightCount; i++)
 	{
-		mLights[i]->AddMeshLightBuffer(mSunLightBuffer);
+		ZShadeSandboxLighting::AmbientLight* ambientLight = GetAmbientLight(i);
+		if (ambientLight != NULL)
+		{
+			ZeroMemory(&alb, sizeof(ZShadeSandboxLighting::cbAmbientLightBuffer));
+			alb.g_AmbientColor = ambientLight->AmbientColor();
+			alb.ambientpadding = XMFLOAT3(0, 0, 0);
+			alb.g_Toggle = ambientLight->ToggleLight();
+			cLB.g_AmbientLight[i] = alb;
+		}
+	}
+	for (int i = 0; i < ZShadeSandboxLighting::LightManager::mDirectionLightCount; i++)
+	{
+		ZShadeSandboxLighting::DirectionalLight* dirLight = GetDirectionalLight(i);
+		if (dirLight != NULL)
+		{
+			ZeroMemory(&dlb, sizeof(ZShadeSandboxLighting::cbDirectionalLightBuffer));
+			dlb.g_Direction = dirLight->Direction();
+			dlb.g_Ambient = dirLight->AmbientColor();
+			dlb.g_Diffuse = dirLight->DiffuseColor();
+			dlb.directionalpadding = XMFLOAT3(0, 0, 0);
+			dlb.g_Toggle = dirLight->ToggleLight();
+			dlb.g_Intensity = dirLight->Intensity();
+			cLB.g_DirectionalLight[i] = dlb;
+		}
+	}
+	for (int i = 0; i < ZShadeSandboxLighting::LightManager::mSpotLightCount; i++)
+	{
+		ZShadeSandboxLighting::SpotLight* spotLight = GetSpotLight(i);
+		if (spotLight != NULL)
+		{
+			ZeroMemory(&slb, sizeof(ZShadeSandboxLighting::cbSpotLightBuffer));
+			slb.g_AmbientColor = spotLight->AmbientColor();
+			slb.g_DiffuseColor = spotLight->DiffuseColor();
+			slb.g_LightPosition = spotLight->Position();
+			slb.g_LightRange = spotLight->Range();
+			slb.g_SpotCosOuterCone = spotLight->SpotCosOuterCone();
+			slb.g_SpotInnerConeReciprocal = spotLight->SpotInnerConeReciprocal();
+			slb.g_CosineAngle = spotLight->SpotAngle();
+			slb.spotpadding = XMFLOAT3(0, 0, 0);
+			slb.g_Toggle = spotLight->ToggleLight();
+			slb.g_Intensity = spotLight->Intensity();
+			cLB.g_SpotLight[i] = slb;
+		}
+	}
+	for (int i = 0; i < ZShadeSandboxLighting::LightManager::mPointLightCount; i++)
+	{
+		ZShadeSandboxLighting::PointLight* pointLight = GetPointLight(i);
+		if (pointLight != NULL)
+		{
+			ZeroMemory(&plb, sizeof(ZShadeSandboxLighting::cbPointLightBuffer));
+			plb.g_LightPosition = pointLight->Position();
+			plb.g_LightRange = pointLight->Range();
+			plb.g_Attenuation = pointLight->Attenuation();
+			plb.g_AmbientColor = pointLight->AmbientColor();
+			plb.g_DiffuseColor = pointLight->DiffuseColor();
+			plb.pointpadding = XMFLOAT3(0, 0, 0);
+			plb.g_Toggle = pointLight->ToggleLight();
+			plb.g_Intensity = pointLight->Intensity();
+			cLB.g_PointLight[i] = plb;
+		}
+	}
+	for (int i = 0; i < ZShadeSandboxLighting::LightManager::mCapsuleLightCount; i++)
+	{
+		ZShadeSandboxLighting::CapsuleLight* capsuleLight = GetCapsuleLight(i);
+		if (capsuleLight != NULL)
+		{
+			ZeroMemory(&clb, sizeof(ZShadeSandboxLighting::cbCapsuleLightBuffer));
+			clb.g_LightPosition = capsuleLight->Position();
+			clb.g_LightRange = capsuleLight->Range();
+			clb.g_LightDirection = capsuleLight->Direction();
+			clb.g_LightLength = capsuleLight->LightLength();
+			clb.g_CapsuleDirectionLength = capsuleLight->CapsuleDirectionLength();
+			clb.g_CapsuleIntensity = capsuleLight->Intensity();
+			clb.g_AmbientColor = capsuleLight->AmbientColor();
+			clb.g_DiffuseColor = capsuleLight->DiffuseColor();
+			clb.capsulepadding = XMFLOAT3(0, 0, 0);
+			clb.g_Toggle = capsuleLight->ToggleLight();
+			cLB.g_CapsuleLight[i] = clb;
+		}
+	}
+
+	cLB.g_AmbientLightCount = ZShadeSandboxLighting::LightManager::Instance()->AmbientLightCount();
+	cLB.g_DirectionalLightCount = ZShadeSandboxLighting::LightManager::Instance()->DirectionalLightCount();
+	cLB.g_SpotLightCount = ZShadeSandboxLighting::LightManager::Instance()->SpotLightCount();
+	cLB.g_PointLightCount = ZShadeSandboxLighting::LightManager::Instance()->PointLightCount();
+	cLB.g_CapsuleLightCount = ZShadeSandboxLighting::LightManager::Instance()->CapsuleLightCount();
+	
+	cLB.g_AmbientDown = ambientDown;
+	cLB.g_AmbientUp = ambientUp;
+	cLB.padding = 0;
+	
+	// Map the light constants
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped_res2;
+		m_D3DSystem->GetDeviceContext()->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+		{
+			assert(mapped_res2.pData);
+			*(ZShadeSandboxLighting::cbLightBuffer*)mapped_res2.pData = cLB;
+		}
+		m_D3DSystem->GetDeviceContext()->Unmap(lightBuffer, 0);
+	}
+	
+	cSLB.g_SunDir = mSunLightBuffer->g_SunDir;
+	cSLB.g_EnableSun = mSunLightBuffer->g_EnableSun;
+	cSLB.g_SunDiffuseColor = mSunLightBuffer->g_SunDiffuseColor;
+	cSLB.g_SunShineness = mSunLightBuffer->g_SunShineness;
+	cSLB.g_SunIntensity = mSunLightBuffer->g_SunIntensity;
+	
+	// Map the sun light constants
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped_res2;
+		m_D3DSystem->GetDeviceContext()->Map(sunLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+		{
+			assert(mapped_res2.pData);
+			*(ZShadeSandboxLighting::cbSunLightBuffer*)mapped_res2.pData = cSLB;
+		}
+		m_D3DSystem->GetDeviceContext()->Unmap(sunLightBuffer, 0);
+	}
+}
+//==============================================================================================================================
+void LightManager::BuildAmbientLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light)
+{
+	if (light->LightType() == ZShadeSandboxLighting::ELightType::eAmbient)
+	{
+		ZShadeSandboxLighting::AmbientLight* ambientLight = (ZShadeSandboxLighting::AmbientLight*)light;
+		
+		ZShadeSandboxLighting::cbAmbientLightBuffer alb;
+		alb.g_AmbientColor = ambientLight->AmbientColor();
+		alb.ambientpadding = XMFLOAT3(0, 0, 0);
+		alb.g_Toggle = ambientLight->ToggleLight();
+		// Map the light constants
+		{
+			D3D11_MAPPED_SUBRESOURCE mapped_res2;
+			m_D3DSystem->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+			{
+				assert(mapped_res2.pData);
+				*(ZShadeSandboxLighting::cbAmbientLightBuffer*)mapped_res2.pData = alb;
+			}
+			m_D3DSystem->GetDeviceContext()->Unmap(buffer, 0);
+		}
+	}
+}
+//==============================================================================================================================
+void LightManager::BuildDirectionalLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light)
+{
+	if (light->LightType() == ZShadeSandboxLighting::ELightType::eDirectional)
+	{
+		ZShadeSandboxLighting::DirectionalLight* directionalLight = (ZShadeSandboxLighting::DirectionalLight*)light;
+		
+		ZShadeSandboxLighting::cbDirectionalLightBuffer dlb;
+		dlb.g_Direction = directionalLight->Direction();
+		dlb.g_Intensity = directionalLight->Intensity();
+		dlb.g_Ambient = directionalLight->AmbientColor();
+		dlb.g_Diffuse = directionalLight->DiffuseColor();
+		dlb.directionalpadding = XMFLOAT3(0, 0, 0);
+		dlb.g_Toggle = directionalLight->ToggleLight();
+		// Map the light constants
+		{
+			D3D11_MAPPED_SUBRESOURCE mapped_res2;
+			m_D3DSystem->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+			{
+				assert(mapped_res2.pData);
+				*(ZShadeSandboxLighting::cbDirectionalLightBuffer*)mapped_res2.pData = dlb;
+			}
+			m_D3DSystem->GetDeviceContext()->Unmap(buffer, 0);
+		}
+	}
+}
+//==============================================================================================================================
+void LightManager::BuildPointLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light)
+{
+	if (light->LightType() == ZShadeSandboxLighting::ELightType::ePoint)
+	{
+		ZShadeSandboxLighting::PointLight* pointLight = (ZShadeSandboxLighting::PointLight*)light;
+		
+		ZShadeSandboxLighting::cbPointLightBuffer plb;
+		plb.g_LightPosition = pointLight->Position();
+		plb.g_LightRange = pointLight->Range();
+		plb.g_Attenuation = pointLight->Attenuation();
+		plb.g_Intensity = pointLight->Intensity();
+		plb.g_AmbientColor = pointLight->AmbientColor();
+		plb.g_DiffuseColor = pointLight->DiffuseColor();
+		plb.pointpadding = XMFLOAT3(0, 0, 0);
+		plb.g_Toggle = pointLight->ToggleLight();
+		// Map the light constants
+		{
+			D3D11_MAPPED_SUBRESOURCE mapped_res2;
+			m_D3DSystem->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+			{
+				assert(mapped_res2.pData);
+				*(ZShadeSandboxLighting::cbPointLightBuffer*)mapped_res2.pData = plb;
+			}
+			m_D3DSystem->GetDeviceContext()->Unmap(buffer, 0);
+		}
+	}
+}
+//==============================================================================================================================
+void LightManager::BuildSpotLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light)
+{
+	if (light->LightType() == ZShadeSandboxLighting::ELightType::eSpot)
+	{
+		ZShadeSandboxLighting::SpotLight* spotLight = (ZShadeSandboxLighting::SpotLight*)light;
+		
+		ZShadeSandboxLighting::cbSpotLightBuffer slb;
+		slb.g_AmbientColor = spotLight->AmbientColor();
+		slb.g_DiffuseColor = spotLight->DiffuseColor();
+		slb.g_LightPosition = spotLight->Position();
+		slb.g_Intensity = spotLight->Intensity();
+		slb.g_LightRange = spotLight->Range();
+		slb.g_SpotCosOuterCone = spotLight->SpotCosOuterCone();
+		slb.g_SpotInnerConeReciprocal = spotLight->SpotInnerConeReciprocal();
+		slb.g_CosineAngle = spotLight->SpotAngle();
+		slb.spotpadding = XMFLOAT3(0, 0, 0);
+		slb.g_Toggle = spotLight->ToggleLight();
+		// Map the light constants
+		{
+			D3D11_MAPPED_SUBRESOURCE mapped_res2;
+			m_D3DSystem->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+			{
+				assert(mapped_res2.pData);
+				*(ZShadeSandboxLighting::cbSpotLightBuffer*)mapped_res2.pData = slb;
+			}
+			m_D3DSystem->GetDeviceContext()->Unmap(buffer, 0);
+		}
+	}
+}
+//==============================================================================================================================
+void LightManager::BuildCapsuleLightBuffer(ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light)
+{
+	if (light->LightType() == ZShadeSandboxLighting::ELightType::eCapsule)
+	{
+		ZShadeSandboxLighting::CapsuleLight* capsuleLight = (ZShadeSandboxLighting::CapsuleLight*)light;
+		
+		ZShadeSandboxLighting::cbCapsuleLightBuffer clb;
+		clb.g_LightPosition = capsuleLight->Position();
+		clb.g_LightRange = capsuleLight->Range();
+		clb.g_LightDirection = capsuleLight->Direction();
+		clb.g_LightLength = capsuleLight->LightLength();
+		clb.g_CapsuleDirectionLength = capsuleLight->CapsuleDirectionLength();
+		clb.g_CapsuleIntensity = capsuleLight->Intensity();
+		clb.g_AmbientColor = capsuleLight->AmbientColor();
+		clb.g_DiffuseColor = capsuleLight->DiffuseColor();
+		clb.capsulepadding = XMFLOAT3(0, 0, 0);
+		clb.g_Toggle = capsuleLight->ToggleLight();
+		// Map the light constants
+		{
+			D3D11_MAPPED_SUBRESOURCE mapped_res2;
+			m_D3DSystem->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+			{
+				assert(mapped_res2.pData);
+				*(ZShadeSandboxLighting::cbCapsuleLightBuffer*)mapped_res2.pData = clb;
+			}
+			m_D3DSystem->GetDeviceContext()->Unmap(buffer, 0);
+		}
 	}
 }
 //==============================================================================================================================
@@ -232,7 +514,13 @@ void LightManager::AddAmbientLight(XMFLOAT4 ambientColor, XMFLOAT3 position)
 	LightManager::mAmbientLightCount++;
 }
 //==============================================================================================================================
-void LightManager::AddDirectionalLight(XMFLOAT4 diffuseColor, XMFLOAT4 ambientColor, XMFLOAT3 position, XMFLOAT3 direction)
+void LightManager::AddDirectionalLight
+(	XMFLOAT4 diffuseColor
+,	XMFLOAT4 ambientColor
+,	XMFLOAT3 position
+,	XMFLOAT3 direction
+,	float intensity
+)
 {
 	ZShadeSandboxLighting::DirectionalLight* light = new ZShadeSandboxLighting::DirectionalLight();
 	
@@ -241,6 +529,7 @@ void LightManager::AddDirectionalLight(XMFLOAT4 diffuseColor, XMFLOAT4 ambientCo
 	light->AmbientColor() = ambientColor;
 	light->Position() = position;
 	light->Direction() = direction;
+	light->Intensity() = intensity;
 	
 	light->BuildSphereMesh(m_D3DSystem);
 	
@@ -257,6 +546,7 @@ void LightManager::AddSpotLight
 ,	float range
 , 	float spotAngle
 , 	XMFLOAT3 attenuation
+,	float intensity
 )
 {
 	ZShadeSandboxLighting::SpotLight* light = new ZShadeSandboxLighting::SpotLight();
@@ -269,6 +559,7 @@ void LightManager::AddSpotLight
 	light->Range() = range;
 	light->SpotAngle() = spotAngle;
 	light->Attenuation() = attenuation;
+	light->Intensity() = intensity;
 	
 	light->BuildSphereMesh(m_D3DSystem);
 	
@@ -284,6 +575,7 @@ void LightManager::AddPointLight
 , 	XMFLOAT3 direction
 ,	float range
 , 	XMFLOAT3 attenuation
+,	float intensity
 )
 {
 	ZShadeSandboxLighting::PointLight* light = new ZShadeSandboxLighting::PointLight();
@@ -295,6 +587,7 @@ void LightManager::AddPointLight
 	light->Direction() = direction;
 	light->Range() = range;
 	light->Attenuation() = attenuation;
+	light->Intensity() = intensity;
 	
 	light->BuildSphereMesh(m_D3DSystem);
 	
@@ -323,7 +616,7 @@ void LightManager::AddCapsuleLight
 	light->Direction() = direction;
 	light->Range() = range;
 	light->LightLength() = lightLength;
-	light->CapsuleIntensity() = capsuleIntensity;
+	light->Intensity() = capsuleIntensity;
 	light->CapsuleDirectionLength() = capsuleDirectionLength;
 	
 	light->BuildSphereMesh(m_D3DSystem);
@@ -333,14 +626,18 @@ void LightManager::AddCapsuleLight
 	LightManager::mCapsuleLightCount++;
 }
 //==============================================================================================================================
-void LightManager::RenderLightMesh(Camera* camera, LightCamera* lightcamera, bool toggleMesh, bool reflect, bool toggleWireframe, bool renderDeferred, XMFLOAT4 clipplane)
+void LightManager::RenderLightMesh(ZShadeSandboxLighting::LightRenderParameters lrp)
 {
-	// No lights to render
+	// Check to see if any lights are available to render
 	if (!bToggleAmbientLights && !bToggleDirectionalLights && !bToggleSpotLights && !bTogglePointLights && !bToggleCapsuleLights)
 		return;
 	
 	for (int i = 0; i < LightManager::mCount; i++)
 	{
+		// Can this light be seen
+		if (!mLights[i]->ToggleLight())
+			continue;
+		
 		int lightType = mLights[i]->LightType();
 		
 		if (!bToggleAmbientLights && lightType == ZShadeSandboxLighting::ELightType::eAmbient) continue;
@@ -349,10 +646,7 @@ void LightManager::RenderLightMesh(Camera* camera, LightCamera* lightcamera, boo
 		if (!bTogglePointLights && lightType == ZShadeSandboxLighting::ELightType::ePoint) continue;
 		if (!bToggleCapsuleLights && lightType == ZShadeSandboxLighting::ELightType::eCapsule) continue;
 		
-		mLights[i]->ToggleRenderDeferredMesh() = renderDeferred;
-		mLights[i]->ToggleSphereMeshWireframe() = toggleWireframe;
-		mLights[i]->ToggleSphereMesh() = toggleMesh;
-		mLights[i]->RenderSphereMesh(camera, lightcamera, reflect, clipplane);
+		mLights[i]->RenderSphereMesh(lrp);
 	}
 }
 //==============================================================================================================================

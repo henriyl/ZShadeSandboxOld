@@ -41,8 +41,9 @@
 #include "ShadowMapTarget.h"
 #include "Text.h"
 #include "PostProcessManager.h"
-#include "DirectionalLightDeferredShader.h"
-#include "PointLightDeferredShader.h"
+#include "Sky.h"
+#include "SkyPlane.h"
+#include "DeferredShaderManager.h"
 #pragma endregion
 
 //===============================================================================================================================
@@ -100,6 +101,8 @@ public:
 	virtual void RenderDeferred() = 0;
 	virtual void Shutdown();
 	
+	void RenderSky(bool reflections, bool deferred);
+
 	// Override this for any 2D rendering in the scene
 	virtual void Render2D() {}
 	
@@ -140,6 +143,9 @@ protected:
 	ZShadeSandboxGraphics::Text mTriangleCountText;
 	XMMATRIX mTriangleCountTextMatrix;
 	
+	Sky* mSky;
+	SkyPlane* mSkyPlane;
+
 	RenderTarget2D* mRefractionTexture;
 	RenderTarget2D* mReflectionTexture;
 	//RenderTarget2D* mShadowTexture;
@@ -187,13 +193,12 @@ protected:
 	bool bSpawnCube;
 	bool bEnablePostProcessing;
 	bool bEnableDeferredShading;
-	bool bUseDirectionalLightDeferred;
-	bool bUsePointLightDeferred;
-	bool bUseSpotLightDeferred;
-	bool bUseCapsuleLightDeferred;
-	
-	DirectionalLightDeferredShader* mDirectionalLightDeferredShader;
-	PointLightDeferredShader* mPointLightDeferredShader;
+	bool bToggleSkyPlane;
+	bool bToggleSky;
+	bool bToggleGBufferDebugging;
+	bool bToggleGBufferDebuggingColors;
+	bool bToggleGBufferDebuggingNormals;
+	bool bToggleGBufferDebuggingDepth;
 	
 	PostProcessManager* mPostProcessManager;
 	

@@ -940,8 +940,8 @@ bool Sprite::Render(Camera* camera)
 		m_bitmap->UpdateBuffers(m_TopLeftPosition.x, m_TopLeftPosition.y);
 
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = camera;
-		mrp.bSpecifyWorld = true;
+		mrp.camera = camera;
+		mrp.specifyWorld = true;
 		mrp.world = XMMatrixIdentity();
 		m_bitmap->Render(mrp);
 
@@ -995,10 +995,10 @@ bool Sprite::Render(Camera* camera, float blendAmount)
 		m_bitmap->UpdateBuffers(m_TopLeftPosition.x, m_TopLeftPosition.y);
 
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = camera;
+		mrp.camera = camera;
 		//mrp.bTransparent = true;
 		//mrp.blendAmount = blendAmount;
-		mrp.bSpecifyWorld = true;
+		mrp.specifyWorld = true;
 		mrp.world = XMMatrixIdentity();
 		m_bitmap->Render(mrp);
 
@@ -1055,8 +1055,8 @@ bool Sprite::RenderAnimation(Camera* camera)
 	texture->UpdateBuffers(m_TopLeftPosition.x, m_TopLeftPosition.y);
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = camera;
-	mrp.bSpecifyWorld = true;
+	mrp.camera = camera;
+	mrp.specifyWorld = true;
 	mrp.world = XMMatrixIdentity();
 	texture->Render(mrp);
 
@@ -1092,10 +1092,10 @@ bool Sprite::RenderAnimation(Camera* camera, float blendAmount)
 	texture->UpdateBuffers(m_TopLeftPosition.x, m_TopLeftPosition.y);
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = camera;
+	mrp.camera = camera;
 	//mrp.bTransparent = true;
 	//mrp.blendAmount = blendAmount;
-	mrp.bSpecifyWorld = true;
+	mrp.specifyWorld = true;
 	mrp.world = XMMatrixIdentity();
 	texture->Render(mrp);
 

@@ -1,5 +1,7 @@
 #include "Camera.h"
 #include "CGlobal.h"
+#include "Light.h"
+#include "LightCamera.h"
 //==================================================================================================================================
 //==================================================================================================================================
 Arm::Arm()
@@ -48,6 +50,70 @@ Camera::Camera(const Camera& other)
 //==================================================================================================================================
 Camera::~Camera()
 {
+}
+//==================================================================================================================================
+void Camera::BuildCameraInvConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer)
+{
+	cbInvMatrixBuffer cIMB;
+	cIMB.g_InvViewProj = InvViewProj4x4();
+	// Map the inv matrix buffer
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped_res2;
+		d3d->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+		{
+			assert(mapped_res2.pData);
+			*(cbInvMatrixBuffer*)mapped_res2.pData = cIMB;
+		}
+		d3d->GetDeviceContext()->Unmap(buffer, 0);
+	}
+}
+//==================================================================================================================================
+void Camera::BuildCameraConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer, XMMATRIX world, bool reflection)
+{
+	cbMatrixBuffer cMB;
+	cMB.g_matWorld = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(world));
+	cMB.g_matView = (reflection) ? ReflectionView4x4() : View4x4();
+	if (d3d->GetEngineOptions()->m_DimType == DimType::ZSHADE_2D)
+		cMB.g_matProj = Ortho4x4();
+	else if (d3d->GetEngineOptions()->m_DimType == DimType::ZSHADE_3D)
+		cMB.g_matProj = Proj4x4();
+	// Map the matrix constants
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped_res2;
+		d3d->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+		{
+			assert(mapped_res2.pData);
+			*(cbMatrixBuffer*)mapped_res2.pData = cMB;
+		}
+		d3d->GetDeviceContext()->Unmap(buffer, 0);
+	}
+}
+//==================================================================================================================================
+void Camera::BuildCameraConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light, XMMATRIX world, bool reflection)
+{
+	LightCamera* lightcamera = light->Perspective();
+	
+	cbMatrixBufferLight cMBL;
+	cMBL.g_matWorld = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(world));
+	cMBL.g_matView = (reflection) ? ReflectionView4x4() : View4x4();
+	if (d3d->GetEngineOptions()->m_DimType == DimType::ZSHADE_2D)
+		cMBL.g_matProj = Ortho4x4();
+	else if (d3d->GetEngineOptions()->m_DimType == DimType::ZSHADE_3D)
+		cMBL.g_matProj = Proj4x4();
+	cMBL.g_LightView = lightcamera->LightView4x4();
+	cMBL.g_LightProj = lightcamera->LightProj4x4();
+	XMMATRIX shadowTransform = world * lightcamera->ShadowTransform();
+	cMBL.g_ShadowMatrix = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(shadowTransform));
+	// Map the matrix constants
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped_res2;
+		d3d->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+		{
+			assert(mapped_res2.pData);
+			*(cbMatrixBufferLight*)mapped_res2.pData = cMBL;
+		}
+		d3d->GetDeviceContext()->Unmap(buffer, 0);
+	}
 }
 //==================================================================================================================================
 void Camera::SetLens(float fovY, float aspect, float zn, float zf)

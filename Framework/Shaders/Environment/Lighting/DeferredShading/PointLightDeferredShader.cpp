@@ -19,17 +19,11 @@ PointLightDeferredShader::~PointLightDeferredShader()
 //==============================================================================================================================
 bool PointLightDeferredShader::Initialize()
 {
-	ConstantBuffer<cbDomainBuffer> domainCB(m_pD3DSystem);
-	domainCB.Initialize(PAD16(sizeof(cbDomainBuffer)));
-	m_pDomainCB = domainCB.Buffer();
-	
-	ConstantBuffer<cbPixelBuffer> pixelCB(m_pD3DSystem);
-	pixelCB.Initialize(PAD16(sizeof(cbPixelBuffer)));
-	m_pPixelCB = pixelCB.Buffer();
+	ConstantBuffer<cbLightBuffer> lightCB(m_pD3DSystem);
+	lightCB.Initialize(PAD16(sizeof(cbLightBuffer)));
+	m_pLightCB = lightCB.Buffer();
 	
 	LoadVertexShader("PointLightDeferredVS");
-	LoadHullShader("PointLightDeferredHS");
-	LoadDomainShader("PointLightDeferredDS");
 	LoadPixelShader("PointLightDeferredPS");
 	LoadPixelShader("PointLightDeferredWireframePS");
 	
@@ -44,14 +38,112 @@ void PointLightDeferredShader::Shutdown()
 bool PointLightDeferredShader::Render11
 (	Camera* camera
 ,	ZShadeSandboxLighting::PointLight* light
-,	ID3D11ShaderResourceView* color0Texture
-,	ID3D11ShaderResourceView* color1Texture
+,	ID3D11ShaderResourceView* colorTexture
 ,	ID3D11ShaderResourceView* normalTexture
 ,	ID3D11ShaderResourceView* depthTexture
 )
 {
+	cbLightBuffer cLB;
+	cLB.g_PointLightColor = light->DiffuseColor();
+	cLB.g_EyePosition = camera->Position();
+	cLB.g_PointLightIntensity = 0.8f;
+	cLB.g_PointLightPosition = light->Position();
+	cLB.g_PointLightRange = light->Range();
+	cLB.g_InvViewProj = camera->InvViewProj4x4();
+	// Map the light buffer
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped_res2;
+		m_pD3DSystem->GetDeviceContext()->Map(m_pLightCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+		{
+			assert(mapped_res2.pData);
+			*(cbLightBuffer*)mapped_res2.pData = cLB;
+		}
+		m_pD3DSystem->GetDeviceContext()->Unmap(m_pLightCB, 0);
+	}
+
+	ID3D11Buffer* ps_cbs[1] = { m_pLightCB };
+	m_pD3DSystem->GetDeviceContext()->PSSetConstantBuffers(0, 1, ps_cbs);
+
+	// Assign Texture
+	ID3D11ShaderResourceView* ps_srvs[3] = { colorTexture, normalTexture, depthTexture };
+	ID3D11SamplerState* ps_samp[1] = { m_pD3DSystem->Point() };
+
+	if (!m_Wireframe)
+	{
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 3, ps_srvs);
+		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 1, ps_samp);
+
+		SwitchTo("PointLightDeferredPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+	}
+	else
+	{
+		SwitchTo("PointLightDeferredWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+	}
+
+	// Use additive blending to accumulate the light values from all other lights
+
+	m_pD3DSystem->TurnOnAdditiveBlending();
+
+	SetVertexShader();
+	SetPixelShader();
+
+	RenderDraw11(4);
+
+	m_pD3DSystem->TurnOffAdditiveBlending();
+
+	// Unbind
+	if (!m_Wireframe)
+	{
+		ps_samp[0] = NULL;
+		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 1, ps_samp);
+		ps_srvs[0] = NULL;
+		ps_srvs[1] = NULL;
+		ps_srvs[2] = NULL;
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 3, ps_srvs);
+	}
+
+	m_pD3DSystem->TurnOnCulling();
+
+	return true;
+}
+
+/*bool PointLightDeferredShader::Render11
+(	Camera* camera
+,	ZShadeSandboxLighting::PointLight* light
+,	ID3D11ShaderResourceView* colorTexture
+,	ID3D11ShaderResourceView* normalTexture
+,	ID3D11ShaderResourceView* depthTexture
+)
+{
+	XMFLOAT3 lightPos = light->Position();
+	float range = light->Range();
+	XMMATRIX cameraView = camera->View();
+	XMMATRIX cameraProj = camera->Proj();
+
+	float eps = 0.001f;
+	XMMATRIX scale = XMMatrixScaling(range + eps, range + eps, range + eps);
+	XMMATRIX translation = XMMatrixTranslation(lightPos.x, lightPos.y, lightPos.z);
+
+	XMVECTOR scal; //for scaling
+	XMVECTOR quat; //for rotation
+	XMVECTOR tran; //for translation
+	XMMatrixDecompose(&scal, &quat, &tran, cameraView);
+
+	XMFLOAT4 transV;
+	XMStoreFloat4(&transV, tran);
+	XMFLOAT4 rotzV;
+	XMStoreFloat4(&rotzV, quat);
+	XMFLOAT4 scaleV;
+	XMStoreFloat4(&scaleV, scal);
+
+	XMMATRIX viewTranslation = XMMatrixTranslation(transV.x, transV.y, transV.z);
+
+	XMMATRIX lightProj = scale * translation * viewTranslation * cameraProj;
+
 	cbDomainBuffer cDB;
-	cDB.g_LightProjection = light->Perspective()->LightViewProj4x4();
+	//cDB.g_LightProjection = light->Perspective()->LightProj4x4();
+	//cDB.g_LightProjection = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(lightProj));
+	cDB.g_LightProjection = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(lightProj));
 	// Map the domain buffer
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped_res2;
@@ -100,7 +192,7 @@ bool PointLightDeferredShader::Render11
 	m_pD3DSystem->GetDeviceContext()->PSSetConstantBuffers(1, 1, ps_cbs);
 	
 	// Assign Texture
-	ID3D11ShaderResourceView* ps_srvs[4] = { color0Texture, color1Texture, normalTexture, depthTexture };
+	ID3D11ShaderResourceView* ps_srvs[3] = { colorTexture, normalTexture, depthTexture };
 	ID3D11SamplerState* ps_samp[1] = { m_pD3DSystem->Point() };
 	
 	if (!m_Wireframe)
@@ -108,10 +200,10 @@ bool PointLightDeferredShader::Render11
 		// Set new rasterizer and stencil states
 		
 		// Helps to avoid culling some or all of the point light volume faces when the camera is inside the volume
-		m_pD3DSystem->SetDepthStencilState(m_pD3DSystem->ReverseDepthEnabled());
-		m_pD3DSystem->SetRasterizerState(m_pD3DSystem->BackFaceCull());
+		//m_pD3DSystem->SetDepthStencilState(m_pD3DSystem->ReverseDepthEnabled());
+		//m_pD3DSystem->SetRasterizerState(m_pD3DSystem->BackFaceCull());
 		
-		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 4, ps_srvs);
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 3, ps_srvs);
 		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 1, ps_samp);
 		
 		SwitchTo("PointLightDeferredPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
@@ -122,8 +214,8 @@ bool PointLightDeferredShader::Render11
 	}
 	
 	// Use additive blending to accumulate the light values from all other lights
+
 	m_pD3DSystem->TurnOnAdditiveBlending();
-	m_pD3DSystem->TurnOnAlphaBlending();
 	
 	SetVertexShader();
 	SetHullShader();
@@ -135,6 +227,8 @@ bool PointLightDeferredShader::Render11
 	
 	RenderDraw11(1);
 	
+	m_pD3DSystem->TurnOffAdditiveBlending();
+	
 	// Unbind
 	if (!m_Wireframe)
 	{
@@ -143,12 +237,9 @@ bool PointLightDeferredShader::Render11
 		ps_srvs[0] = NULL;
 		ps_srvs[1] = NULL;
 		ps_srvs[2] = NULL;
-		ps_srvs[3] = NULL;
-		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 4, ps_srvs);
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 3, ps_srvs);
 	}
 	
-	m_pD3DSystem->TurnOffAdditiveBlending();
-	
 	return true;
-}
+}*/
 //==============================================================================================================================

@@ -365,7 +365,7 @@ void QuadTreeRenderer::Render(Camera* pCamera, LightCamera* lightcamera, ZShadeS
 	if (bShowBoundingBox)
 	{
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = pCamera;
+		mrp.camera = pCamera;
 		//if (bReflect)
 		//{
 		//	mrp.bReflection = true;
@@ -377,10 +377,10 @@ void QuadTreeRenderer::Render(Camera* pCamera, LightCamera* lightcamera, ZShadeS
 	
 	ZShadeSandboxLighting::ShaderMaterial* mat = m_quadtreeMesh->GetMaterial();
 
-	tsc.g_MaterialDiffuseColor = mat->DiffuseColor();
-	tsc.g_MaterialAmbientColor = mat->AmbientColor();
-	tsc.g_MaterialSpecularPower = mat->SpecularPower();
-	tsc.g_MaterialSpecularIntensity = mat->SpecularIntensity();
+	tsc.g_MaterialDiffuseColor = mat->vDiffuseColor;
+	tsc.g_MaterialAmbientColor = mat->vAmbientColor;
+	tsc.g_MaterialSpecularPower = mat->fSpecularPower;
+	tsc.g_MaterialSpecularIntensity = mat->fSpecularIntensity;
 
 	for (int i = 0; i < mat->TextureCount(); i++)
 	{
@@ -507,7 +507,7 @@ void QuadTreeRenderer::Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCa
 		if (bShowBoundingBox && !bShowRootBoundingBox)
 		{
 			ZShadeSandboxMesh::MeshRenderParameters mrp;
-			mrp.pCamera = pCamera;
+			mrp.camera = pCamera;
 			// Reflections cause a performance issue here
 			//if (bReflect)
 			//{
@@ -555,9 +555,9 @@ void QuadTreeRenderer::Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCa
 		else
 		{
 			// No Tessellation so just use regular material shader (no shadow yet)
-			m_TextureShader->UseCustomWorld(true);
-			m_TextureShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));
-			m_TextureShader->Render11(node->m_index_count, ZShadeSandboxMath::XMMath4(0, 0, 0, 0), pCamera, lightcamera, m_quadtreeMesh->GetMaterial());
+			//m_TextureShader->UseCustomWorld(true);
+			//m_TextureShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));
+			//m_TextureShader->Render11(node->m_index_count, ZShadeSandboxMath::XMMath4(0, 0, 0, 0), pCamera, lightcamera, m_quadtreeMesh->GetMaterial());
 		}
 	}
 	else

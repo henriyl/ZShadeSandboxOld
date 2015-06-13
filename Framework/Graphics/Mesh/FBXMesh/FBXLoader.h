@@ -6,6 +6,7 @@
 // http://www.gamedev.net/page/resources/_/technical/graphics-programming-and-theory/how-to-work-with-fbx-sdk-r3582
 // http://www.gamedev.net/page/resources/_/technical/graphics-programming-and-theory/skinned-mesh-animation-using-matrices-r3577
 // https://github.com/lang1991/FBXExporter
+// https://github.com/lang1991/FBXExporter/blob/master/FBXExporter/FBXExporter.h
 //===============================================================================================================================
 // History
 //
@@ -15,43 +16,86 @@
 #define __FBXLOADER_H
 //==============================================================================================================================
 //==============================================================================================================================
+
+//
+// Includes
+//
+
+#include <unordered_map>
 #include <fbxsdk.h>
 #include <vector>
+#include <fstream>
 #include "CGlobal.h"
-#include "Vertex.h"
+#include "ShaderMaterial.h"
+#include "FBXVertex.h"
+#include "FBXHelper.h"
 using namespace std;
+
 //==============================================================================================================================
 //==============================================================================================================================
+namespace ZShadeSandboxMesh {
 class FBXLoader
 {
-	FbxManager* m_pFBXManager;
-	FbxScene* m_pFbxScene;
-	string mAnimationName;
-	uint32 mAnimationLength;
+public:
 	
-	vector* m_pControlPoints;
-	vector* m_pOutVertices;
-	vector* m_pOutIndices;
+	FBXLoader(D3D* d3d, GameDirectory3D* gd3d);
+	~FBXLoader();
+	
+	bool Load(const char* model_path);
+	
+private:
+	
+	// Removes duplicated vertices
+	void Optimize();
+	void CleanupFbxManager();
+	
+	bool LoadScene(const char* filename);
 	
 	// FBX Mesh Data
 	
-	void LoadVertexPosition(FbxMesh* mesh, int i);
-	void LoadVertexNormal(FbxMesh* mesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& normal);
+	void LoadMesh(FbxNode* node);
+	void LoadGeometry(FbxNode* node);
+	void LoadVertexNormal(FbxMesh* mesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& outNormal);
+	void LoadVertexTexture(FbxMesh* mesh, int inCtrlPointIndex, int inTextureIndex, int inTextureLayer, XMFLOAT2& outTexture);
+	void LoadVertexBinormal(FbxMesh* mesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& outBinormal);
+	void LoadVertexTangent(FbxMesh* mesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& outTangent);
+	int FindVertex(const ZShadeSandboxMesh::VertexNormalTexBlend& inTargetVertex, const std::vector<ZShadeSandboxMesh::VertexNormalTexBlend>& uniqueVertices);
 	
 	// FBX Animation
 	
-	void ProcessSkeletonHierarchy(FbxNode* inRootNode);
-	void ProcessSkeletonHierarchy(FbxNode* inNode, int myIndex, int parentIndex);
-	void ProcessJointsAndAnimation(FbxNode* inNode);
+	void LoadSkeletonHierarchy(FbxNode* inRootNode);
+	void LoadSkeletonHierarchy(FbxNode* inNode, int myIndex, int parentIndex);
+	void LoadJointsAndAnimation(FbxNode* inNode);
+	void LoadControlPoints(FbxNode* node);
+	uint32 FindJointIndexUsingName(string& name);
 	
-	FbxAMatrix GetGeometryTransformation(FbxNode* inNode);
+	// Material Data
 	
-public:
+	void AssociateMaterialToMesh(FbxNode* inNode);
+	void LoadMaterials(FbxNode* inNode);
+	void LoadMaterialAttribute(FbxSurfaceMaterial* inMaterial, uint32 inMaterialIndex);
+	void LoadMaterialTexture(FbxSurfaceMaterial* inMaterial, ZShadeSandboxLighting::ShaderMaterial* ioMaterial);
 	
-	FBXLoader();
+private:
 	
-	bool Load(char* model_path, VertexType vt);
+	ofstream outFile;
+	D3D* m_pD3DSystem;
+	GameDirectory3D* m_pGD3D;
+	FbxManager* m_pFBXManager;
+	FbxScene* m_pFbxScene;
+	string mInputFilePath;
+	bool bHasAnimation;
+	unordered_map<uint32, ZShadeSandboxMesh::PhysicalPoint*> mControlPoints;
+	uint32 mTriangleCount;
+	vector<FBXTriangle> mTriangles;
+	vector<ZShadeSandboxMesh::VertexNormalTexBlend> mVertices;
+	ZShadeSandboxMesh::FBXSkeleton mSkeleton;
+	unordered_map<uint32, ZShadeSandboxLighting::ShaderMaterial*> mMaterials;
+	string mAnimationName;
+	FbxLongLong mAnimationLength;
+	LARGE_INTEGER mCPUFreq;
 };
+}
 //==============================================================================================================================
 //==============================================================================================================================
 #endif//__FBXLOADER_H

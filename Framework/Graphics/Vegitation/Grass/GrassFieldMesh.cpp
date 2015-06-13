@@ -13,7 +13,7 @@ GrassFieldMesh::GrassFieldMesh(D3D* d3d, int fieldSize, int width, vector<float>
 {
 	mMeshType = ZShadeSandboxMesh::EMeshType::CUSTOM;
 
-	m_pGrassFieldShader = new GrassFieldShader(pD3DSystem);//, "Vegitation\\Grass\\GrassField.fxo");
+	m_pGrassFieldShader = new GrassFieldShader(mD3DSystem);//, "Vegitation\\Grass\\GrassField.fxo");
 
 	mp.shader = m_pGrassFieldShader;
 	mp.useCustomShader = true;
@@ -114,7 +114,7 @@ void GrassFieldMesh::Initialize()
 
 	srand( 0 );
 
-	mVerticesPos.resize(m_FieldSize);
+	mAttributes->mVerticesPos.resize(m_FieldSize);
 
 	for (int n = 0; n < m_FieldSize; n++)
 	{
@@ -124,7 +124,7 @@ void GrassFieldMesh::Initialize()
 
 		float height = m_Heightmap[(m_Width * i) + j];
 
-		mVerticesPos[n] = ZShadeSandboxMesh::VertexUtil::LoadVertexPos(float(i), height / mScale.y, float(j));
+		mAttributes->mVerticesPos[n] = ZShadeSandboxMesh::VertexUtil::LoadVertexPos(float(i), height / mAttributes->mScale.y, float(j));
 	}
 
 	/*ZShadeSandboxMesh::VertexColor verts[numVerts] =
@@ -143,8 +143,7 @@ void GrassFieldMesh::Initialize()
 		mVertexColorVertices[i] = verts[i];
 	}*/
 
-	mVertexByteWidth = sizeof(mVerticesTex);
-	mVertexCount = m_FieldSize;
+	mAttributes->mVertexCount = m_FieldSize;
 
 	//Disable the index buffer
 	m_DisableIndexBuffer = true;

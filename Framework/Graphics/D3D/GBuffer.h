@@ -35,12 +35,10 @@ public:
 	void ClearRenderTargets();
 	void End();
 	
-	RenderTarget2D* CubeColorTarget();
 	RenderTarget2D* ColorTarget();
 	RenderTarget2D* NormalTarget();
 	RenderTarget2D* DepthTarget();
 	
-	RenderTarget2D*& CubeColorTargetRef();
 	RenderTarget2D*& ColorTargetRef();
 	RenderTarget2D*& NormalTargetRef();
 	RenderTarget2D*& DepthTargetRef();
@@ -53,7 +51,6 @@ private:
 	
 	D3D* mD3DSystem;
 	
-	RenderTarget2D* mCubeColorTarget;
 	RenderTarget2D* mColorTarget;
 	RenderTarget2D* mNormalTarget;
 	RenderTarget2D* mDepthTarget;

@@ -10,8 +10,8 @@ QuadMesh::QuadMesh(D3D* d3d, ZShadeSandboxMesh::MeshParameters mp, bool updatabl
 	//Store the screen size
 	if (updatable)
 	{
-		m_screenWidth = pEngineOptions->m_screenWidth;
-		m_screenHeight = pEngineOptions->m_screenHeight;
+		m_screenWidth = mEngineOptions->m_screenWidth;
+		m_screenHeight = mEngineOptions->m_screenHeight;
 	}
 	else
 	{
@@ -42,8 +42,8 @@ void QuadMesh::UpdateBuffers(float positionX, float positionY)
 {
 	if (bUpdatable)
 	{
-		mPosition.x = positionX;
-		mPosition.y = positionY;
+		mAttributes->mPosition.x = positionX;
+		mAttributes->mPosition.y = positionY;
 
 		float left, right, top, bottom;
 
@@ -91,15 +91,14 @@ void QuadMesh::UpdateBuffers(float positionX, float positionY)
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesVNT.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesNormalTex.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesVNT[i] = verts[i];
+					mAttributes->mVerticesNormalTex[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTex);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 #pragma endregion
 			}
 			break;
@@ -121,15 +120,14 @@ void QuadMesh::UpdateBuffers(float positionX, float positionY)
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesVNTT.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesNormalTexTan.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesVNTT[i] = verts[i];
+					mAttributes->mVerticesNormalTexTan[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTexTan);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 #pragma endregion
 			}
 			break;
@@ -151,15 +149,14 @@ void QuadMesh::UpdateBuffers(float positionX, float positionY)
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesPos.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesPos.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesPos[i] = verts[i];
+					mAttributes->mVerticesPos[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexPos);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 #pragma endregion
 			}
 			break;
@@ -181,23 +178,22 @@ void QuadMesh::UpdateBuffers(float positionX, float positionY)
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesTex.clear();
-				mVerticesTex.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesTex.clear();
+				mAttributes->mVerticesTex.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesTex[i] = verts[i];
+					mAttributes->mVerticesTex[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexTex);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 #pragma endregion
 			}
 			break;
 			case ZShadeSandboxMesh::EVertexType::VT_Color:
 			{
 #pragma region "Color"
-				XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+				XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
 				//First Triangle
 				ZShadeSandboxMesh::VertexColor c1 = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(left, top, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w);
@@ -214,15 +210,14 @@ void QuadMesh::UpdateBuffers(float positionX, float positionY)
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesColor.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesColor.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesColor[i] = verts[i];
+					mAttributes->mVerticesColor[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexColor);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 #pragma endregion
 			}
 			break;
@@ -264,15 +259,14 @@ void QuadMesh::Initialize()
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesVNT.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesNormalTex.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesVNT[i] = verts[i];
+					mAttributes->mVerticesNormalTex[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTex);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 			}
 			break;
 			case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
@@ -292,15 +286,14 @@ void QuadMesh::Initialize()
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesVNTT.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesNormalTexTan.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesVNTT[i] = verts[i];
+					mAttributes->mVerticesNormalTexTan[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTexTan);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 			}
 			break;
 			case ZShadeSandboxMesh::EVertexType::VT_Pos:
@@ -320,15 +313,14 @@ void QuadMesh::Initialize()
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesPos.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesPos.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesPos[i] = verts[i];
+					mAttributes->mVerticesPos[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexPos);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 			}
 			break;
 			case ZShadeSandboxMesh::EVertexType::VT_Tex:
@@ -348,15 +340,14 @@ void QuadMesh::Initialize()
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesTex.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesTex.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesTex[i] = verts[i];
+					mAttributes->mVerticesTex[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexTex);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 			}
 			break;
 			case ZShadeSandboxMesh::EVertexType::VT_Color:
@@ -366,7 +357,7 @@ void QuadMesh::Initialize()
 				//ZShadeSandboxMesh::VertexColor c3 = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 				//ZShadeSandboxMesh::VertexColor c4 = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 				
-				XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+				XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
 				//First Triangle
 				ZShadeSandboxMesh::VertexColor c1 = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(0.0f, 0.0f, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w);
@@ -383,26 +374,25 @@ void QuadMesh::Initialize()
 					c1, c2, c3, c4, c5, c6
 				};
 				
-				mVerticesColor.resize( NUM_QUAD_VERTS );
+				mAttributes->mVerticesColor.resize( NUM_QUAD_VERTS );
 
 				for (int i = 0; i < NUM_QUAD_VERTS; i++)
 				{
-					mVerticesColor[i] = verts[i];
+					mAttributes->mVerticesColor[i] = verts[i];
 				}
 
-				mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexColor);
-				mVertexCount = NUM_QUAD_VERTS;
+				mAttributes->mVertexCount = NUM_QUAD_VERTS;
 			}
 			break;
 		}
 		
-		mTriangleCount = 2;
+		mAttributes->mTriangleCount = 2;
 		
 		//
 		// Load Indices
 		//
 		
-		mIndexCount = NUM_QUAD_INDICES;
+		mAttributes->mIndexCount = NUM_QUAD_INDICES;
 		
 		UINT indices[NUM_QUAD_INDICES] =
 		{
@@ -410,11 +400,11 @@ void QuadMesh::Initialize()
 			//0, 1, 2, 0, 2, 3
 		};
 
-		mIndices.resize( NUM_QUAD_INDICES );
+		mAttributes->mIndices.resize(NUM_QUAD_INDICES);
 
 		for (int i = 0; i < NUM_QUAD_INDICES; i++)
 		{
-			mIndices[i] = indices[i];
+			mAttributes->mIndices[i] = indices[i];
 		}
 	}
 }
@@ -450,14 +440,12 @@ void QuadMesh::InitFullscreenQuad()
 				c1, c2, c3, c4
 			};
 			
-			mVerticesVNT.resize( 4 );
+			mAttributes->mVerticesNormalTex.resize( 4 );
 
 			for (int i = 0; i < 4; i++)
 			{
-				mVerticesVNT[i] = verts[i];
+				mAttributes->mVerticesNormalTex[i] = verts[i];
 			}
-
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTex);
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
@@ -472,14 +460,12 @@ void QuadMesh::InitFullscreenQuad()
 				c1, c2, c3, c4
 			};
 			
-			mVerticesVNTT.resize( 4 );
+			mAttributes->mVerticesNormalTexTan.resize( 4 );
 
 			for (int i = 0; i < 4; i++)
 			{
-				mVerticesVNTT[i] = verts[i];
+				mAttributes->mVerticesNormalTexTan[i] = verts[i];
 			}
-
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTexTan);
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Pos:
@@ -494,14 +480,12 @@ void QuadMesh::InitFullscreenQuad()
 				c1, c2, c3, c4
 			};
 			
-			mVerticesPos.resize( 4 );
+			mAttributes->mVerticesPos.resize( 4 );
 
 			for (int i = 0; i < 4; i++)
 			{
-				mVerticesPos[i] = verts[i];
+				mAttributes->mVerticesPos[i] = verts[i];
 			}
-
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexPos);
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Tex:
@@ -516,19 +500,17 @@ void QuadMesh::InitFullscreenQuad()
 				c1, c2, c3, c4
 			};
 			
-			mVerticesTex.resize( 4 );
+			mAttributes->mVerticesTex.resize( 4 );
 
 			for (int i = 0; i < 4; i++)
 			{
-				mVerticesTex[i] = verts[i];
+				mAttributes->mVerticesTex[i] = verts[i];
 			}
-
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexTex);
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
-			XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+			XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
 			ZShadeSandboxMesh::VertexColor c1 = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(v0.x, v0.y, v0.z, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w);
 			ZShadeSandboxMesh::VertexColor c2 = ZShadeSandboxMesh::VertexUtil::LoadVertexColor(v1.x, v1.y, v1.z, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w);
@@ -540,38 +522,36 @@ void QuadMesh::InitFullscreenQuad()
 				c1, c2, c3, c4
 			};
 			
-			mVerticesColor.resize( 4 );
+			mAttributes->mVerticesColor.resize( 4 );
 
 			for (int i = 0; i < 4; i++)
 			{
-				mVerticesColor[i] = verts[i];
+				mAttributes->mVerticesColor[i] = verts[i];
 			}
-
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexColor);
 		}
 		break;
 	}
 	
-	mVertexCount = 4;
+	mAttributes->mVertexCount = 4;
 	
-	mTriangleCount = 2;
+	mAttributes->mTriangleCount = 2;
 	
 	//
 	// Load Indices
 	//
 	
-	mIndexCount = 6;
+	mAttributes->mIndexCount = 6;
 	
 	UINT indices[6] =
 	{
 		0, 1, 2, 3, 0, 2
 	};
 	
-	mIndices.resize( 6 );
+	mAttributes->mIndices.resize(6);
 	
 	for (int i = 0; i < 6; i++)
 	{
-		mIndices[i] = indices[i];
+		mAttributes->mIndices[i] = indices[i];
 	}
 }
 //===============================================================================================================================

@@ -18,7 +18,6 @@
 #include "Environment3D.h"
 #include "QuadTree.h"
 #include "QuadTreeRenderer.h"
-#include "Sky.h"
 
 //===============================================================================================================================
 //===============================================================================================================================
@@ -49,11 +48,6 @@ protected:
 	ZShadeSandboxTerrain::QuadTreeMesh* m_pQuadTreeMesh;
 	ZShadeSandboxTerrain::QuadTreeRenderer* m_pQuadTreeRenderer;
 
-	//
-	// Sky
-	//
-	Sky* mSky;
-	
 	float fHeightScale;
 	float fTerrSize;
 	float fMinDist;

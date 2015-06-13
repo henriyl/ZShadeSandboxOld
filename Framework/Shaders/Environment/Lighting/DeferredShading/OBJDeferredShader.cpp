@@ -27,19 +27,12 @@ bool OBJDeferredShader::Initialize()
 	matrixCB.Initialize(PAD16(sizeof(cbMatrixBuffer)));
 	m_pMatrixCB = matrixCB.Buffer();
 	
-	ConstantBuffer<cbMatrixBuffer2> matrix2CB(m_pD3DSystem);
-	matrix2CB.Initialize(PAD16(sizeof(cbMatrixBuffer2)));
-	m_pMatrix2CB = matrix2CB.Buffer();
-	
 	ClearInputLayout();
-	
-	SetInputLayoutDesc("DeferredShader", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex, 3);
-	
-	LoadVertexShader("DeferredShaderVS2");
-	LoadPixelShader("DeferredShaderPS");
-	LoadPixelShader("DeferredShaderWireframePS");
-	
-	AssignVertexShaderLayout("DeferredShader");
+	SetInputLayoutDesc("WVPGBufferShader", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex, 3);
+	LoadVertexShader("WVPGBufferVS");
+	LoadPixelShader("WVPGBufferPS");
+	LoadPixelShader("WVPGBufferWireframePS");
+	AssignVertexShaderLayout("WVPGBufferShader");
 	
 	return true;
 }
@@ -53,15 +46,15 @@ bool OBJDeferredShader::Render11
 (	int startIndex
 ,	int indexCount
 ,	Camera* camera
+,	XMMATRIX world
 ,	XMMATRIX wvp
-,	XMFLOAT2 specularPowerRange
 ,	float specularIntensity
 ,	float specularPower
 ,	ID3D11ShaderResourceView* texture
 )
 {
 	cbPackBuffer cPB;
-	cPB.g_SpecularPowerRange = specularPowerRange;
+	cPB.padding = XMFLOAT2(0, 0);
 	cPB.g_SpecularIntensity = specularIntensity;
 	cPB.g_SpecularPower = specularPower;
 	// Map the pack buffer
@@ -75,21 +68,22 @@ bool OBJDeferredShader::Render11
 		m_pD3DSystem->GetDeviceContext()->Unmap(m_pPackCB, 0);
 	}
 	
-	cbMatrixBuffer2 cMB;
+	cbMatrixBuffer cMB;
+	cMB.g_World = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(world));
 	cMB.g_matWVP = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(wvp));
 	// Map the matrix buffer
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped_res2;
-		m_pD3DSystem->GetDeviceContext()->Map(m_pMatrix2CB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
+		m_pD3DSystem->GetDeviceContext()->Map(m_pMatrixCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
 		{
 			assert(mapped_res2.pData);
-			*(cbMatrixBuffer2*)mapped_res2.pData = cMB;
+			*(cbMatrixBuffer*)mapped_res2.pData = cMB;
 		}
-		m_pD3DSystem->GetDeviceContext()->Unmap(m_pMatrix2CB, 0);
+		m_pD3DSystem->GetDeviceContext()->Unmap(m_pMatrixCB, 0);
 	}
 	
-	ID3D11Buffer* vs_cbs[1] = { m_pMatrix2CB };
-	m_pD3DSystem->GetDeviceContext()->VSSetConstantBuffers(2, 1, vs_cbs);
+	ID3D11Buffer* vs_cbs[1] = { m_pMatrixCB };
+	m_pD3DSystem->GetDeviceContext()->VSSetConstantBuffers(1, 1, vs_cbs);
 	
 	ID3D11Buffer* ps_cbs[1] = { m_pPackCB };
 	m_pD3DSystem->GetDeviceContext()->PSSetConstantBuffers(0, 1, ps_cbs);
@@ -105,14 +99,14 @@ bool OBJDeferredShader::Render11
 		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 1, ps_srvs);
 		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 1, ps_samp);
 
-		SwitchTo("DeferredShaderPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		SwitchTo("WVPGBufferPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
 	else
 	{
-		SwitchTo("DeferredShaderWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+		SwitchTo("WVPGBufferWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
 
-	SetInputLayout("DeferredShader");
+	SetInputLayout("WVPGBufferShader");
 	
 	SetVertexShader();
 	SetPixelShader();

@@ -118,7 +118,7 @@ void Image::Draw(bool useTransparent, Camera* camera)
 	{
 		mBitmap->UpdateBuffers(mXPos, mYPos);
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = camera;
+		mrp.camera = camera;
 		//mrp.bTransparent = useTransparent;
 		//mrp.blendAmount = 0;
 		mBitmap->Render(mrp);
@@ -127,7 +127,7 @@ void Image::Draw(bool useTransparent, Camera* camera)
 	{
 		mOptionalBitmap->UpdateBuffers(mXPos, mYPos);
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = camera;
+		mrp.camera = camera;
 		//mrp.bTransparent = useTransparent;
 		//mrp.blendAmount = 0;
 		mOptionalBitmap->Render(mrp);

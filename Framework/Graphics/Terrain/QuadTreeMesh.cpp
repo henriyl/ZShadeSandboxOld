@@ -1215,27 +1215,27 @@ void QuadTreeMesh::AddMaterialColors(XMFLOAT4 ambient, XMFLOAT4 diffuse, XMFLOAT
 //==============================================================================================================================
 void QuadTreeMesh::AddDiffuseColor(XMFLOAT4 diffuse)
 {
-	mMaterial->DiffuseColor() = diffuse;
+	mMaterial->vDiffuseColor = diffuse;
 }
 //==============================================================================================================================
 void QuadTreeMesh::AddAmbientColor(XMFLOAT4 ambient)
 {
-	mMaterial->AmbientColor() = ambient;
+	mMaterial->vAmbientColor = ambient;
 }
 //==============================================================================================================================
 void QuadTreeMesh::AddSpecularColor(XMFLOAT4 specular)
 {
-	mMaterial->SpecularColor() = specular;
+	mMaterial->vSpecularColor = specular;
 }
 //==============================================================================================================================
 void QuadTreeMesh::AddSpecularPower(float power)
 {
-	mMaterial->SpecularPower() = power;
+	mMaterial->fSpecularPower = power;
 }
 //==============================================================================================================================
 void QuadTreeMesh::AddSpecularIntensity(float intensity)
 {
-	mMaterial->SpecularIntensity() = intensity;
+	mMaterial->fSpecularIntensity = intensity;
 }
 //==============================================================================================================================
 void QuadTreeMesh::AddMaterialTextures(vector<string> textureNames, string basePath, string blendMapFilename, string normalMapFilename, string detailMapFilename)

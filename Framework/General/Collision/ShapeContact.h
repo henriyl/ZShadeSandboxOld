@@ -91,7 +91,8 @@ public:
 	static bool AABBIntersectsTriangle(ZShadeSandboxMath::AABB box, ZShadeSandboxMath::XMMath3 vertex1, ZShadeSandboxMath::XMMath3 vertex2, ZShadeSandboxMath::XMMath3 vertex3);
 	static bool AABBIntersectsAABB(ZShadeSandboxMath::AABB box1, ZShadeSandboxMath::AABB box2);
 	static bool AABBIntersectsSphere(ZShadeSandboxMath::AABB box, ZShadeSandboxMath::SpherePrimitive sphere);
-
+	
+	static bool SphereIntersectsPoint(ZShadeSandboxMath::SpherePrimitive sphere, ZShadeSandboxMath::XMMath3 point);
 	static bool SphereIntersectsTriangle(ZShadeSandboxMath::SpherePrimitive sphere, ZShadeSandboxMath::TrianglePrimitive tri);
 	static bool SphereIntersectsTriangle(ZShadeSandboxMath::SpherePrimitive sphere, ZShadeSandboxMath::XMMath3 vertex1, ZShadeSandboxMath::XMMath3 vertex2, ZShadeSandboxMath::XMMath3 vertex3);
 	static bool SphereIntersectsSphere(ZShadeSandboxMath::SpherePrimitive sphere1, ZShadeSandboxMath::SpherePrimitive sphere2);

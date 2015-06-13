@@ -18,83 +18,78 @@ void SkydomeMesh::Initialize()
 {
 	MeshData* md = MeshUtil::LoadMesh("Models\\skydome.txt", mMeshParameters.vertexType);
 	
-	mVertexCount = md->vertexCount;
-	mIndexCount = md->indexCount;
-	mIndices.resize(mIndexCount);
+	mAttributes->mVertexCount = md->vertexCount;
+	mAttributes->mIndexCount = md->indexCount;
+	mAttributes->mIndices.resize(mAttributes->mIndexCount);
 	
-	mTriangleCount = mVertexCount / 3;
+	mAttributes->mTriangleCount = mAttributes->mVertexCount / 3;
 	
 	switch (mMeshParameters.vertexType)
 	{
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTex:
 		{
-			mVerticesVNT.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexNormalTex );
+			mAttributes->mVerticesNormalTex.resize(mAttributes->mVertexCount);
 			
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesVNT[i].position = md->dataVNT[i].position;
-				mVerticesVNT[i].normal = md->dataVNT[i].normal;
-				mVerticesVNT[i].texture = md->dataVNT[i].texture;
-				mIndices[i] = i;
+				mAttributes->mVerticesNormalTex[i].position = md->dataVNT[i].position;
+				mAttributes->mVerticesNormalTex[i].normal = md->dataVNT[i].normal;
+				mAttributes->mVerticesNormalTex[i].texture = md->dataVNT[i].texture;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
 		{
-			mVerticesVNTT.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexNormalTexTan );
+			mAttributes->mVerticesNormalTexTan.resize(mAttributes->mVertexCount);
 			
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesVNTT[i].position = md->dataVNTT[i].position;
-				mVerticesVNTT[i].normal = md->dataVNTT[i].normal;
-				mVerticesVNTT[i].texture = md->dataVNTT[i].texture;
-				mVerticesVNTT[i].tangentU = md->dataVNTT[i].tangentU;
-				mIndices[i] = i;
+				mAttributes->mVerticesNormalTexTan[i].position = md->dataVNTT[i].position;
+				mAttributes->mVerticesNormalTexTan[i].normal = md->dataVNTT[i].normal;
+				mAttributes->mVerticesNormalTexTan[i].texture = md->dataVNTT[i].texture;
+				mAttributes->mVerticesNormalTexTan[i].tangentU = md->dataVNTT[i].tangentU;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Pos:
 		{
-			mVerticesPos.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexPos );
+			mAttributes->mVerticesPos.resize(mAttributes->mVertexCount);
 			
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesPos[i].position = md->dataPos[i].position;
-				mIndices[i] = i;
+				mAttributes->mVerticesPos[i].position = md->dataPos[i].position;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Tex:
 		{
-			mVerticesTex.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexTex );
+			mAttributes->mVerticesTex.resize(mAttributes->mVertexCount);
 			
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesTex[i].position = md->dataTex[i].position;
-				mVerticesTex[i].texture = md->dataTex[i].texture;
-				mIndices[i] = i;
+				mAttributes->mVerticesTex[i].position = md->dataTex[i].position;
+				mAttributes->mVerticesTex[i].texture = md->dataTex[i].texture;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
-			mVerticesColor.resize(mVertexCount);
-			mVertexByteWidth = sizeof( ZShadeSandboxMesh::VertexColor );
+			mAttributes->mVerticesColor.resize(mAttributes->mVertexCount);
 			
 			// Load the vertex array and index array with data.
-			for (int i = 0; i < mVertexCount; i++)
+			for (int i = 0; i < mAttributes->mVertexCount; i++)
 			{
-				mVerticesColor[i].position = md->dataColor[i].position;
-				mVerticesColor[i].color = md->dataColor[i].color;
-				mIndices[i] = i;
+				mAttributes->mVerticesColor[i].position = md->dataColor[i].position;
+				mAttributes->mVerticesColor[i].color = md->dataColor[i].color;
+				mAttributes->mIndices[i] = i;
 			}
 		}
 		break;

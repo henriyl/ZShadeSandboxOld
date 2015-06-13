@@ -131,7 +131,7 @@ void BlurredEnvironment::Render()
 	
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem.get();
 	m_pCube->Render(mrp);
 	//m_pNoBlurCube->Render(mCamera, TriangleList, false, true);
 
@@ -173,7 +173,7 @@ bool BlurredEnvironment::RenderSceneToTexture()
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	//m_pCube->Render(mCamera);
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem.get();
 	m_pCube->Render(mrp);
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
@@ -201,15 +201,15 @@ bool BlurredEnvironment::DownSampleTexture()
 	m_D3DSystem->TurnOffZBuffer();
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem.get();
 	m_pSmallWindow->Render(mrp);
 
 	//Render the shader
 	m_pTextureShader->SetWireframe( false );
 	m_pTextureShader->UseOrtho(true);
 	m_pTextureShader->SetOrtho(ortho);
-	m_pTextureShader->Render11(m_pSmallWindow->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
-		m_CameraSystem.get(), m_pRenderTexture->SRView);
+	//m_pTextureShader->Render11(m_pSmallWindow->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
+	//	m_CameraSystem.get(), m_pRenderTexture->SRView);
 
 	//m_pTextureShader->SetWorld( XMMatrixIdentity() );
 	//m_pTextureShader->SetView( mCamera->View() );
@@ -247,7 +247,7 @@ bool BlurredEnvironment::RenderHorizontalBlurToTexture()
 	m_D3DSystem->TurnOffZBuffer();
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem.get();
 	m_pSmallWindow->Render(mrp);
 
 	//Render the horizontal blur
@@ -294,7 +294,7 @@ bool BlurredEnvironment::RenderVerticalBlurToTexture()
 	m_D3DSystem->TurnOffZBuffer();
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem.get();
 	m_pSmallWindow->Render(mrp);
 
 	//Render the vertical blur
@@ -341,15 +341,15 @@ bool BlurredEnvironment::UpSampleTexture()
 	m_D3DSystem->TurnOffZBuffer();
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem.get();
 	m_pFullscreenWidow->Render(mrp);
 
 	//Render the shader
 	m_pTextureShader->SetWireframe( false );
 	m_pTextureShader->UseOrtho(true);
 	m_pTextureShader->SetOrtho(ortho);
-	m_pTextureShader->Render11(m_pFullscreenWidow->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
-		m_CameraSystem.get(), m_pVerticalBlurTexture->SRView);
+	//m_pTextureShader->Render11(m_pFullscreenWidow->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
+	//	m_CameraSystem.get(), m_pVerticalBlurTexture->SRView);
 
 	/*m_pTextureShader->SetWorld( XMMatrixIdentity() );
 	m_pTextureShader->SetView( mCamera->View() );
@@ -381,7 +381,7 @@ bool BlurredEnvironment::Render2DTextureScene()
 	//mD3DSystem->GetOrthoMatrix(ortho);
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem.get();
 
 	m_pFullscreenWidow->Render(mrp);
 	
@@ -389,8 +389,8 @@ bool BlurredEnvironment::Render2DTextureScene()
 	m_pTextureShader->SetWireframe( false );
 	m_pTextureShader->UseOrtho(true);
 	m_pTextureShader->SetOrtho(m_CameraSystem.get()->Ortho());
-	m_pTextureShader->Render11(m_pFullscreenWidow->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
-		m_CameraSystem.get(), m_pUpSampleTexture->SRView);
+	//m_pTextureShader->Render11(m_pFullscreenWidow->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
+	//	m_CameraSystem.get(), m_pUpSampleTexture->SRView);
 
 	/*m_pTextureShader->SetWorld( XMMatrixIdentity() );
 	m_pTextureShader->SetView( mCamera->View() );

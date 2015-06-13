@@ -19,7 +19,7 @@ using namespace std;
 //===============================================================================================================================
 class TextureShader : public ZShadeSandboxShader::Shader
 {
-	struct Const_Per_Frame
+	struct cbShadingBuffer
 	{
 		XMFLOAT4 g_ClipPlane;
 		XMFLOAT2 padding;
@@ -27,14 +27,8 @@ class TextureShader : public ZShadeSandboxShader::Shader
 		int	     g_FlipTextureV;
 	};
 	
-	struct Const_Per_Object
-	{
-		XMFLOAT4X4	g_matWorld;
-		XMFLOAT4X4	g_matView;
-		XMFLOAT4X4	g_matProj;
-	};
-
 public:
+	
 	TextureShader(D3D* d3d);
 	TextureShader(const TextureShader& other);
 	~TextureShader();
@@ -46,15 +40,22 @@ public:
 	// false - flips the texture Vertically
 	void FlipTextureHorizontally(bool flip);
 	
-	bool Render11(int indexCount, ZShadeSandboxMath::XMMath4 clipplane, Camera* camera, ID3D11ShaderResourceView* texture);
+	bool Render11
+	(	int indexCount
+	,	ZShadeSandboxMath::XMMath4 clipplane
+	,	XMMATRIX world
+	,	bool reflection
+	,	Camera* camera
+	,	ID3D11ShaderResourceView* texture
+	);
 	
 private:
 	
 	bool bFlipHorizontally;
 	bool bFlipVertically;
 	
-	ID3D11Buffer* m_pPerFrameCB;
-	ID3D11Buffer* m_pPerObjectCB;
+	ID3D11Buffer* m_pShadingCB;
+	ID3D11Buffer* m_pMatrixCB;
 };
 //===============================================================================================================================
 //===============================================================================================================================

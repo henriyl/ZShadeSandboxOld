@@ -65,6 +65,8 @@ Mouse* Mouse::GetMouse(HWND hwnd)
 
 	std::unique_ptr<Mouse> newState;
 	newState.reset(new Mouse());
+	if (!newState)
+		return prevState;
 
 	newState->X = pos.x;
 	newState->Y = pos.y;

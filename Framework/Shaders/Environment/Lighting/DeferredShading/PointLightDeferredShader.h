@@ -18,7 +18,7 @@
 using namespace std;
 //===============================================================================================================================
 //===============================================================================================================================
-class PointLightDeferredShader : public ZShadeSandboxShader::Shader
+/*class PointLightDeferredShader : public ZShadeSandboxShader::Shader
 {
 	struct cbDomainBuffer
 	{
@@ -51,8 +51,7 @@ public:
 	bool Render11
 	(	Camera* camera
 	,	ZShadeSandboxLighting::PointLight* light
-	,	ID3D11ShaderResourceView* color0Texture
-	,	ID3D11ShaderResourceView* color1Texture
+	,	ID3D11ShaderResourceView* colorTexture
 	,	ID3D11ShaderResourceView* normalTexture
 	,	ID3D11ShaderResourceView* depthTexture
 	);
@@ -61,6 +60,40 @@ private:
 	
 	ID3D11Buffer* m_pDomainCB;
 	ID3D11Buffer* m_pPixelCB;
+};
+*/
+class PointLightDeferredShader : public ZShadeSandboxShader::Shader
+{
+	struct cbLightBuffer
+	{
+		XMFLOAT4 	g_PointLightColor;
+		XMFLOAT3 	g_EyePosition;
+		float		g_PointLightIntensity;
+		XMFLOAT3	g_PointLightPosition;
+		float		g_PointLightRange;
+		XMFLOAT4X4	g_InvViewProj;
+	};
+
+public:
+
+	PointLightDeferredShader(D3D* d3d);
+	PointLightDeferredShader(const PointLightDeferredShader& other);
+	~PointLightDeferredShader();
+
+	bool Initialize();
+	void Shutdown();
+
+	bool Render11
+	(	Camera* camera
+	,	ZShadeSandboxLighting::PointLight* light
+	,	ID3D11ShaderResourceView* colorTexture
+	,	ID3D11ShaderResourceView* normalTexture
+	,	ID3D11ShaderResourceView* depthTexture
+	);
+
+private:
+
+	ID3D11Buffer* m_pLightCB;
 };
 //===============================================================================================================================
 //===============================================================================================================================

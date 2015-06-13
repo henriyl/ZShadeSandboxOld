@@ -127,12 +127,10 @@ public:
 	void GBufferBegin();
 	void GBufferEnd();
 	
-	RenderTarget2D* GBufferCubeColorTarget();
 	RenderTarget2D* GBufferColorTarget();
 	RenderTarget2D* GBufferNormalTarget();
 	RenderTarget2D* GBufferDepthTarget();
 	
-	RenderTarget2D*& GBufferCubeColorTargetRef();
 	RenderTarget2D*& GBufferColorTargetRef();
 	RenderTarget2D*& GBufferNormalTargetRef();
 	RenderTarget2D*& GBufferDepthTargetRef();

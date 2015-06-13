@@ -462,7 +462,7 @@ bool Tile::Render(Camera* camera)
 		mTexture->UpdateBuffers(m_TopLeftPosition.x, m_TopLeftPosition.y);
 
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = camera;
+		mrp.camera = camera;
 		mTexture->Render(mrp);
 
 		//if (m_D3DSystem->GetEngineOptions()->m_d3dVersion == DIRECTX10)
@@ -560,7 +560,7 @@ bool Tile::Render(Camera* camera, float blendAmount)
 		mTextureCopy->UpdateBuffers(m_TopLeftPosition.x, m_TopLeftPosition.y);
 		
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = camera;
+		mrp.camera = camera;
 		//mrp.bTransparent = true;
 		//mrp.blendAmount = blendAmount;
 		mTextureCopy->Render(mrp);
@@ -660,7 +660,7 @@ bool Tile::RenderAnimation(Camera* camera)
 	texture->UpdateBuffers(m_TopLeftPosition.x, m_TopLeftPosition.y);
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = camera;
+	mrp.camera = camera;
 	texture->Render(mrp);
 	
 	return true;
@@ -767,7 +767,7 @@ bool Tile::RenderAnimation(Camera* camera, float blendAmount)
 	
 	// Use the transparent shader to render the mesh
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = camera;
+	mrp.camera = camera;
 	//mrp.bTransparent = true;
 	//mrp.blendAmount = blendAmount;
 	texture->Render(mrp);

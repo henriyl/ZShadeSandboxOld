@@ -21,20 +21,14 @@ class OBJDeferredShader : public ZShadeSandboxShader::Shader
 {
 	struct cbPackBuffer
 	{
-		XMFLOAT2 g_SpecularPowerRange;
+		XMFLOAT2 padding;
 		float g_SpecularIntensity;
 		float g_SpecularPower;
 	};
 	
 	struct cbMatrixBuffer
 	{
-		XMFLOAT4X4	g_matWorld;
-		XMFLOAT4X4	g_matView;
-		XMFLOAT4X4	g_matProj;
-	};
-	
-	struct cbMatrixBuffer2
-	{
+		XMFLOAT4X4	g_World;
 		XMFLOAT4X4	g_matWVP;
 	};
 	
@@ -51,8 +45,8 @@ public:
 	(	int startIndex
 	,	int indexCount
 	,	Camera* camera
+	,	XMMATRIX world
 	,	XMMATRIX wvp
-	,	XMFLOAT2 specularPowerRange
 	,	float specularIntensity
 	,	float specularPower
 	,	ID3D11ShaderResourceView* texture
@@ -62,7 +56,6 @@ private:
 	
 	ID3D11Buffer* m_pPackCB;
 	ID3D11Buffer* m_pMatrixCB;
-	ID3D11Buffer* m_pMatrix2CB;
 };
 //===============================================================================================================================
 //===============================================================================================================================

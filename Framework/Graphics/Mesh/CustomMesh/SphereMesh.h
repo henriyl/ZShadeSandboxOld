@@ -27,6 +27,8 @@ class SphereMesh : public ZShadeSandboxMesh::CustomMesh
 	
 public:
 	
+	// Loads a sphere mesh from a file
+	SphereMesh(D3D* d3d, ZShadeSandboxMesh::MeshParameters mp, char* filename);
 	// Loads a basic sphere mesh in 3D space
 	SphereMesh(float radius, UINT sliceCount, UINT stackCount, D3D* d3d, ZShadeSandboxMesh::MeshParameters mp);
 	// Loads a sphere mesh in 3D space

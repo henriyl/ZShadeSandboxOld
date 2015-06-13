@@ -691,13 +691,6 @@ GameDirectory3D* CGlobal::LoadGameDirectory3D(string game_folder)
 	path.append(game_folder);
 	game_folder = path;
 
-	//If the path does not exist something is wrong
-	if (!CGlobal::DoesFolderExist(game_folder))
-	{
-		ZShadeMessageCenter::MsgBoxError(NULL, "Game Directory Does Not Exist!!!");
-		return 0;
-	}
-
 	//Load the game directory
 	GameDirectory3D* gameDirectory = new GameDirectory3D();
 
@@ -742,11 +735,18 @@ GameDirectory3D* CGlobal::LoadGameDirectory3D(string game_folder)
 	string xml_game_ini_file = gameDirectory->GAME_FOLDER; xml_game_ini_file.append("\\Game.ini");
 	gameDirectory->m_game_ini_path = xml_game_ini_file;
 
-	//If the path does not exist then create it
-	//if (!CGlobal::DoesFolderExist(gameDirectory->GAME_FOLDER))
+	////If the path does not exist something is wrong
+	//if (!CGlobal::DoesFolderExist(game_folder)) 
 	//{
-	//	CreateGameDirectory cd(gameDirectory, m_engineOptions->m_GameType2D);
+	//	ZShadeMessageCenter::MsgBoxError(NULL, "Game Directory Does Not Exist!!!");
+	//	return 0;
 	//}
+
+	//If the path does not exist then create it
+	if (!CGlobal::DoesFolderExist(gameDirectory->GAME_FOLDER))
+	{
+		CreateGameDirectory cd(gameDirectory);
+	}
 
 	return gameDirectory;
 }

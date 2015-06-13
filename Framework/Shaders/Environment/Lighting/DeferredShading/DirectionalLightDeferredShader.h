@@ -24,25 +24,11 @@ class DirectionalLightDeferredShader : public ZShadeSandboxShader::Shader
 	{
 		XMFLOAT4	g_DirectionLightColor;
 		XMFLOAT3	g_LightDirection;
-		float		padding1;
+		float		g_LightIntensity;
 		XMFLOAT3	g_EyePosition;
 		float		padding2;
-		XMFLOAT3	g_AmbientDown;
-		float		padding3;
-		XMFLOAT3	g_AmbientUp;
-		float		padding4;
-	};
-	
-	struct cbMatrixBuffer
-	{
 		XMFLOAT4X4	g_InvViewProj;
 	};
-	
-	//struct cbGBufferUnpackConst
-	//{
-	//	XMFLOAT4 g_PerspectiveValues;
-	//	XMFLOAT4 g_x4ViewInv;// Not used
-	//};
 	
 public:
 	
@@ -56,10 +42,7 @@ public:
 	bool Render11
 	(	Camera* camera
 	,	ZShadeSandboxLighting::DirectionalLight* light
-	,	XMFLOAT3 ambientUp
-	,	XMFLOAT3 ambientDown
-	,	ID3D11ShaderResourceView* color0Texture
-	,	ID3D11ShaderResourceView* color1Texture
+	,	ID3D11ShaderResourceView* colorTexture
 	,	ID3D11ShaderResourceView* normalTexture
 	,	ID3D11ShaderResourceView* depthTexture
 	);
@@ -67,8 +50,6 @@ public:
 private:
 	
 	ID3D11Buffer* m_pLightCB;
-	ID3D11Buffer* m_pMatrixCB;
-	//ID3D11Buffer* m_pUnpackCB;
 };
 //===============================================================================================================================
 //===============================================================================================================================

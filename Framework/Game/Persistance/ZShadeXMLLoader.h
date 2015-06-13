@@ -34,7 +34,7 @@ class ZShadeXMLLoader
 {
 public:
 	
-	static bool LoadMaterialXML(string filename, D3D* d3d);
+	static bool LoadMaterialXML(string basePath, string filename, D3D* d3d);
 	static bool LoadWorldXML(string worldname, SWorld*& sworld);
 	static bool LoadWorldXML(string worldname, SPlatformerWorld*& sworld);
 	static bool LoadMapXML(string& mapname, string filename, GameDirectory2D* gd, Camera* cam, D3D* d3d, TopdownMap*& map, bool inEditor, HWND hwndPB);

@@ -46,10 +46,12 @@ bool Environment3D::Init(bool init_lua)
 	bLeftMouseDown = false;
 	bEnablePostProcessing = false;
 	bEnableDeferredShading = false;
-	bUseDirectionalLightDeferred = false;
-	bUsePointLightDeferred = false;
-	bUseSpotLightDeferred = false;
-	bUseCapsuleLightDeferred = false;
+	bToggleSky = true;
+	bToggleSkyPlane = false;
+	bToggleGBufferDebugging = false;
+	bToggleGBufferDebuggingColors = true;
+	bToggleGBufferDebuggingNormals = false;
+	bToggleGBufferDebuggingDepth = false;
 	
 	m_D3DSystem = new D3D();
 	if (!m_D3DSystem) return false;
@@ -143,7 +145,7 @@ bool Environment3D::Init(bool init_lua)
 	xPos += 10;
 	mDirLight2 = new ZShadeSandboxLighting::DirectionalLight();
 	mDirLight2->LightType() = ZShadeSandboxLighting::ELightType::eDirectional;
-	mDirLight2->DiffuseColor() = XMFLOAT4(0.2f, 0.2f, 1.2f, 1.0f);
+	mDirLight2->DiffuseColor() = XMFLOAT4(0.5f, 0.2f, 1.2f, 1.0f);
 	mDirLight2->AmbientColor() = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mDirLight2->SpecularColor() = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLight2->Position() = XMFLOAT3(xPos, yPos, 0);
@@ -153,7 +155,7 @@ bool Environment3D::Init(bool init_lua)
 	xPos += 10;
 	mDirLight3 = new ZShadeSandboxLighting::DirectionalLight();
 	mDirLight3->LightType() = ZShadeSandboxLighting::ELightType::eDirectional;
-	mDirLight3->DiffuseColor() = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mDirLight3->DiffuseColor() = XMFLOAT4(2.2f, 2.2f, 2.2f, 1.0f);
 	mDirLight3->AmbientColor() = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mDirLight3->SpecularColor() = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLight3->Position() = XMFLOAT3(xPos, yPos, 0);
@@ -173,6 +175,7 @@ bool Environment3D::Init(bool init_lua)
 	mSpotLight1->SpotCosOuterCone() = 10.0f;
 	mSpotLight1->SpotInnerConeReciprocal() = 1.0f / 10.0f;
 	mSpotLight1->Attenuation() = XMFLOAT3(0.5f, 3.0f, 0.1f);
+	mSpotLight1->SetLens(m_EngineOptions->fNearPlane, m_EngineOptions->fFarPlane);
 
 	//xPos += 50;
 	mPointLight = new ZShadeSandboxLighting::PointLight();
@@ -180,38 +183,50 @@ bool Environment3D::Init(bool init_lua)
 	mPointLight->DiffuseColor() = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mPointLight->AmbientColor() = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	mPointLight->SpecularColor() = XMFLOAT4(0.8f, 0.8f, 0.7f, 1.0f);
-	mPointLight->Position() = XMFLOAT3(xPos, yPos, 500);
+	mPointLight->Position() = XMFLOAT3(10, 10, 0);
 	mPointLight->Direction() = XMFLOAT3(0.707f, -0.707f, 0.0f);
-	mPointLight->Range() = 1000.0f;
+	mPointLight->Range() = 100.0f;
 	mPointLight->Attenuation() = XMFLOAT3(0.5f, 3.0f, 0.1f);
+	mPointLight->SetLens(m_EngineOptions->fNearPlane, m_EngineOptions->fFarPlane);
 
 	xPos += 30;
 	mCapsuleLight = new ZShadeSandboxLighting::CapsuleLight();
 	mCapsuleLight->LightType() = ZShadeSandboxLighting::ELightType::eCapsule;
-	mCapsuleLight->DiffuseColor() = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	mCapsuleLight->DiffuseColor() = XMFLOAT4(1.9f, 1.9f, 1.9f, 1.0f);
 	mCapsuleLight->AmbientColor() = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	mCapsuleLight->SpecularColor() = XMFLOAT4(0.8f, 0.8f, 0.7f, 1.0f);
-	mCapsuleLight->Position() = XMFLOAT3(xPos, yPos, 100);
-	mCapsuleLight->Range() = 300.0f;
-	mCapsuleLight->Direction() = XMFLOAT3(0.707f, -0.707f, 0.0f);
+	mCapsuleLight->Position() = XMFLOAT3(-40, 10, 0);
+	mCapsuleLight->Range() = 40.0f;
+	//mCapsuleLight->Direction() = XMFLOAT3(0.707f, -0.707f, 0.0f);
+	mCapsuleLight->Direction() = XMFLOAT3(0.936016f, -0.343206f, 0.0780013f);
 	mCapsuleLight->LightLength() = 50.0f;
 	mCapsuleLight->CapsuleDirectionLength() = XMFLOAT3(0.707f, -0.707f, 0.0f);
-	mCapsuleLight->CapsuleIntensity() = 100.0f;
+	mCapsuleLight->Intensity() = 2.0f;
+	mCapsuleLight->SetLens(m_EngineOptions->fNearPlane, m_EngineOptions->fFarPlane);
 
+	xPos += 30;
 	ZShadeSandboxLighting::AmbientLight* ambientLight = new ZShadeSandboxLighting::AmbientLight();
 	ambientLight->Position() = XMFLOAT3(xPos, yPos, 100);
 	ambientLight->AmbientColor() = XMFLOAT4(0.3f, 1.5f, 0.3f, 1.0f);
+	ambientLight->SetLens(m_EngineOptions->fNearPlane, m_EngineOptions->fFarPlane);
+
+	xPos += 30;
+	ZShadeSandboxLighting::AmbientLight* ambientLight1 = new ZShadeSandboxLighting::AmbientLight();
+	ambientLight1->Position() = XMFLOAT3(xPos, yPos, 100);
+	ambientLight1->AmbientColor() = XMFLOAT4(0.3f, 1.5f, 10.3f, 1.0f);
+	ambientLight1->SetLens(m_EngineOptions->fNearPlane, m_EngineOptions->fFarPlane);
 
 	// Initialize the light manager that handles all the basic lights in the scene
 	ZShadeSandboxLighting::LightManager::NewInstance(m_D3DSystem);
 
+	ZShadeSandboxLighting::LightManager::Instance()->AddLight(ambientLight);
+	//ZShadeSandboxLighting::LightManager::Instance()->AddLight(ambientLight1);
 	ZShadeSandboxLighting::LightManager::Instance()->AddLight(mDirLight1);
 	//ZShadeSandboxLighting::LightManager::Instance()->AddLight(mDirLight2);
 	//ZShadeSandboxLighting::LightManager::Instance()->AddLight(mDirLight3);
+	//ZShadeSandboxLighting::LightManager::Instance()->AddLight(mPointLight);
 	//ZShadeSandboxLighting::LightManager::Instance()->AddLight(mCapsuleLight);
-	//ZShadeSandboxLighting::LightManager::Instance()->AddLight(ambientLight);
 	//ZShadeSandboxLighting::LightManager::Instance()->AddLight(mSpotLight1);
-	ZShadeSandboxLighting::LightManager::Instance()->AddLight(mPointLight);
 	
 	// Disable all the lights
 	//ZShadeSandboxLighting::LightManager::Instance()->ToggleAmbientLights(false);
@@ -220,16 +235,35 @@ bool Environment3D::Init(bool init_lua)
 	//ZShadeSandboxLighting::LightManager::Instance()->TogglePointLights(false);
 	//ZShadeSandboxLighting::LightManager::Instance()->ToggleCapsuleLights(false);
 	
+	mAmbientUp = XMFLOAT3(1.3f, 1.3f, 1.3f);
+	mAmbientDown = XMFLOAT3(0.3f, 0.3f, 0.3f);
+
+	ZShadeSandboxLighting::LightManager::Instance()->AmbientUp() = mAmbientUp;
+	ZShadeSandboxLighting::LightManager::Instance()->AmbientDown() = mAmbientDown;
+
 	// Build the initial forward lighting buffers
 	mSunLightBuffer = new ZShadeSandboxLighting::SunLightBuffer();
 	mSunLightBuffer->g_SunDir = XMFLOAT3(0.936016f, -0.343206f, 0.0780013f);
 	mSunLightBuffer->g_SunDiffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mSunLightBuffer->g_SunShineness = 500.0f;
 	mSunLightBuffer->g_EnableSun = 1;
-	mAmbientUp = XMFLOAT3(1.3f, 1.3f, 1.3f);
-	mAmbientDown = XMFLOAT3(0.3f, 0.3f, 0.3f);
 	ZShadeSandboxLighting::SunLightBuffer sb = *mSunLightBuffer;
-	ZShadeSandboxLighting::LightManager::Instance()->BuildLightingBuffers(mAmbientUp, mAmbientDown, sb);
+	ZShadeSandboxLighting::LightManager::Instance()->RebuildSunBuffer(sb);
+	
+	// Create the deferred shader
+	ZShadeSandboxLighting::DeferredShaderManager::NewInstance(m_D3DSystem);
+
+	ZShadeSandboxLighting::DeferredShaderManager::Instance()->SetAmbientUp(mAmbientUp);
+	ZShadeSandboxLighting::DeferredShaderManager::Instance()->SetAmbientDown(mAmbientDown);
+
+	ZShadeSandboxLighting::DeferredShaderManager::Instance()->AddLight(ambientLight);
+	//ZShadeSandboxLighting::DeferredShaderManager::Instance()->AddLight(ambientLight1);
+	ZShadeSandboxLighting::DeferredShaderManager::Instance()->AddLight(mDirLight1);
+	ZShadeSandboxLighting::DeferredShaderManager::Instance()->AddLight(mDirLight2);
+	ZShadeSandboxLighting::DeferredShaderManager::Instance()->AddLight(mDirLight3);
+	ZShadeSandboxLighting::DeferredShaderManager::Instance()->AddLight(mPointLight);
+	//ZShadeSandboxLighting::DeferredShaderManager::Instance()->AddLight(mCapsuleLight);
+	ZShadeSandboxLighting::DeferredShaderManager::Instance()->AddLight(mSpotLight1);
 	
 	//Create the refraction render to texture object
 	mRefractionTexture = new RenderTarget2D(m_D3DSystem);
@@ -275,9 +309,13 @@ bool Environment3D::Init(bool init_lua)
 	mPostProcessManager = new PostProcessManager(m_D3DSystem);
 	mPostProcessManager->AddPostProcess(new HDR(m_D3DSystem));
 	
-	mDirectionalLightDeferredShader = new DirectionalLightDeferredShader(m_D3DSystem);
-	mPointLightDeferredShader = new PointLightDeferredShader(m_D3DSystem);
-	
+	mSky = new Sky(m_D3DSystem, m_GameDirectory3D->m_textures_path, "sky_cube.dds", 8000.0f);
+	// Loads defaults
+	SkyPlaneParameters spp;
+	spp.g_skyPlaneWidth = 40000.0f;
+	spp.cloudTexturePath = m_GameDirectory3D->m_textures_path + "\\";
+	mSkyPlane = new SkyPlane(m_D3DSystem, spp);
+
 	return true;
 }
 //===============================================================================================================================
@@ -326,11 +364,19 @@ void Environment3D::UpdateMaster()
 
 	mDirLight1->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
 	mDirLight2->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
+	mDirLight3->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
+
+	mPointLight->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
+	mCapsuleLight->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
 
 	// Update the view projection matrix from the perspective of the light
 	//mDirLight1->UpdateLVP();
 	//mDirLight2->UpdateLVP();
 	mDirLight1->Update();
+	mDirLight2->Update();
+	mDirLight3->Update();
+	mPointLight->Update();
+	mCapsuleLight->Update();
 	
 	if (!bCameraStill)
 	{
@@ -469,9 +515,69 @@ void Environment3D::UpdateMaster()
 			fTessFactor -= 1.0f;
 	}
 	
+	if ((GetAsyncKeyState('1') & 0x8000) && bEnableDeferredShading)
+	{
+		while (1) { Sleep(200); break; }
+		bToggleGBufferDebugging = !bToggleGBufferDebugging;
+	}
+	if ((GetAsyncKeyState('2') & 0x8000) && bEnableDeferredShading)
+	{
+		while (1) { Sleep(200); break; }
+		bToggleGBufferDebuggingColors = true;
+
+		bToggleGBufferDebuggingNormals = !bToggleGBufferDebuggingColors;
+		bToggleGBufferDebuggingDepth = bToggleGBufferDebuggingNormals;
+	}
+	if ((GetAsyncKeyState('3') & 0x8000) && bEnableDeferredShading)
+	{
+		while (1) { Sleep(200); break; }
+		bToggleGBufferDebuggingNormals = true;
+
+		bToggleGBufferDebuggingColors = !bToggleGBufferDebuggingNormals;
+		bToggleGBufferDebuggingDepth = bToggleGBufferDebuggingColors;
+	}
+	if ((GetAsyncKeyState('4') & 0x8000) && bEnableDeferredShading)
+	{
+		while (1) { Sleep(200); break; }
+		bToggleGBufferDebuggingDepth = true;
+
+		bToggleGBufferDebuggingColors = !bToggleGBufferDebuggingDepth;
+		bToggleGBufferDebuggingNormals = bToggleGBufferDebuggingColors;
+	}
+	
+	if (bEnableDeferredShading)
+	{
+		ZShadeSandboxLighting::DeferredShaderManager::Instance()->ToggleDebugging() = bToggleGBufferDebugging;
+		ZShadeSandboxLighting::DeferredShaderManager::Instance()->ToggleDebuggingColors() = bToggleGBufferDebuggingColors;
+		ZShadeSandboxLighting::DeferredShaderManager::Instance()->ToggleDebuggingNormals() = bToggleGBufferDebuggingNormals;
+		ZShadeSandboxLighting::DeferredShaderManager::Instance()->ToggleDebuggingDepth() = bToggleGBufferDebuggingDepth;
+	}
+	
+	if (GetAsyncKeyState('5') & 0x8000)
+	{
+		while (1) { Sleep(300); break; }
+		bToggleSky = !bToggleSky;
+	}
+	if (GetAsyncKeyState('6') & 0x8000)
+	{
+		while (1) { Sleep(300); break; }
+		bToggleSkyPlane = !bToggleSkyPlane;
+	}
+
+	if (bToggleSky)
+	{
+		mSky->SetWireframe(bWireframeMode);
+
+		if (bToggleSkyPlane)
+		{
+			mSkyPlane->SetWireframe(bWireframeMode);
+			mSkyPlane->Update(fFrameTime);
+		}
+	}
+
 	// If there are any lights in the scene capture them
-	ZShadeSandboxLighting::LightManager::Instance()->RebuildLightBuffer(mAmbientUp, mAmbientDown);
-	ZShadeSandboxLighting::LightManager::Instance()->RebuildSunBuffer(*mSunLightBuffer);
+	//ZShadeSandboxLighting::LightManager::Instance()->RebuildLightBuffer(mAmbientUp, mAmbientDown);
+	//ZShadeSandboxLighting::LightManager::Instance()->RebuildSunBuffer(*mSunLightBuffer);
 	
 	// Update other scene components
 	Update();
@@ -511,45 +617,11 @@ void Environment3D::RenderMaster()
 			RenderDeferred();
 		}
 		m_D3DSystem->GBufferEnd();
+
+		ZShadeSandboxLighting::DeferredShaderManager::Instance()->Render(m_CameraSystem.get(), bWireframeMode);
 		
-		if (bUseDirectionalLightDeferred)
-		{
-			mDirectionalLightDeferredShader->SetWireframe(bWireframeMode);
-			mDirectionalLightDeferredShader->Render11(
-				m_CameraSystem.get(),
-				mDirLight1,
-				mAmbientUp,
-				mAmbientDown,
-				m_D3DSystem->GBufferCubeColorTarget()->SRView,
-				m_D3DSystem->GBufferColorTarget()->SRView,
-				m_D3DSystem->GBufferNormalTarget()->SRView,
-				m_D3DSystem->GBufferDepthTarget()->SRView
-			);
-		}
-		
-		if (bUsePointLightDeferred)
-		{
-			mPointLightDeferredShader->SetWireframe(bWireframeMode);
-			mPointLightDeferredShader->Render11(
-				m_CameraSystem.get(),
-				mPointLight,
-				m_D3DSystem->GBufferCubeColorTarget()->SRView,
-				m_D3DSystem->GBufferColorTarget()->SRView,
-				m_D3DSystem->GBufferNormalTarget()->SRView,
-				m_D3DSystem->GBufferDepthTarget()->SRView
-			);
-		}
-		
-		if (bUseSpotLightDeferred)
-		{
-			
-		}
-		
-		if (bUseCapsuleLightDeferred)
-		{
-			
-		}
-		
+		RenderSky(false, false);
+
 		if (bEnablePostProcessing)
 		{
 			mPostProcessManager->Render(m_D3DSystem->GBufferColorTarget()->SRView, m_D3DSystem->GetBackbufferRenderTarget()->RTView);
@@ -559,6 +631,8 @@ void Environment3D::RenderMaster()
 	{
 		// Normal 3D Rendering for the scene Happens Here
 		Render();
+
+		RenderSky(false, false);
 
 		if (bEnablePostProcessing)
 		{
@@ -583,6 +657,59 @@ void Environment3D::RenderMaster()
 		Render2D();
 	}
 	m_D3DSystem->TurnOnZBuffer();
+}
+//===============================================================================================================================
+void Environment3D::RenderSky(bool reflections, bool deferred)
+{
+	if (!bToggleSky)
+		return;
+
+	if (Quickwire() || bWireframeMode)
+		return;
+
+	//
+	//Render the sky
+	//
+
+	//m_D3DSystem->TurnOffZBuffer();
+	m_D3DSystem->TurnOffCulling();
+	m_D3DSystem->TurnOnAdditiveBlending();
+
+	if (bWireframeMode)
+	{
+		m_D3DSystem->TurnOnWireframe();
+	}
+
+	//Quickwire stuff that default environment supports
+	if (Quickwire())
+	{
+		mSky->SetWireframe(true);
+		mSkyPlane->SetWireframe(true);
+		m_D3DSystem->TurnOnWireframe();
+	}
+
+	if (reflections)
+	{
+		mSky->RenderWithReflection(m_D3DSystem, m_CameraSystem.get(), fSeaLevel, deferred);
+		
+		if (bToggleSkyPlane)
+		{
+			mSkyPlane->RenderWithReflection(m_D3DSystem, m_CameraSystem.get(), fSeaLevel);
+		}
+	}
+	else// Normal Sky
+	{
+		mSky->Render(m_D3DSystem, m_CameraSystem.get(), deferred);
+		
+		if (bToggleSkyPlane)
+		{
+			mSkyPlane->Render(m_D3DSystem, m_CameraSystem.get(), fSeaLevel);
+		}
+	}
+
+	m_D3DSystem->TurnOffAdditiveBlending();
+	m_D3DSystem->TurnOnCulling();
+	//m_D3DSystem->TurnOnZBuffer();
 }
 //===============================================================================================================================
 void Environment3D::OnMouseDown(WPARAM btnState, int x, int y)
@@ -705,6 +832,8 @@ void Environment3D::RenderReflectionToTexture()
 	//Rendering happens here
 	{
 		RenderReflection(reflectionClipPlane);
+
+		RenderSky(true, false);
 	}
 
 	//Reset the render target to the original back buffer and not the render to texture anymore

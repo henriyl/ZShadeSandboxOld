@@ -107,7 +107,7 @@ bool TerrainTessellationTriShader::Render(int indexCount, Camera* camera, LightC
 	cSCB.g_TextureHeight = terrainShadingConst.g_TextureHeight;
 	cSCB.g_seaLevel = terrainShadingConst.g_seaLevel;
 	cSCB.g_waterBodyColor = terrainShadingConst.g_waterBodyColor;
-	cSCB.g_SunDir = terrainShadingConst.g_SunDir;
+	//cSCB.g_SunDir = terrainShadingConst.g_SunDir;
 	cSCB.padding2 = 0;
 	//cSCB.g_AmbientColor = terrainShadingConst.g_AmbientColor;
 	//cSCB.g_SpecularColor = terrainShadingConst.g_SpecularColor;

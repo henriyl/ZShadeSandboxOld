@@ -26,8 +26,8 @@ CylindricalMesh::~CylindricalMesh()
 //===============================================================================================================================
 void CylindricalMesh::BuildCylinderTopCap()
 {
-	UINT baseIndex = (UINT)mVerticesTex.size();
-
+	UINT baseIndex = 0;
+	UINT centerIndex = 0;
 	float y = 0.5f * fHeight;
 	float dTheta = 2.0f * PI / iSliceCount;
 	
@@ -36,6 +36,8 @@ void CylindricalMesh::BuildCylinderTopCap()
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTex:
 		{
 #pragma region "Vertex Normal Tex"
+			baseIndex = (UINT)mAttributes->mVerticesNormalTex.size();
+
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for (UINT i = 0; i <= iSliceCount; ++i)
 			{
@@ -47,17 +49,22 @@ void CylindricalMesh::BuildCylinderTopCap()
 				float u = x / fHeight + 0.5f;
 				float v = z / fHeight + 0.5f;
 
-				mVerticesVNT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(x, y, z, 0.0f, 1.0f, 0.0f, u, v));
+				mAttributes->mVerticesNormalTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(x, y, z, 0.0f, 1.0f, 0.0f, u, v));
 			}
 
 			// Cap center vertex.
-			mVerticesVNT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f));
+			mAttributes->mVerticesNormalTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f));
+
+			// Index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesNormalTex.size() - 1;
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
 		{
 #pragma region "Vertex Normal Tex Tan"
+			baseIndex = (UINT)mAttributes->mVerticesNormalTexTan.size();
+			
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for (UINT i = 0; i <= iSliceCount; ++i)
 			{
@@ -69,34 +76,44 @@ void CylindricalMesh::BuildCylinderTopCap()
 				float u = x / fHeight + 0.5f;
 				float v = z / fHeight + 0.5f;
 
-				mVerticesVNTT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(x, y, z, 0.0f, 1.0f, 0.0f, u, v, 1.0f, 0.0f, 0.0f));
+				mAttributes->mVerticesNormalTexTan.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(x, y, z, 0.0f, 1.0f, 0.0f, u, v, 1.0f, 0.0f, 0.0f));
 			}
 
 			// Cap center vertex.
-			mVerticesVNTT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f));
+			mAttributes->mVerticesNormalTexTan.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(0.0f, y, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f));
+
+			// Index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesNormalTexTan.size() - 1;
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Pos:
 		{
 #pragma region "Vertex Pos"
+			baseIndex = (UINT)mAttributes->mVerticesPos.size();
+
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for (UINT i = 0; i <= iSliceCount; ++i)
 			{
 				float x = fTopRadius * cosf(i * dTheta);
 				float z = fTopRadius * sinf(i * dTheta);
 
-				mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(x, y, z));
+				mAttributes->mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(x, y, z));
 			}
 
 			// Cap center vertex.
-			mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(0.0f, y, 0.0f));
+			mAttributes->mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(0.0f, y, 0.0f));
+
+			// Index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesPos.size() - 1;
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Tex:
 		{
 #pragma region "Vertex Tex"
+			baseIndex = (UINT)mAttributes->mVerticesTex.size();
+			
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for(UINT i = 0; i <= iSliceCount; ++i)
 			{
@@ -108,18 +125,22 @@ void CylindricalMesh::BuildCylinderTopCap()
 				float u = x / fHeight + 0.5f;
 				float v = z / fHeight + 0.5f;
 
-				mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(x, y, z, u, v));
+				mAttributes->mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(x, y, z, u, v));
 			}
 
 			// Cap center vertex.
-			mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(0.0f, y, 0.0f, 0.5f, 0.5f));
+			mAttributes->mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(0.0f, y, 0.0f, 0.5f, 0.5f));
+
+			// Index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesTex.size() - 1;
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
 #pragma region "Vertex Color"
-			XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+			baseIndex = (UINT)mAttributes->mVerticesColor.size();
+			XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
 			// Duplicate cap ring vertices because the texture coordinates and normals differ.
 			for (UINT i = 0; i <= iSliceCount; ++i)
@@ -127,25 +148,25 @@ void CylindricalMesh::BuildCylinderTopCap()
 				float x = fTopRadius * cosf(i * dTheta);
 				float z = fTopRadius * sinf(i * dTheta);
 
-				mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(x, y, z, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
+				mAttributes->mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(x, y, z, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
 			}
 
 			// Cap center vertex.
-			mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(0.0f, y, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
+			mAttributes->mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(0.0f, y, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
+
+			// Index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesColor.size() - 1;
 #pragma endregion
 		}
 		break;
 	}
 	
-	// Index of center vertex.
-	UINT centerIndex = (UINT)mVerticesTex.size() - 1;
-
 	UINT index = 0;
 	for (UINT i = 0; i < iSliceCount; ++i)
 	{
-		mIndices.push_back(centerIndex);
-		mIndices.push_back(baseIndex + i + 1);
-		mIndices.push_back(baseIndex + i);
+		mAttributes->mIndices.push_back(centerIndex);
+		mAttributes->mIndices.push_back(baseIndex + i + 1);
+		mAttributes->mIndices.push_back(baseIndex + i);
 	}
 }
 //===============================================================================================================================
@@ -155,7 +176,8 @@ void CylindricalMesh::BuildCylinderBottomCap()
 	// Build bottom cap.
 	//
 
-	UINT baseIndex = (UINT)mVerticesTex.size();
+	UINT baseIndex = 0;
+	UINT centerIndex = 0;
 	float y = -0.5f * fHeight;
 
 	// vertices of ring
@@ -166,6 +188,8 @@ void CylindricalMesh::BuildCylinderBottomCap()
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTex:
 		{
 #pragma region "Vertex Normal Tex"
+			baseIndex = (UINT)mAttributes->mVerticesNormalTex.size();
+
 			for (UINT i = 0; i <= iSliceCount; ++i)
 			{
 				float x = fBottomRadius * cosf(i * dTheta);
@@ -176,17 +200,22 @@ void CylindricalMesh::BuildCylinderBottomCap()
 				float u = x / fHeight + 0.5f;
 				float v = z / fHeight + 0.5f;
 				
-				mVerticesVNT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(x, y, z, 0.0f, -1.0f, 0.0f, u, v));
+				mAttributes->mVerticesNormalTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(x, y, z, 0.0f, -1.0f, 0.0f, u, v));
 			}
 
 			// Cap center vertex.
-			mVerticesVNT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 0.5f, 0.5f));
+			mAttributes->mVerticesNormalTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTex(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 0.5f, 0.5f));
+
+			// Cache the index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesNormalTex.size() - 1;
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan:
 		{
 #pragma region "Vertex Normal Tex Tan"
+			baseIndex = (UINT)mAttributes->mVerticesNormalTexTan.size();
+
 			for (UINT i = 0; i <= iSliceCount; ++i)
 			{
 				float x = fBottomRadius * cosf(i * dTheta);
@@ -197,17 +226,22 @@ void CylindricalMesh::BuildCylinderBottomCap()
 				float u = x / fHeight + 0.5f;
 				float v = z / fHeight + 0.5f;
 				
-				mVerticesVNTT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(x, y, z, 0.0f, -1.0f, 0.0f, u, v, 1.0f, 0.0f, 0.0f));
+				mAttributes->mVerticesNormalTexTan.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(x, y, z, 0.0f, -1.0f, 0.0f, u, v, 1.0f, 0.0f, 0.0f));
 			}
 
 			// Cap center vertex.
-			mVerticesVNTT.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f));
+			mAttributes->mVerticesNormalTexTan.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexNormalTexTan(0.0f, y, 0.0f, 0.0f, -1.0f, 0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f));
+
+			// Cache the index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesNormalTexTan.size() - 1;
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Pos:
 		{
 #pragma region "Vertex Pos"
+			baseIndex = (UINT)mAttributes->mVerticesPos.size();
+
 			for (UINT i = 0; i <= iSliceCount; ++i)
 			{
 				float x = fBottomRadius * cosf(i * dTheta);
@@ -218,17 +252,22 @@ void CylindricalMesh::BuildCylinderBottomCap()
 				float u = x / fHeight + 0.5f;
 				float v = z / fHeight + 0.5f;
 				
-				mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(x, y, z));
+				mAttributes->mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(x, y, z));
 			}
 
 			// Cap center vertex.
-			mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(0.0f, y, 0.0f));
+			mAttributes->mVerticesPos.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexPos(0.0f, y, 0.0f));
+
+			// Cache the index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesPos.size() - 1;
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Tex:
 		{
 #pragma region "Vertex Tex"
+			baseIndex = (UINT)mAttributes->mVerticesTex.size();
+
 			for (UINT i = 0; i <= iSliceCount; ++i)
 			{
 				float x = fBottomRadius * cosf(i * dTheta);
@@ -239,18 +278,22 @@ void CylindricalMesh::BuildCylinderBottomCap()
 				float u = x / fHeight + 0.5f;
 				float v = z / fHeight + 0.5f;
 				
-				mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(x, y, z, u, v));
+				mAttributes->mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(x, y, z, u, v));
 			}
 
 			// Cap center vertex.
-			mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(0.0f, y, 0.0f, 0.5f, 0.5f));
+			mAttributes->mVerticesTex.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexTex(0.0f, y, 0.0f, 0.5f, 0.5f));
+
+			// Cache the index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesTex.size() - 1;
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
 #pragma region "Vertex Color"
-			XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+			baseIndex = (UINT)mAttributes->mVerticesColor.size();
+			XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
 			for (UINT i = 0; i <= iSliceCount; ++i)
 			{
@@ -262,25 +305,25 @@ void CylindricalMesh::BuildCylinderBottomCap()
 				float u = x / fHeight + 0.5f;
 				float v = z / fHeight + 0.5f;
 				
-				mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(x, y, z, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
+				mAttributes->mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(x, y, z, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
 			}
 
 			// Cap center vertex.
-			mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(0.0f, y, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
+			mAttributes->mVerticesColor.push_back(ZShadeSandboxMesh::VertexUtil::LoadVertexColor(0.0f, y, 0.0f, diffuseColor.x, diffuseColor.y, diffuseColor.z, diffuseColor.w));
+
+			// Cache the index of center vertex.
+			centerIndex = (UINT)mAttributes->mVerticesColor.size() - 1;
 #pragma endregion
 		}
 		break;
 	}
 	
-	// Cache the index of center vertex.
-	UINT centerIndex = (UINT)mVerticesTex.size() - 1;
-
 	UINT index = 0;
 	for (UINT i = 0; i < iSliceCount; ++i)
 	{
-		mIndices.push_back(centerIndex);
-		mIndices.push_back(baseIndex + i);
-		mIndices.push_back(baseIndex + i + 1);
+		mAttributes->mIndices.push_back(centerIndex);
+		mAttributes->mIndices.push_back(baseIndex + i);
+		mAttributes->mIndices.push_back(baseIndex + i + 1);
 	}
 }
 //===============================================================================================================================
@@ -358,11 +401,9 @@ void CylindricalMesh::Initialize()
 					vertex.normal.y = 1.0f;
 					vertex.normal.z = 0.0f;
 
-					mVerticesVNT.push_back(vertex);
+					mAttributes->mVerticesNormalTex.push_back(vertex);
 				}
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTex);
 #pragma endregion
 		}
 		break;
@@ -402,12 +443,9 @@ void CylindricalMesh::Initialize()
 					XMVECTOR N = XMVector3Normalize(XMVector3Cross(T, B));
 					XMStoreFloat3(&vertex.normal, N);
 
-					//meshData.Vertices.push_back(vertex);
-					mVerticesVNTT.push_back(vertex);
+					mAttributes->mVerticesNormalTexTan.push_back(vertex);
 				}
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTexTan);
 #pragma endregion
 		}
 		break;
@@ -432,11 +470,9 @@ void CylindricalMesh::Initialize()
 
 					vertex.position = XMFLOAT3(r*c, y, r*s);
 
-					mVerticesPos.push_back(vertex);
+					mAttributes->mVerticesPos.push_back(vertex);
 				}
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexPos);
 #pragma endregion
 		}
 		break;
@@ -464,18 +500,16 @@ void CylindricalMesh::Initialize()
 					vertex.texture.x = (float)j/iSliceCount;
 					vertex.texture.y = 1.0f - (float)i/iStackCount;
 
-					mVerticesTex.push_back(vertex);
+					mAttributes->mVerticesTex.push_back(vertex);
 				}
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexTex);
 #pragma endregion
 		}
 		break;
 		case ZShadeSandboxMesh::EVertexType::VT_Color:
 		{
 #pragma region "Vertex Color"
-			XMFLOAT4 diffuseColor = mMaterial->DiffuseColor();
+			XMFLOAT4 diffuseColor = mMaterial->vDiffuseColor;
 
 			// Compute vertices for each stack ring from the bottom
 			for (UINT i = 0; i < ringCount; ++i)
@@ -496,11 +530,9 @@ void CylindricalMesh::Initialize()
 					vertex.position = XMFLOAT3(r*c, y, r*s);
 					vertex.color = diffuseColor;
 
-					mVerticesColor.push_back(vertex);
+					mAttributes->mVerticesColor.push_back(vertex);
 				}
 			}
-			
-			mVertexByteWidth = sizeof(ZShadeSandboxMesh::VertexColor);
 #pragma endregion
 		}
 		break;
@@ -527,49 +559,49 @@ void CylindricalMesh::Initialize()
 	{
 		for(UINT j = 0; j < iSliceCount; ++j)
 		{
-			mIndices.push_back(i*ringVertexCount + j);
-			mIndices.push_back((i+1)*ringVertexCount + j);
-			mIndices.push_back((i+1)*ringVertexCount + j+1);
+			mAttributes->mIndices.push_back(i*ringVertexCount + j);
+			mAttributes->mIndices.push_back((i + 1)*ringVertexCount + j);
+			mAttributes->mIndices.push_back((i + 1)*ringVertexCount + j + 1);
 
-			mIndices.push_back(i*ringVertexCount + j);
-			mIndices.push_back((i+1)*ringVertexCount + j+1);
-			mIndices.push_back(i*ringVertexCount + j+1);
+			mAttributes->mIndices.push_back(i*ringVertexCount + j);
+			mAttributes->mIndices.push_back((i + 1)*ringVertexCount + j + 1);
+			mAttributes->mIndices.push_back(i*ringVertexCount + j + 1);
 		}
 	}
 
 	switch (mMeshParameters.vertexType)
 	{
-		case ZShadeSandboxMesh::EVertexType::VT_NormalTex: mVertexCount = mVerticesVNT.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan: mVertexCount = mVerticesVNTT.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_Pos: mVertexCount = mVerticesPos.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_Tex: mVertexCount = mVerticesTex.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_Color: mVertexCount = mVerticesColor.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_NormalTex: mAttributes->mVertexCount = mAttributes->mVerticesNormalTex.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan: mAttributes->mVertexCount = mAttributes->mVerticesNormalTexTan.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_Pos: mAttributes->mVertexCount = mAttributes->mVerticesPos.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_Tex: mAttributes->mVertexCount = mAttributes->mVerticesTex.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_Color: mAttributes->mVertexCount = mAttributes->mVerticesColor.size(); break;
 	}
 
 	BuildCylinderTopCap();
 
 	switch (mMeshParameters.vertexType)
 	{
-		case ZShadeSandboxMesh::EVertexType::VT_NormalTex: mVertexCount = mVerticesVNT.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan: mVertexCount = mVerticesVNTT.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_Pos: mVertexCount = mVerticesPos.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_Tex: mVertexCount = mVerticesTex.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_Color: mVertexCount = mVerticesColor.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_NormalTex: mAttributes->mVertexCount = mAttributes->mVerticesNormalTex.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan: mAttributes->mVertexCount = mAttributes->mVerticesNormalTexTan.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_Pos: mAttributes->mVertexCount = mAttributes->mVerticesPos.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_Tex: mAttributes->mVertexCount = mAttributes->mVerticesTex.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_Color: mAttributes->mVertexCount = mAttributes->mVerticesColor.size(); break;
 	}
 
 	BuildCylinderBottomCap();
 
-	mIndexCount = mIndices.size();
+	mAttributes->mIndexCount = mAttributes->mIndices.size();
 
 	switch (mMeshParameters.vertexType)
 	{
-		case ZShadeSandboxMesh::EVertexType::VT_NormalTex: mVertexCount = mVerticesVNT.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan: mVertexCount = mVerticesVNTT.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_Pos: mVertexCount = mVerticesPos.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_Tex: mVertexCount = mVerticesTex.size(); break;
-		case ZShadeSandboxMesh::EVertexType::VT_Color: mVertexCount = mVerticesColor.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_NormalTex: mAttributes->mVertexCount = mAttributes->mVerticesNormalTex.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_NormalTexTan: mAttributes->mVertexCount = mAttributes->mVerticesNormalTexTan.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_Pos: mAttributes->mVertexCount = mAttributes->mVerticesPos.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_Tex: mAttributes->mVertexCount = mAttributes->mVerticesTex.size(); break;
+		case ZShadeSandboxMesh::EVertexType::VT_Color: mAttributes->mVertexCount = mAttributes->mVerticesColor.size(); break;
 	}
 	
-	mTriangleCount = mVertexCount / 3;
+	mAttributes->mTriangleCount = mAttributes->mVertexCount / 3;
 }
 //===============================================================================================================================

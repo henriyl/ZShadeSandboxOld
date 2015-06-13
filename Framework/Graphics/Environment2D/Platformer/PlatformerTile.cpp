@@ -266,7 +266,7 @@ bool PlatformerTile::Render(Camera* camera)
 		mTexture->UpdateBuffers(m_TopLeftPosition.x, m_TopLeftPosition.y);
 		
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = camera;
+		mrp.camera = camera;
 		mTexture->Render(mrp);
 		
 		/*bool result = mTexture->Render(m_TopLeftPosition.x, m_TopLeftPosition.y);
@@ -314,7 +314,7 @@ bool PlatformerTile::Render(Camera* camera, float blendAmount)
 		
 		// Use the transparent shader to render the mesh
 		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.pCamera = camera;
+		mrp.camera = camera;
 		//mrp.bTransparent = true;
 		//mrp.blendAmount = blendAmount;
 		mTexture->Render(mrp);
@@ -428,7 +428,7 @@ bool PlatformerTile::RenderAnimation(Camera* camera)
 	texture->UpdateBuffers(m_TopLeftPosition.x, m_TopLeftPosition.y);
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = camera;
+	mrp.camera = camera;
 	texture->Render(mrp);
 	
 	return true;
@@ -531,7 +531,7 @@ bool PlatformerTile::RenderAnimation(Camera* camera, float blendAmount)
 	
 	// Use the transparent shader to render the mesh
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.pCamera = camera;
+	mrp.camera = camera;
 	//mrp.bTransparent = true;
 	//mrp.blendAmount = blendAmount;
 	texture->Render(mrp);
