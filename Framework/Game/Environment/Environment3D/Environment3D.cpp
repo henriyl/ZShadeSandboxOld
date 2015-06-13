@@ -575,6 +575,105 @@ void Environment3D::UpdateMaster()
 		}
 	}
 
+	XMFLOAT3 eye = m_CameraSystem->Position();
+	XMFLOAT3 Dir1LightPos = mDirLight1->Position();
+	XMFLOAT3 Dir2LightPos = mDirLight2->Position();
+	XMFLOAT3 Dir3LightPos = mDirLight3->Position();
+	XMFLOAT3 PointLightPos = mPointLight->Position();
+	XMFLOAT3 CapsuleLightPos = mCapsuleLight->Position();
+	XMFLOAT3 SpotLightPos = mSpotLight1->Position();
+
+	if (keyboard->IsKeyDown(Keyboard::Key::Up))
+	{
+		mDirLight1->Direction().x += 0.01f;
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x + 0.01f, Dir1LightPos.y, Dir1LightPos.z));
+
+		mDirLight2->Direction().x += 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x + 0.01f, Dir2LightPos.y, Dir2LightPos.z));
+
+		mDirLight3->Direction().x += 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x + 0.01f, Dir3LightPos.y, Dir3LightPos.z));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x + 0.01f, PointLightPos.y, PointLightPos.z));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x + 0.01f, CapsuleLightPos.y, CapsuleLightPos.z));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x + 0.01f, SpotLightPos.y, SpotLightPos.z));
+	}
+	if (keyboard->IsKeyDown(Keyboard::Key::Down))
+	{
+		mDirLight1->Direction().x -= 0.01f;
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x - 0.01f, Dir1LightPos.y, Dir1LightPos.z));
+
+		mDirLight2->Direction().x -= 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x - 0.01f, Dir2LightPos.y, Dir2LightPos.z));
+
+		mDirLight3->Direction().x -= 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x - 0.01f, Dir3LightPos.y, Dir3LightPos.z));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x - 0.01f, PointLightPos.y, PointLightPos.z));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x - 0.01f, CapsuleLightPos.y, CapsuleLightPos.z));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x - 0.01f, SpotLightPos.y, SpotLightPos.z));
+	}
+	if (keyboard->IsKeyDown(Keyboard::Key::Left))
+	{
+		mDirLight1->Direction().z += 0.01f;
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x, Dir1LightPos.y, Dir1LightPos.z + 0.01f));
+
+		mDirLight2->Direction().z += 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x, Dir2LightPos.y, Dir2LightPos.z + 0.01f));
+
+		mDirLight3->Direction().z += 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x, Dir3LightPos.y, Dir3LightPos.z + 0.01f));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x, PointLightPos.y, PointLightPos.z + 0.01f));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x, CapsuleLightPos.y, CapsuleLightPos.z + 0.01f));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x, SpotLightPos.y, SpotLightPos.z + 0.01f));
+	}
+	if (keyboard->IsKeyDown(Keyboard::Key::Right))
+	{
+		mDirLight1->Direction().x -= 0.01f;
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x, Dir1LightPos.y, Dir1LightPos.z - 0.01f));
+
+		mDirLight2->Direction().x -= 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x, Dir2LightPos.y, Dir2LightPos.z - 0.01f));
+
+		mDirLight3->Direction().x -= 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x, Dir3LightPos.y, Dir3LightPos.z - 0.01f));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x, PointLightPos.y, PointLightPos.z - 0.01f));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x, CapsuleLightPos.y, CapsuleLightPos.z - 0.01f));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x, SpotLightPos.y, SpotLightPos.z - 0.01f));
+	}
+	if (keyboard->IsKeyDown(Keyboard::Key::E))
+	{
+		mDirLight1->Direction().y += 0.01f;
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x, Dir1LightPos.y + 0.01f, Dir1LightPos.z));
+
+		mDirLight2->Direction().y += 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x, Dir2LightPos.y + 0.01f, Dir2LightPos.z));
+
+		mDirLight3->Direction().y += 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x, Dir3LightPos.y + 0.01f, Dir3LightPos.z));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x, PointLightPos.y + 0.01f, PointLightPos.z));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x, CapsuleLightPos.y + 0.01f, CapsuleLightPos.z));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x, SpotLightPos.y + 0.01f, SpotLightPos.z));
+	}
+	if (keyboard->IsKeyDown(Keyboard::Key::R))
+	{
+		mDirLight1->Direction().y -= 0.01f;
+		mDirLight1->UpdateMeshPosition(XMFLOAT3(Dir1LightPos.x, Dir1LightPos.y - 0.01f, Dir1LightPos.z));
+
+		mDirLight2->Direction().y -= 0.01f;
+		mDirLight2->UpdateMeshPosition(XMFLOAT3(Dir2LightPos.x, Dir2LightPos.y - 0.01f, Dir2LightPos.z));
+
+		mDirLight3->Direction().y -= 0.01f;
+		mDirLight3->UpdateMeshPosition(XMFLOAT3(Dir3LightPos.x, Dir3LightPos.y - 0.01f, Dir3LightPos.z));
+
+		if (mPointLight != NULL) mPointLight->UpdateMeshPosition(XMFLOAT3(PointLightPos.x, PointLightPos.y - 0.01f, PointLightPos.z));
+		if (mCapsuleLight != NULL) mCapsuleLight->UpdateMeshPosition(XMFLOAT3(CapsuleLightPos.x, CapsuleLightPos.y - 0.01f, CapsuleLightPos.z));
+		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x, SpotLightPos.y - 0.01f, SpotLightPos.z));
+	}
+
 	// If there are any lights in the scene capture them
 	//ZShadeSandboxLighting::LightManager::Instance()->RebuildLightBuffer(mAmbientUp, mAmbientDown);
 	//ZShadeSandboxLighting::LightManager::Instance()->RebuildSunBuffer(*mSunLightBuffer);
