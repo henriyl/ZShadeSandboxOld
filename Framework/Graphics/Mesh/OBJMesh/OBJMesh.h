@@ -29,6 +29,7 @@
 #include "OBJGBufferShader.h"
 #include "AABB.h"
 #include "SpherePrimitive.h"
+#include "MeshAttributes.h"
 
 //===============================================================================================================================
 //===============================================================================================================================
@@ -42,37 +43,6 @@ typedef unsigned int IndexType;
 
 namespace ZShadeSandboxMesh
 {
-//struct OBJMeshRenderParameters
-//{
-//	Camera* camera;
-//	LightCamera* lightCamera;
-//	ERenderType::Type renderType;
-//	bool tessellate;
-//	//float tessFactor;
-//	float minTessDist;
-//	float maxTessDist;
-//	float minTess;
-//	float maxTess;
-//	bool reflection;
-//	bool bRenderDeferred;
-//	XMFLOAT4 clipplane;
-//
-//	OBJMeshRenderParameters()
-//	{
-//		camera = 0;
-//		renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
-//		tessellate = false;
-//		//tessFactor = 6.0f;
-//		minTessDist = 20.0f;
-//		maxTessDist = 500.0f;
-//		minTess = -1.0f;
-//		maxTess = 64.0f;
-//		reflection = false;
-//		bRenderDeferred = false;
-//		clipplane = XMFLOAT4(0, 0, 0, 0);
-//	}
-//};
-
 class OBJMesh
 {
 	struct Group
@@ -110,21 +80,24 @@ class OBJMesh
 
 	private:
 
-		void CalculateWorldMatrix();
+		//void CalculateWorldMatrix();
 
-		int							mVertexCount;
-		int							mIndexCount;
-		int							mTriangleCount;
-		ID3D11Buffer*				mVB;
-		ID3D11Buffer*				mIB;
+		MeshAttributes* mAttributes;
+
+		//int						mVertexCount;
+		//int						mIndexCount;
+		//int						mTriangleCount;
+		//ID3D11Buffer*				mVB;
+		//ID3D11Buffer*				mIB;
+		//XMMATRIX					mWorld;
+		//XMFLOAT3					mPosition;
+		//XMFLOAT3					mScale;
+		//XMFLOAT3					mRotation;
+		
 		OBJMeshShader*      	   	mShader;
 		OBJMeshTessellationShader*  mTessellationShader;
 		OBJGBufferShader*			mOBJGBufferShader;
 		D3D*						mD3DSystem;
-		XMMATRIX					mWorld;
-		XMFLOAT3					mPosition;
-		XMFLOAT3					mScale;
-		XMFLOAT3					mRotation;
 		vector<Group>				mGroups;
 
 		ZShadeSandboxMath::AABB* mAABB;
@@ -162,7 +135,6 @@ private:
 	Mesh* m_pMesh;
 	
 	static bool LoadMtl(string filename, D3D* d3d, map<string, ZShadeSandboxLighting::ShaderMaterial>& materials);
-	//static void InitMaterial(OBJMeshSurfaceMaterial* mat);
 	
 	static bool LoadObj(
 		string filename,

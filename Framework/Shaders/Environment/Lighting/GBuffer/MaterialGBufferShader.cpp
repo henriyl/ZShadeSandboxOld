@@ -97,9 +97,9 @@ bool MaterialGBufferShader::Render11
 	
 	if (!m_Wireframe)
 	{
-		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 11, ps_srvs);
 		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 1, ps_samp);
-
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 11, ps_srvs);
+		
 		SwitchTo("MaterialGBufferPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
 	else

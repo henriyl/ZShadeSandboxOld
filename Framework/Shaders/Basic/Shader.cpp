@@ -72,25 +72,25 @@ Shader::~Shader()
 	}*/
 }
 //=================================================================================================================
-ID3D11VertexShader* Shader::GetVertexShader(string shaderFuncName)
+ID3D11VertexShader* Shader::GetVertexShader(char* shaderFuncName)
 {
 	SwitchTo(shaderFuncName, EShaderTypes::ST_VERTEX);
 	return m_pVertexShader->mShader;
 }
 //=================================================================================================================
-ID3D11PixelShader* Shader::GetPixelShader(string shaderFuncName)
+ID3D11PixelShader* Shader::GetPixelShader(char* shaderFuncName)
 {
 	SwitchTo(shaderFuncName, EShaderTypes::ST_PIXEL);
 	return m_pPixelShader->mShader;
 }
 //=================================================================================================================
-ID3D11GeometryShader* Shader::GetGeometryShader(string shaderFuncName)
+ID3D11GeometryShader* Shader::GetGeometryShader(char* shaderFuncName)
 {
 	SwitchTo(shaderFuncName, EShaderTypes::ST_GEOMETRY);
 	return m_pGeometryShader->mShader;
 }
 //=================================================================================================================
-ID3D11ComputeShader* Shader::GetComputeShader(string shaderFuncName)
+ID3D11ComputeShader* Shader::GetComputeShader(char* shaderFuncName)
 {
 	SwitchTo(shaderFuncName, EShaderTypes::ST_COMPUTE);
 	return m_pComputeShader->mShader;
@@ -131,9 +131,14 @@ void Shader::SetComputeShader()
 	m_pD3DSystem->GetDeviceContext()->CSSetShader(m_pComputeShader->mShader, NULL, 0);
 }
 //=================================================================================================================
-void Shader::SetInputLayout(string vertexShaderName)
+void Shader::SetDefaultInputLayout()
 {
-	if (mCurrentLayoutName == vertexShaderName)
+	m_pD3DSystem->GetDeviceContext()->IASetInputLayout(m_CurrentLayout11);
+}
+//=================================================================================================================
+void Shader::SetInputLayout(char* vertexShaderName)
+{
+	/*if (mCurrentLayoutName == vertexShaderName)
 	{
 		m_pD3DSystem->GetDeviceContext()->IASetInputLayout(m_CurrentLayout11);
 	}
@@ -142,6 +147,17 @@ void Shader::SetInputLayout(string vertexShaderName)
 		m_CurrentLayout11 = m_VertexShaderLayout[vertexShaderName]->m_layout11;
 		m_pD3DSystem->GetDeviceContext()->IASetInputLayout(m_CurrentLayout11);
 		mCurrentLayoutName = vertexShaderName;
+	}*/
+
+	if (mCurrentLayoutName != vertexShaderName)
+	{
+		m_CurrentLayout11 = m_VertexShaderLayout[vertexShaderName]->m_layout11;
+		m_pD3DSystem->GetDeviceContext()->IASetInputLayout(m_CurrentLayout11);
+		mCurrentLayoutName = vertexShaderName;
+	}
+	else
+	{
+		SetDefaultInputLayout();
 	}
 }
 //=================================================================================================================
@@ -170,19 +186,15 @@ void Shader::RenderIndexInstanced11(int indexCount, int primCount)
 	m_pD3DSystem->GetDeviceContext()->DrawIndexedInstanced(indexCount, primCount, 0, 0, 0);
 }
 //=================================================================================================================
-void Shader::SwitchTo(string shaderFuncName, int type)
+void Shader::SwitchTo(char* shaderFuncName, int type)
 {
-	map<string, VertexShader*>::iterator   VertexShadersIter;
-	map<string, PixelShader*>::iterator    PixelShadersIter;
-	map<string, GeometryShader*>::iterator GeometryShadersIter;
-	map<string, ComputeShader*>::iterator  ComputeShadersIter;
-
 	switch (type)
 	{
 		case EShaderTypes::ST_VERTEX:
 		{
 			if (mCurrentVSFuncName == shaderFuncName) return;
 
+			map<char*, VertexShader*>::iterator   VertexShadersIter;
 			for (VertexShadersIter = m_VertexShaders.begin();
 				 VertexShadersIter != m_VertexShaders.end();
 				 VertexShadersIter++)
@@ -200,6 +212,7 @@ void Shader::SwitchTo(string shaderFuncName, int type)
 		{
 			if (mCurrentPSFuncName == shaderFuncName) return;
 
+			map<char*, PixelShader*>::iterator    PixelShadersIter;
 			for (PixelShadersIter = m_PixelShaders.begin();
 				 PixelShadersIter != m_PixelShaders.end();
 				 PixelShadersIter++)
@@ -217,6 +230,7 @@ void Shader::SwitchTo(string shaderFuncName, int type)
 		{
 			if (mCurrentGSFuncName == shaderFuncName) return;
 
+			map<char*, GeometryShader*>::iterator GeometryShadersIter;
 			for (GeometryShadersIter = m_GeometryShaders.begin();
 				 GeometryShadersIter != m_GeometryShaders.end();
 				 GeometryShadersIter++)
@@ -234,6 +248,7 @@ void Shader::SwitchTo(string shaderFuncName, int type)
 		{
 			if (mCurrentCSFuncName == shaderFuncName) return;
 
+			map<char*, ComputeShader*>::iterator  ComputeShadersIter;
 			for (ComputeShadersIter = m_ComputeShaders.begin();
 				 ComputeShadersIter != m_ComputeShaders.end();
 				 ComputeShadersIter++)
@@ -250,14 +265,14 @@ void Shader::SwitchTo(string shaderFuncName, int type)
 	}
 }
 //=================================================================================================================
-ID3D11InputLayout* Shader::GetInputLayout(string vertexShaderName)
+ID3D11InputLayout* Shader::GetInputLayout(char* vertexShaderName)
 {
 	if (m_VertexShaderLayout[vertexShaderName] == 0) return 0;
 	if (m_VertexShaderLayout[vertexShaderName]->m_layout11 == 0) return 0;
 	return m_VertexShaderLayout[vertexShaderName]->m_layout11;
 }
 //=================================================================================================================
-void Shader::SetInputLayoutDesc(string vertexShaderName, D3D11_INPUT_ELEMENT_DESC* desc, UINT NumElements)
+void Shader::SetInputLayoutDesc(char* vertexShaderName, D3D11_INPUT_ELEMENT_DESC* desc, UINT NumElements)
 {
 	SLayout* sl = new SLayout();
 	
@@ -275,14 +290,14 @@ void Shader::ClearInputLayout()
 		m_VertexShaderLayout.clear();
 }
 //=================================================================================================================
-void Shader::AssignVertexShaderLayout(string vertexShaderName)
+void Shader::AssignVertexShaderLayout(char* vertexShaderName)
 {
 	//Create the vertex input layout
 	if (m_UseInputLayout)
 	{
 		ID3DBlob* blob = m_pVertexShader->mBlobData;
 		
-		map<string, SLayout*>::iterator iter = m_VertexShaderLayout.find(vertexShaderName);
+		map<char*, SLayout*>::iterator iter = m_VertexShaderLayout.find(vertexShaderName);
 
 		if (iter != m_VertexShaderLayout.end())
 		{
@@ -305,35 +320,35 @@ void Shader::AssignVertexShaderLayout(string vertexShaderName)
 	}
 }
 //=================================================================================================================
-void Shader::LoadVertexShader(string shaderFuncName)
+void Shader::LoadVertexShader(char* shaderFuncName)
 {
 	m_VertexShaders.insert(make_pair(shaderFuncName, (VertexShader*)ShaderCompiler::GetShaderByName(shaderFuncName)));
 	SwitchTo(shaderFuncName, EShaderTypes::ST_VERTEX);
 }
 //=================================================================================================================
-void Shader::LoadPixelShader(string shaderFuncName)
+void Shader::LoadPixelShader(char* shaderFuncName)
 {
 	m_PixelShaders.insert(make_pair(shaderFuncName, (PixelShader*)ShaderCompiler::GetShaderByName(shaderFuncName)));
 	SwitchTo(shaderFuncName, EShaderTypes::ST_PIXEL);
 }
 //=================================================================================================================
-void Shader::LoadHullShader(string shaderFuncName)
+void Shader::LoadHullShader(char* shaderFuncName)
 {
 	m_pHullShader = (HullShader*)ShaderCompiler::GetShaderByName(shaderFuncName);
 }
 //=================================================================================================================
-void Shader::LoadDomainShader(string shaderFuncName)
+void Shader::LoadDomainShader(char* shaderFuncName)
 {
 	m_pDomainShader = (DomainShader*)ShaderCompiler::GetShaderByName(shaderFuncName);
 }
 //=================================================================================================================
-void Shader::LoadGeometryShader(string shaderFuncName)
+void Shader::LoadGeometryShader(char* shaderFuncName)
 {
 	m_GeometryShaders.insert(make_pair(shaderFuncName, (GeometryShader*)ShaderCompiler::GetShaderByName(shaderFuncName)));
 	SwitchTo(shaderFuncName, EShaderTypes::ST_GEOMETRY);
 }
 //=================================================================================================================
-void Shader::LoadComputeShader(string shaderFuncName)
+void Shader::LoadComputeShader(char* shaderFuncName)
 {
 	m_ComputeShaders.insert(make_pair(shaderFuncName, (ComputeShader*)ShaderCompiler::GetShaderByName(shaderFuncName)));
 	SwitchTo(shaderFuncName, EShaderTypes::ST_COMPUTE);

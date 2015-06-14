@@ -50,6 +50,8 @@ namespace ZShadeSandboxMesh
 		
 		MeshAttributes();
 
+		void Release();
+
 		void Init();
 		
 		XMMATRIX WorldXM();

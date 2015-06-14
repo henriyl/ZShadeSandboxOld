@@ -360,27 +360,6 @@ void Environment3D::UpdateMaster()
 	m_CameraSystem->ExtractFrustumPlanes(frustumPlanes);
 	m_CameraSystem->Update();
 	
-	// Update the view projection matrix from the perspective of the light
-	//mDirLight1->Update();
-	//mDirLight2->Update();
-	//mDirLight1->UpdateLVP();
-
-	mDirLight1->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
-	mDirLight2->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
-	mDirLight3->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
-
-	mPointLight->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
-	mCapsuleLight->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
-
-	// Update the view projection matrix from the perspective of the light
-	//mDirLight1->UpdateLVP();
-	//mDirLight2->UpdateLVP();
-	mDirLight1->Update();
-	mDirLight2->Update();
-	mDirLight3->Update();
-	mPointLight->Update();
-	mCapsuleLight->Update();
-	
 	if (!bCameraStill)
 	{
 		if( keyboard->IsKeyDown(Keyboard::Key::W) )
@@ -677,10 +656,64 @@ void Environment3D::UpdateMaster()
 		if (mSpotLight1 != NULL) mSpotLight1->UpdateMeshPosition(XMFLOAT3(SpotLightPos.x, SpotLightPos.y - 0.01f, SpotLightPos.z));
 	}
 
-	// If there are any lights in the scene capture them
-	//ZShadeSandboxLighting::LightManager::Instance()->RebuildLightBuffer(mAmbientUp, mAmbientDown);
-	//ZShadeSandboxLighting::LightManager::Instance()->RebuildSunBuffer(*mSunLightBuffer);
-	
+	// Set the capsule light to the camera's position so things can be seen
+	//mCapsuleLight->UpdateMeshPosition(XMFLOAT3(eye.x, eye.y, eye.z));
+
+	//static float lightAngle = 270.0f;
+	//float radians;
+	//static float lightPosX = 9.0f;
+
+	//// Update the position of the light each frame.
+	//lightPosX -= 0.003f * fFrameTime;
+
+	//// Update the angle of the light each frame.
+	//lightAngle -= 0.03f * fFrameTime;
+	//if (lightAngle < 90.0f)
+	//{
+	//	lightAngle = 270.0f;
+
+	//	// Reset the light position also.
+	//	lightPosX = 9.0f;
+	//}
+	//radians = lightAngle * 0.0174532925f;
+
+	//// Update the direction of the light.
+	//mDirLight1->Direction() = XMFLOAT3(sinf(radians), cosf(radians), 0.0f);
+
+	//// Set the position and lookat for the light.
+	//mDirLight1->Position() = XMFLOAT3(lightPosX, 8.0f, -0.1f);
+	//mDirLight1->Perspective()->LookAt() = XMFLOAT3(-lightPosX, 0.0f, 0.0f);
+
+	/*XMFLOAT3 dir = mDirLight1->Direction();
+	static float lightDirX = dir.x;
+	lightDirX += 0.0005f;
+	if (lightDirX > (0.57735f + 5.0f))
+	{
+		lightDirX = 0.57735f;
+	}
+	mDirLight1->Direction() = XMFLOAT3(lightDirX, dir.y, dir.z);*/
+
+	// Update the view projection matrix from the perspective of the light
+	//mDirLight1->Update();
+	//mDirLight2->Update();
+	//mDirLight1->UpdateLVP();
+
+	//mDirLight1->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
+	//mDirLight2->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
+	//mDirLight3->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
+
+	mPointLight->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
+	mCapsuleLight->Perspective()->SetSceneBounds(XMFLOAT3(0, 0, 0), 2048);
+
+	// Update the view projection matrix from the perspective of the light
+	//mDirLight1->UpdateLVP();
+	//mDirLight2->UpdateLVP();
+	mDirLight1->Update();
+	mDirLight2->Update();
+	mDirLight3->Update();
+	mPointLight->Update();
+	mCapsuleLight->Update();
+
 	// Update other scene components
 	Update();
 }
@@ -712,7 +745,7 @@ void Environment3D::RenderMaster()
 		RenderShadowMapToTexture();
 	}
 	
-	if (bEnableDeferredShading)
+	if (bEnableDeferredShading && !bWireframeMode && !Quickwire())
 	{
 		m_D3DSystem->GBufferBegin();
 		{

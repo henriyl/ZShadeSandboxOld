@@ -7,6 +7,13 @@ MeshAttributes::MeshAttributes()
 	Init();
 }
 //===============================================================================================================================
+void MeshAttributes::Release()
+{
+	SAFE_RELEASE(mVertexBuffer);
+	SAFE_RELEASE(mIndexBuffer);
+	SAFE_RELEASE(mInstanceBuffer);
+}
+//===============================================================================================================================
 void MeshAttributes::Init()
 {
 	mPosition = XMFLOAT3(0, 0, 0);

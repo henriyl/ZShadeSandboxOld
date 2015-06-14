@@ -143,26 +143,6 @@ void ModelEnvironment::RenderDeferred()
 		m_D3DSystem->TurnOnCulling();
 	}
 
-	//Quick wire mode to view the objects underlying triangles quickly
-	if (Quickwire())
-	{
-		mPlane->SetWireframe(true);
-
-		vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
-		for (; it != m_SpawnedMeshContainer.end(); it++)
-		{
-			(*it)->SetWireframe(true);
-		}
-
-		// Uncomment if using the picking sphere
-		mPickingSphere->SetWireframe(true);
-
-		mSpaceCompound->SetWireframe(true);
-		mHuman->SetWireframe(true);
-
-		m_D3DSystem->TurnOnWireframe();
-	}
-
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
 	mrp.camera = m_CameraSystem.get();
 	mrp.renderDeferred = true;
@@ -199,11 +179,6 @@ void ModelEnvironment::RenderDeferred()
 
 	mPickingSphere->Render(mrp);
 	
-	// Render deferred shading on obj mesh
-	//ZShadeSandboxMesh::OBJMeshRenderParameters omrp;
-	//omrp.camera = m_CameraSystem.get();
-	//omrp.renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
-	//omrp.bRenderDeferred = true;
 	mSpaceCompound->Render(mrp);
 	mHuman->Render(mrp);
 
@@ -244,44 +219,6 @@ void ModelEnvironment::Update()
 		(*it)->SetWireframe(bWireframeMode);
 	}
 	
-	//XMFLOAT3 eye = m_CameraSystem->Position();
-	// Set the capsule light to the camera's position so things can be seen
-	//mCapsuleLight->UpdateMeshPosition(XMFLOAT3(eye.x, eye.y, eye.z));
-	
-	//static float lightAngle = 270.0f;
-	//float radians;
-	//static float lightPosX = 9.0f;
-
-	//// Update the position of the light each frame.
-	//lightPosX -= 0.003f;// *mFrameTime;
-
-	//// Update the angle of the light each frame.
-	//lightAngle -= 0.03f;// *mFrameTime;
-	//if (lightAngle < 90.0f)
-	//{
-	//	lightAngle = 270.0f;
-
-	//	// Reset the light position also.
-	//	lightPosX = 9.0f;
-	//}
-	//radians = lightAngle * 0.0174532925f;
-
-	//// Update the direction of the light.
-	//mDirLight1->Direction() = XMFLOAT3(sinf(radians), cosf(radians), 0.0f);
-
-	//// Set the position and lookat for the light.
-	//mDirLight1->Position() = XMFLOAT3(lightPosX, 8.0f, -0.1f);
-	//mDirLight1->Perspective()->LookAt() = XMFLOAT3(-lightPosX, 0.0f, 0.0f);
-
-	/*XMFLOAT3 dir = mDirLight1->Direction();
-	static float lightDirX = dir.x;
-	lightDirX += 0.0005f;
-	if (lightDirX > (0.57735f + 5.0f))
-	{
-		lightDirX = 0.57735f;
-	}
-	mDirLight1->Direction() = XMFLOAT3(lightDirX, dir.y, dir.z);*/
-
 	mSpaceCompound->SetWireframe(bWireframeMode);
 	mHuman->SetWireframe(bWireframeMode);
 
@@ -320,24 +257,6 @@ void ModelEnvironment::Update()
 //===============================================================================================================================
 void ModelEnvironment::Render()
 {
-	//// If there are any lights in the scene capture them
-	//ZShadeSandboxLighting::LightManager::Instance()->RebuildLightBuffer(mAmbientUp, mAmbientDown);
-	//ZShadeSandboxLighting::LightManager::Instance()->RebuildSunBuffer(*mSunLightBuffer);
-
-	//// Add the light buffers to the mesh system
-	//mPlane->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	//mPlane->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
-
-	//vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
-	//for (; it != m_SpawnedMeshContainer.end(); it++)
-	//{
-	//	(*it)->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	//	(*it)->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
-	//}
-
-	//mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-	//mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
-
 	// Mouse Picking
 	XMMATRIX world = XMMatrixIdentity();
 	mPickingRay = m_CameraSystem->PickingRay(mLastMousePos.x, mLastMousePos.y, world);

@@ -72,7 +72,7 @@ void PostProcess::UnloadResources()
 void PostProcess::ProcessCompute(string computeShaderName, int threadX, int threadY, int threadZ)
 {
 	// Set the render targets
-	int numTargets = mOutputTargets.size();
+	/*int numTargets = mOutputTargets.size();
 	ID3D11RenderTargetView** renderTargets = reinterpret_cast<ID3D11RenderTargetView**>(&mOutputTargets[0]);
 	if (mOutputUAVs.size() == 0)
 	{
@@ -101,13 +101,13 @@ void PostProcess::ProcessCompute(string computeShaderName, int threadX, int thre
 	PostProcessManager::mShader->RenderCS11(threadX, threadY, threadZ);
 	
 	// Need to unload resources
-	UnloadResources();
+	UnloadResources();*/
 }
 //==================================================================================================================================
 void PostProcess::Process(string pixelShaderName)
 {
 	// Set the render targets
-	int numTargets = mOutputTargets.size();
+	/*int numTargets = mOutputTargets.size();
 	ID3D11RenderTargetView** renderTargets = reinterpret_cast<ID3D11RenderTargetView**>(&mOutputTargets[0]);
 	if (mOutputUAVs.size() == 0)
 	{
@@ -155,6 +155,6 @@ void PostProcess::Process(string pixelShaderName)
 	// Need to unload resources
 	UnloadResources();
 	
-	mD3DSystem->TurnOffAdditiveBlending();
+	mD3DSystem->TurnOffAdditiveBlending();*/
 }
 //==================================================================================================================================

@@ -61,9 +61,10 @@ public:
 	void SetDomainShader();
 	void SetGeometryShader();
 	void SetComputeShader();
-	void SetInputLayout(string vertexShaderName);
-	void AssignVertexShaderLayout(string vertexShaderName);
-	void SwitchTo(string shaderFuncName, int type);
+	void SetDefaultInputLayout();
+	void SetInputLayout(char* vertexShaderName);
+	void AssignVertexShaderLayout(char* vertexShaderName);
+	void SwitchTo(char* shaderFuncName, int type);
 	
 	void RenderDraw11(int vertexCount);
 	void RenderIndex11(int indexCount);
@@ -85,17 +86,17 @@ public:
 	//std::vector<uint8_t> CompileBinary(const std::string filename);
 
 	// Loads the shader from the shader compiler
-	void LoadVertexShader(string shaderFuncName);
-	void LoadPixelShader(string shaderFuncName);
-	void LoadHullShader(string shaderFuncName);
-	void LoadDomainShader(string shaderFuncName);
-	void LoadGeometryShader(string shaderFuncName);
-	void LoadComputeShader(string shaderFuncName);
+	void LoadVertexShader(char* shaderFuncName);
+	void LoadPixelShader(char* shaderFuncName);
+	void LoadHullShader(char* shaderFuncName);
+	void LoadDomainShader(char* shaderFuncName);
+	void LoadGeometryShader(char* shaderFuncName);
+	void LoadComputeShader(char* shaderFuncName);
 
-	ID3D11VertexShader* GetVertexShader(string shaderFuncName);
-	ID3D11PixelShader* GetPixelShader(string shaderFuncName);
-	ID3D11GeometryShader* GetGeometryShader(string shaderFuncName);
-	ID3D11ComputeShader* GetComputeShader(string shaderFuncName);
+	ID3D11VertexShader* GetVertexShader(char* shaderFuncName);
+	ID3D11PixelShader* GetPixelShader(char* shaderFuncName);
+	ID3D11GeometryShader* GetGeometryShader(char* shaderFuncName);
+	ID3D11ComputeShader* GetComputeShader(char* shaderFuncName);
 
 	//void SetWireframe(bool set) { m_Wireframe = set; }
 	//bool IsWireframe() { return m_Wireframe; }
@@ -107,8 +108,8 @@ public:
 	//Locate the current directory the shader is at
 	string LocateDir();
 	
-	ID3D11InputLayout* GetInputLayout(string vertexShaderName);
-	void SetInputLayoutDesc(string vertexShaderName, D3D11_INPUT_ELEMENT_DESC* desc, UINT NumElements);
+	ID3D11InputLayout* GetInputLayout(char* vertexShaderName);
+	void SetInputLayoutDesc(char* vertexShaderName, D3D11_INPUT_ELEMENT_DESC* desc, UINT NumElements);
 	void SetInputLayoutCreation(bool set) { m_UseInputLayout = set; }
 	void ClearInputLayout();
 	
@@ -132,20 +133,20 @@ protected:
 		ID3D11InputLayout* m_layout11;
 	};
 	
-	string mCurrentLayoutName;
+	char* mCurrentLayoutName;
 	ID3D11InputLayout* m_CurrentLayout11;
 
 	// Lookup key is the name of the vertex shader
-	map<string, SLayout*> m_VertexShaderLayout;
+	map<char*, SLayout*> m_VertexShaderLayout;
 	
 	//
 	// HLSL Shaders
 	//
 	
-	string mCurrentVSFuncName;
-	string mCurrentPSFuncName;
-	string mCurrentGSFuncName;
-	string mCurrentCSFuncName;
+	char* mCurrentVSFuncName;
+	char* mCurrentPSFuncName;
+	char* mCurrentGSFuncName;
+	char* mCurrentCSFuncName;
 
 	VertexShader*   m_pVertexShader;
 	HullShader*     m_pHullShader;
@@ -155,10 +156,10 @@ protected:
 	ComputeShader*  m_pComputeShader;
 	
 	// Ability to have multiple shaders to switch back and forth from
-	map<string, VertexShader*>   m_VertexShaders;
-	map<string, PixelShader*>    m_PixelShaders;
-	map<string, GeometryShader*> m_GeometryShaders;
-	map<string, ComputeShader*>  m_ComputeShaders;
+	map<char*, VertexShader*>   m_VertexShaders;
+	map<char*, PixelShader*>    m_PixelShaders;
+	map<char*, GeometryShader*> m_GeometryShaders;
+	map<char*, ComputeShader*>  m_ComputeShaders;
 };
 }
 //=================================================================================================================

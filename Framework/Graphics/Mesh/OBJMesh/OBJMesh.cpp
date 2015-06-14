@@ -91,7 +91,7 @@ void OBJMesh::SetWireframe(bool wire)
 //===============================================================================================================================
 void OBJMesh::Mesh::Scale(XMFLOAT3 v)
 {
-	mScale = v;
+	mAttributes->mScale = v;
 
 	// Rescale the AABB and Sphere
 	
@@ -102,7 +102,7 @@ void OBJMesh::Mesh::Scale(XMFLOAT3 v)
 //===============================================================================================================================
 void OBJMesh::Mesh::Rotate(XMFLOAT3 v)
 {
-	mRotation = v;
+	mAttributes->mRotation = v;
 
 	// Rotate the AABB
 
@@ -110,7 +110,7 @@ void OBJMesh::Mesh::Rotate(XMFLOAT3 v)
 //===============================================================================================================================
 void OBJMesh::Mesh::Position(XMFLOAT3 v)
 {
-	mPosition = v;
+	mAttributes->mPosition = v;
 
 	// Reposition the AABB and Sphere
 	//UpdateAABB(v, mAABB->vSize);
@@ -509,12 +509,15 @@ bool OBJMesh::LoadMtl(string filename, D3D* d3d, map<string, ZShadeSandboxLighti
 OBJMesh::Mesh::Mesh(D3D* d3d)
 	: mD3DSystem(d3d)
 {
-	mPosition = XMFLOAT3(0, 0, 0);
-	mScale = XMFLOAT3(1, 1, 1);
-	mRotation = XMFLOAT3(0, 0, 0);
+	mAttributes = new MeshAttributes();
+	mAttributes->mD3D = d3d;
+
+	mAttributes->mPosition = XMFLOAT3(0, 0, 0);
+	mAttributes->mScale = XMFLOAT3(1, 1, 1);
+	mAttributes->mRotation = XMFLOAT3(0, 0, 0);
 
 	// Set the world matrix to the identity matrix
-	mWorld = XMMatrixIdentity();
+	//mWorld = XMMatrixIdentity();
 
 	mShader = new OBJMeshShader(mD3DSystem);
 	mTessellationShader = new OBJMeshTessellationShader(mD3DSystem);
@@ -524,42 +527,43 @@ OBJMesh::Mesh::Mesh(D3D* d3d)
 OBJMesh::Mesh::~Mesh()
 {
 	// Need to release all subsets
-	SAFE_RELEASE(mVB);
-	SAFE_RELEASE(mIB);
+	mAttributes->Release();
 	mGroups.clear();
 	delete mShader;
+	delete mTessellationShader;
+	delete mOBJGBufferShader;
 }
 //===============================================================================================================================
 bool OBJMesh::Mesh::Load(string filename, bool bRebuildNormals, bool isRHCoordSys)
 {
-	vector<VertexNormalTex> vertices;
-	vector<IndexType> indices;
+	//vector<VertexNormalTex> vertices;
+	//vector<IndexType> indices;
 	bool objHadNormals;
 
-	if (!LoadObj(filename, mD3DSystem, vertices, indices, mGroups, objHadNormals, isRHCoordSys))
+	if (!LoadObj(filename, mD3DSystem, mAttributes->mVerticesNormalTex, mAttributes->mIndices, mGroups, objHadNormals, isRHCoordSys))
 		return false;
 
-	mVertexCount = vertices.size();
-	mIndexCount = indices.size();
-	mTriangleCount = mIndexCount / 3;
+	mAttributes->mVertexCount = mAttributes->mVerticesNormalTex.size();
+	mAttributes->mIndexCount = mAttributes->mIndices.size();
+	mAttributes->mTriangleCount = mAttributes->mIndexCount / 3;
 
 	if (!objHadNormals || bRebuildNormals)
 	{
-		for (auto& vertex : vertices)
+		for (auto& vertex : mAttributes->mVerticesNormalTex)
 		{
 			vertex.normal = XMFLOAT3(0, 0, 0);
 		}
-		for (int i = 0; i < indices.size(); i += 3)
+		for (int i = 0; i < mAttributes->mIndices.size(); i += 3)
 		{
 			// Calculate triangle face normal
 
-			int i0 = indices[i];
-			int i1 = indices[i + 1];
-			int i2 = indices[i + 2];
+			int i0 = mAttributes->mIndices[i];
+			int i1 = mAttributes->mIndices[i + 1];
+			int i2 = mAttributes->mIndices[i + 2];
 
-			XMFLOAT3 p0 = vertices[i0].position;
-			XMFLOAT3 p1 = vertices[i1].position;
-			XMFLOAT3 p2 = vertices[i2].position;
+			XMFLOAT3 p0 = mAttributes->mVerticesNormalTex[i0].position;
+			XMFLOAT3 p1 = mAttributes->mVerticesNormalTex[i1].position;
+			XMFLOAT3 p2 = mAttributes->mVerticesNormalTex[i2].position;
 
 			float edge1x = p1.x - p0.x;
 			float edge1y = p1.y - p0.y;
@@ -573,17 +577,17 @@ bool OBJMesh::Mesh::Load(string filename, bool bRebuildNormals, bool isRHCoordSy
 			float normaly = edge1z * edge2x - edge1x * edge2z;
 			float normalz = edge1x * edge2y - edge1y * edge2x;
 
-			vertices[i0].normal.x += normalx;
-			vertices[i0].normal.y += normaly;
-			vertices[i0].normal.z += normalz;
-			vertices[i1].normal.x += normalx;
-			vertices[i1].normal.y += normaly;
-			vertices[i1].normal.z += normalz;
-			vertices[i2].normal.x += normalx;
-			vertices[i2].normal.y += normaly;
-			vertices[i2].normal.z += normalz;
+			mAttributes->mVerticesNormalTex[i0].normal.x += normalx;
+			mAttributes->mVerticesNormalTex[i0].normal.y += normaly;
+			mAttributes->mVerticesNormalTex[i0].normal.z += normalz;
+			mAttributes->mVerticesNormalTex[i1].normal.x += normalx;
+			mAttributes->mVerticesNormalTex[i1].normal.y += normaly;
+			mAttributes->mVerticesNormalTex[i1].normal.z += normalz;
+			mAttributes->mVerticesNormalTex[i2].normal.x += normalx;
+			mAttributes->mVerticesNormalTex[i2].normal.y += normaly;
+			mAttributes->mVerticesNormalTex[i2].normal.z += normalz;
 		}
-		for (auto& vertex : vertices)
+		for (auto& vertex : mAttributes->mVerticesNormalTex)
 		{
 			float f = 1.0f / (sqrtf(vertex.normal.x * vertex.normal.x + vertex.normal.y * vertex.normal.y + vertex.normal.z * vertex.normal.z));
 
@@ -600,21 +604,21 @@ bool OBJMesh::Mesh::Load(string filename, bool bRebuildNormals, bool isRHCoordSy
 	XMFLOAT3 minVertex(FLT_MAX, FLT_MAX, FLT_MAX);
 	XMFLOAT3 maxVertex(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 	
-	for (int i = 0; i < vertices.size(); i++)
+	for (int i = 0; i < mAttributes->mVerticesNormalTex.size(); i++)
 	{
 		// The minVertex and maxVertex will most likely not be actual vertices in the model, but vertices
         // that use the smallest and largest x, y, and z values from the model to be sure ALL vertices are
         // covered by the bounding volume
 		
         //Get the smallest vertex 
-        minVertex.x = min(minVertex.x, vertices[i].position.x);    // Find smallest x value in model
-		minVertex.y = min(minVertex.y, vertices[i].position.y);    // Find smallest y value in model
-		minVertex.z = min(minVertex.z, vertices[i].position.z);    // Find smallest z value in model
+		minVertex.x = min(minVertex.x, mAttributes->mVerticesNormalTex[i].position.x);    // Find smallest x value in model
+		minVertex.y = min(minVertex.y, mAttributes->mVerticesNormalTex[i].position.y);    // Find smallest y value in model
+		minVertex.z = min(minVertex.z, mAttributes->mVerticesNormalTex[i].position.z);    // Find smallest z value in model
 		
         //Get the largest vertex 
-		maxVertex.x = max(maxVertex.x, vertices[i].position.x);    // Find largest x value in model
-		maxVertex.y = max(maxVertex.y, vertices[i].position.y);    // Find largest y value in model
-		maxVertex.z = max(maxVertex.z, vertices[i].position.z);    // Find largest z value in model
+		maxVertex.x = max(maxVertex.x, mAttributes->mVerticesNormalTex[i].position.x);    // Find largest x value in model
+		maxVertex.y = max(maxVertex.y, mAttributes->mVerticesNormalTex[i].position.y);    // Find largest y value in model
+		maxVertex.z = max(maxVertex.z, mAttributes->mVerticesNormalTex[i].position.z);    // Find largest z value in model
 	}
 	
 	mAABB = new ZShadeSandboxMath::AABB();
@@ -627,11 +631,11 @@ bool OBJMesh::Mesh::Load(string filename, bool bRebuildNormals, bool isRHCoordSy
 	float sphereRadius = 0.0f;
 	
 	// Get the bounding sphere
-	for (int i = 0; i < vertices.size(); i++)
+	for (int i = 0; i < mAttributes->mVerticesNormalTex.size(); i++)
 	{
-		float x = (mAABB->vCenter.x - vertices[i].position.x) * (mAABB->vCenter.x - vertices[i].position.x);
-		float y = (mAABB->vCenter.y - vertices[i].position.y) * (mAABB->vCenter.y - vertices[i].position.y);
-		float z = (mAABB->vCenter.z - vertices[i].position.z) * (mAABB->vCenter.z - vertices[i].position.z);
+		float x = (mAABB->vCenter.x - mAttributes->mVerticesNormalTex[i].position.x) * (mAABB->vCenter.x - mAttributes->mVerticesNormalTex[i].position.x);
+		float y = (mAABB->vCenter.y - mAttributes->mVerticesNormalTex[i].position.y) * (mAABB->vCenter.y - mAttributes->mVerticesNormalTex[i].position.y);
+		float z = (mAABB->vCenter.z - mAttributes->mVerticesNormalTex[i].position.z) * (mAABB->vCenter.z - mAttributes->mVerticesNormalTex[i].position.z);
 		
 		sphereRadius = max(sphereRadius, x + y + z);
 	}
@@ -644,7 +648,10 @@ bool OBJMesh::Mesh::Load(string filename, bool bRebuildNormals, bool isRHCoordSy
 	mSphere->Center() = mAABB->vCenter;
 	mSphere->Radius() = sphereRadius;
 	
-	D3D11_BUFFER_DESC vertexBufferDesc;
+	mAttributes->BuildVertexBuffer(ZShadeSandboxMesh::EVertexType::VT_NormalTex);
+	mAttributes->BuildIndexBuffer();
+
+	/*D3D11_BUFFER_DESC vertexBufferDesc;
 	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexBufferDesc.ByteWidth = sizeof(ZShadeSandboxMesh::VertexNormalTex) * mVertexCount;
@@ -667,66 +674,37 @@ bool OBJMesh::Mesh::Load(string filename, bool bRebuildNormals, bool isRHCoordSy
 
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];
-	mD3DSystem->GetDevice11()->CreateBuffer(&indexBufferDesc, &iinitData, &mIB);
+	mD3DSystem->GetDevice11()->CreateBuffer(&indexBufferDesc, &iinitData, &mIB);*/
 
 	return true;
 }
 //===============================================================================================================================
-void OBJMesh::Mesh::CalculateWorldMatrix()
-{
-	XMMATRIX scale, rx, ry, rz, translation;
-
-	scale = XMMatrixScaling(mScale.x, mScale.y, mScale.z);
-	rx = XMMatrixRotationX(mRotation.x);
-	ry = XMMatrixRotationY(mRotation.y);
-	rz = XMMatrixRotationZ(mRotation.z);
-	translation = XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z);
-
-	XMMATRIX world = XMMatrixIdentity();
-
-	mWorld = XMMatrixMultiply(world, scale);
-	mWorld = XMMatrixMultiply(mWorld, rx);
-	mWorld = XMMatrixMultiply(mWorld, ry);
-	mWorld = XMMatrixMultiply(mWorld, rz);
-	mWorld = XMMatrixMultiply(mWorld, translation);
-}
+//void OBJMesh::Mesh::CalculateWorldMatrix()
+//{
+//	XMMATRIX scale, rx, ry, rz, translation;
+//
+//	scale = XMMatrixScaling(mAttributes->mScale.x, mAttributes->mScale.y, mAttributes->mScale.z);
+//	rx = XMMatrixRotationX(mAttributes->mRotation.x);
+//	ry = XMMatrixRotationY(mAttributes->mRotation.y);
+//	rz = XMMatrixRotationZ(mAttributes->mRotation.z);
+//	translation = XMMatrixTranslation(mAttributes->mPosition.x, mAttributes->mPosition.y, mAttributes->mPosition.z);
+//
+//	XMMATRIX world = XMMatrixIdentity();
+//
+//	mWorld = XMMatrixMultiply(world, scale);
+//	mWorld = XMMatrixMultiply(mWorld, rx);
+//	mWorld = XMMatrixMultiply(mWorld, ry);
+//	mWorld = XMMatrixMultiply(mWorld, rz);
+//	mWorld = XMMatrixMultiply(mWorld, translation);
+//}
 //===============================================================================================================================
 void OBJMesh::Mesh::Render(MeshRenderParameters render_param)
 {
 	if (render_param.camera == NULL) return;
 
-	// Get the world matrix transformation for the mesh
-	CalculateWorldMatrix();
-	
-	/*XMMATRIX view = render_param.camera->View();
-	if (render_param.reflection)
-	{
-		view = render_param.camera->ReflectionView();
-	}
-	
-	XMMATRIX wvp = mWorld * view * render_param.camera->Proj();*/
+	render_param.world = mAttributes->WorldXM();
 
-	render_param.world = mWorld;
-
-	//Set the vertex buffer stride and offset
-	unsigned int stride = sizeof(VertexNormalTex);
-	unsigned int offset = 0;
-
-	//Set the vertex buffer to active in the input assembler so it can be rendered
-	mD3DSystem->GetDeviceContext()->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
-
-	//Set the index buffer to active in the input assembler so it can be rendered
-	if (sizeof(IndexType) == 2)
-		mD3DSystem->GetDeviceContext()->IASetIndexBuffer(mIB, DXGI_FORMAT_R16_UINT, 0);
-	else
-		mD3DSystem->GetDeviceContext()->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
-
-	//Set the type of primitive that should be rendered from this vertex buffer
-	switch (render_param.renderType)
-	{
-		case ERenderType::eTriangleList: mD3DSystem->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); break;
-		case ERenderType::e3ControlPointPatchList: mD3DSystem->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST); break;
-	}
+	mAttributes->SetBuffers(render_param.renderType);
 
 	for (auto& group : mGroups)
 	{
@@ -739,9 +717,6 @@ void OBJMesh::Mesh::Render(MeshRenderParameters render_param)
 		//	//mD3DSystem->TurnOnAdditiveBlending();
 		}
 
-		XMFLOAT4 materialDiffuse(material->vDiffuseColor.x, material->vDiffuseColor.y, material->vDiffuseColor.z, 0.0f);
-		bool hasDiffuseTexture = material->bHasDiffuseTexture;
-		
 		if (render_param.renderDeferred)
 		{
 			mOBJGBufferShader->Render11(
@@ -755,8 +730,6 @@ void OBJMesh::Mesh::Render(MeshRenderParameters render_param)
 		{
 			if (render_param.tessellate)
 			{
-				//mTessellationShader->Render(group.IndexStart, group.IndexCount, render_param.minTessDist, render_param.maxTessDist, render_param.minTess, render_param.maxTess,
-				//	render_param.camera, wvp, render_param.clipplane, materialDiffuse, hasDiffuseTexture, material->diffuseSRV);
 				mTessellationShader->Render(
 					group.IndexStart,
 					group.IndexCount,
@@ -766,7 +739,6 @@ void OBJMesh::Mesh::Render(MeshRenderParameters render_param)
 			}
 			else
 			{
-				//mShader->Render(group.IndexStart, group.IndexCount, render_param.camera, wvp, render_param.clipplane, materialDiffuse, hasDiffuseTexture, material->diffuseSRV, material);
 				mShader->Render(
 					group.IndexStart,
 					group.IndexCount,
