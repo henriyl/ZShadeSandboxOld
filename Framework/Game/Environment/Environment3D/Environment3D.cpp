@@ -12,6 +12,7 @@
 #include "ZShadeINIParser.h"
 #include "HDR.h"
 #include "PostProcessColor.h"
+#include "Shaders.h"
 //===============================================================================================================================
 //===============================================================================================================================
 Environment3D::Environment3D(LPCSTR base_window_name, LPCSTR render_window_name, EngineOptions* eo, bool init_lua)
@@ -64,6 +65,8 @@ bool Environment3D::Init(bool init_lua)
 	
 	TextureManager::NewInstance(m_D3DSystem);
 	
+	ZShadeSandboxShader::Shaders::Build(m_D3DSystem);
+
 	// This should be false when a 3D game is being loaded
 	bUseEngineTextures = true;
 

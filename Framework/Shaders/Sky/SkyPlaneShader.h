@@ -27,12 +27,12 @@ class SkyPlaneShader : public ZShadeSandboxShader::Shader
 		float padding;
 	};
 	
-	struct cbMatrixBuffer
+	/*struct cbMatrixBuffer
 	{
 		XMFLOAT4X4 g_matWorld;
 		XMFLOAT4X4 g_matView;
 		XMFLOAT4X4 g_matProj;
-	};
+	};*/
 	
 public:
 	
@@ -43,9 +43,17 @@ public:
 	bool Initialize();
 	void Shutdown();
 	
-	bool Render11(int indexCount, ZShadeSandboxMath::XMMath4 clipplane, Camera* camera,
-		ID3D11ShaderResourceView* cloudTexture, ID3D11ShaderResourceView* perturbTexture,
-		float translation, float scale, float brightness);
+	bool Render11
+	(	int indexCount
+	,	XMMATRIX world
+	,	ZShadeSandboxMath::XMMath4 clipplane
+	,	Camera* camera
+	,	ID3D11ShaderResourceView* cloudTexture
+	,	ID3D11ShaderResourceView* perturbTexture
+	,	float translation
+	,	float scale
+	,	float brightness
+	);
 	
 	//bool Render11(int indexCount, Camera* camera, ID3D11ShaderResourceView* cloudTexture, ID3D11ShaderResourceView* perturbTexture,
 	//	SkyPlaneParameters spp);

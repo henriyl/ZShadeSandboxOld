@@ -179,8 +179,8 @@ void Water::Render(Camera* pCamera, bool renderDeferred, ID3D11ShaderResourceVie
 	mWaterShader->SetWaveMap1(m_pWaveMap1SRV);
 	mWaterShader->SetReflectionMap(pReflectionMap);
 	mWaterShader->SetRefractionMap(pRefractionMap);
-	mWaterShader->SetWireframe(m_Wireframe);
 	mWaterShader->UseGBuffer(renderDeferred);
+	mWaterShader->Wireframe() = m_Wireframe;
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
 	mrp.camera = pCamera;

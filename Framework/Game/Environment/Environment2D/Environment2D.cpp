@@ -15,6 +15,7 @@
 #include "ShaderCompiler.h"
 #include "DefaultMaterials.h"
 #include "TextureManager.h"
+#include "Shaders.h"
 //================================================================================================================
 //================================================================================================================
 Environment2D::Environment2D(LPCSTR base_window_name, LPCSTR render_window_name, EngineOptions* engineOptions, bool init_lua)
@@ -52,6 +53,8 @@ bool Environment2D::Init(LPCSTR base_window_name, LPCSTR render_window_name, boo
 	
 	TextureManager::NewInstance(m_D3DSystem);
 	
+	ZShadeSandboxShader::Shaders::Build(m_D3DSystem);
+
 	//Initialize the Camera
 	m_CameraSystem.reset(new Camera(m_EngineOptions));
 	if (!m_CameraSystem) return false;

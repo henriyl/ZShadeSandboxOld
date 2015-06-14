@@ -215,13 +215,22 @@ void SkyPlane::Render(D3D* d3d, Camera* camera, float planeHeight)
 	XMMATRIX translate = XMMatrixTranslation(0.0f, 200.0f, 0.0f);
 	XMMATRIX world = XMLoadFloat4x4(&mWorld);
 	world = XMMatrixMultiply(world, translate);
-	mSkyPlaneShader->SetWireframe(m_Wireframe);
-	mSkyPlaneShader->UseCustomWorld(true);
-	mSkyPlaneShader->SetCustomWorld(world);
+	mSkyPlaneShader->Wireframe() = m_Wireframe;
+	//mSkyPlaneShader->SetWireframe(m_Wireframe);
+	//mSkyPlaneShader->UseCustomWorld(true);
+	//mSkyPlaneShader->SetCustomWorld(world);
 	
-	mSkyPlaneShader->Render11(mIndexCount, ZShadeSandboxMath::XMMath4(0, 0, 0, 0), camera,
-		mCloudTexture->getTexture11(), mCloudPerturbTexture->getTexture11(),
-		m_Translation, mSkyPlaneParameters.g_Scale, mSkyPlaneParameters.g_Brightness);
+	mSkyPlaneShader->Render11(
+		mIndexCount,
+		world,
+		ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
+		camera,
+		mCloudTexture->getTexture11(),
+		mCloudPerturbTexture->getTexture11(),
+		m_Translation,
+		mSkyPlaneParameters.g_Scale,
+		mSkyPlaneParameters.g_Brightness
+	);
 }
 //==============================================================================================================================
 void SkyPlane::RenderWithReflection(D3D* d3d, Camera* camera, float planeHeight)

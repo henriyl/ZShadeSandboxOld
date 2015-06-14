@@ -57,9 +57,17 @@ void SkyPlaneShader::Shutdown()
 		Render11Reflection(indexCount, pCamera, eyeVertex, view, cloudTexture, perturbTexture, spp);
 }*/
 //==============================================================================================================================
-bool SkyPlaneShader::Render11(int indexCount, ZShadeSandboxMath::XMMath4 clipplane, Camera* camera,
-	ID3D11ShaderResourceView* cloudTexture, ID3D11ShaderResourceView* perturbTexture,
-	float translation, float scale, float brightness)
+bool SkyPlaneShader::Render11
+(	int indexCount
+,	XMMATRIX world
+,	ZShadeSandboxMath::XMMath4 clipplane
+,	Camera* camera
+,	ID3D11ShaderResourceView* cloudTexture
+,	ID3D11ShaderResourceView* perturbTexture
+,	float translation
+,	float scale
+,	float brightness
+)
 {
 	cbSkyPlaneBuffer per_frame;
 	per_frame.g_Translation = translation;
@@ -69,33 +77,33 @@ bool SkyPlaneShader::Render11(int indexCount, ZShadeSandboxMath::XMMath4 clippla
 	
 	//per_frame.g_ClipPlane = XMFLOAT4(clipplane.x, clipplane.y, clipplane.z, clipplane.w);
 
-	cbMatrixBuffer per_object;
+	//cbMatrixBuffer per_object;
 
-	if (m_UseCustomWorld)
-	{
-		XMFLOAT4X4 world = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mWorld.Get()));
-		per_object.g_matWorld = world;
-	}
-	else
-		per_object.g_matWorld = camera->World4x4();
+	//if (m_UseCustomWorld)
+	//{
+	//	XMFLOAT4X4 world = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mWorld.Get()));
+	//	per_object.g_matWorld = world;
+	//}
+	//else
+	//	per_object.g_matWorld = camera->World4x4();
 
-	if (m_UseCustomView)
-	{
-		//XMFLOAT4X4 view = GMathMF(XMMatrixTranspose(mView.Get()));
-		per_object.g_matView = mView;
-	}
-	else
-		per_object.g_matView = camera->View4x4();
+	//if (m_UseCustomView)
+	//{
+	//	//XMFLOAT4X4 view = GMathMF(XMMatrixTranspose(mView.Get()));
+	//	per_object.g_matView = mView;
+	//}
+	//else
+	//	per_object.g_matView = camera->View4x4();
 
-	if (m_pD3DSystem->GetEngineOptions()->m_DimType == DimType::ZSHADE_2D)
-		per_object.g_matProj = camera->Ortho4x4();
-	else if (m_pD3DSystem->GetEngineOptions()->m_DimType == DimType::ZSHADE_3D)
-		per_object.g_matProj = camera->Proj4x4();
+	//if (m_pD3DSystem->GetEngineOptions()->m_DimType == DimType::ZSHADE_2D)
+	//	per_object.g_matProj = camera->Ortho4x4();
+	//else if (m_pD3DSystem->GetEngineOptions()->m_DimType == DimType::ZSHADE_3D)
+	//	per_object.g_matProj = camera->Proj4x4();
 
-	if (m_UseOrtho)
-	{
-		per_object.g_matProj = camera->Ortho4x4();
-	}
+	//if (m_UseOrtho)
+	//{
+	//	per_object.g_matProj = camera->Ortho4x4();
+	//}
 
 	// Consts
 	D3D11_MAPPED_SUBRESOURCE mapped_res;
@@ -106,13 +114,15 @@ bool SkyPlaneShader::Render11(int indexCount, ZShadeSandboxMath::XMMath4 clippla
 	}
 	m_pD3DSystem->GetDeviceContext()->Unmap(m_pSkyPlaneCB, 0);
 
-	D3D11_MAPPED_SUBRESOURCE mapped_res2;
+	/*D3D11_MAPPED_SUBRESOURCE mapped_res2;
 	m_pD3DSystem->GetDeviceContext()->Map(m_pMatrixCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
 	{
 		assert(mapped_res2.pData);
 		*(cbMatrixBuffer*)mapped_res2.pData = per_object;
 	}
-	m_pD3DSystem->GetDeviceContext()->Unmap(m_pMatrixCB, 0);
+	m_pD3DSystem->GetDeviceContext()->Unmap(m_pMatrixCB, 0);*/
+
+	camera->BuildCameraConstantBuffer(m_pD3DSystem, m_pMatrixCB, world, false);
 
 	ID3D11Buffer* vs_cbs[2] = { m_pSkyPlaneCB, m_pMatrixCB };
 	m_pD3DSystem->GetDeviceContext()->VSSetConstantBuffers(0, 2, vs_cbs);

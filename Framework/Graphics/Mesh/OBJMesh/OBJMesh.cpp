@@ -129,9 +129,9 @@ void OBJMesh::Mesh::Position(XMFLOAT3 v)
 //===============================================================================================================================
 void OBJMesh::Mesh::SetWireframe(bool wire)
 {
-	mShader->SetWireframe(wire);
-	mTessellationShader->SetWireframe(wire);
-	mOBJGBufferShader->SetWireframe(wire);
+	mShader->Wireframe() = wire;
+	mTessellationShader->Wireframe() = wire;
+	mOBJGBufferShader->Wireframe() = wire;
 }
 //===============================================================================================================================
 void OBJMesh::Mesh::SetFarPlane(float farPlane)

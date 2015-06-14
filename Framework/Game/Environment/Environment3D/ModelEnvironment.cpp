@@ -66,6 +66,12 @@ ModelEnvironment::ModelEnvironment(LPCSTR base_window_name, LPCSTR render_window
 	mp.scale = XMFLOAT3(5, 5, 5);
 	mp.material = MaterialManager::Instance()->GetMaterial("Wall");//Wall
 	ZShadeSandboxMesh::CubeMesh* cubeMesh = new ZShadeSandboxMesh::CubeMesh(m_D3DSystem, mp, "Models\\cube.txt");
+	vector<XMFLOAT3> v;
+	v.push_back(XMFLOAT3(-50, 0, 40));
+	v.push_back(XMFLOAT3(20, 0, 0));
+	v.push_back(XMFLOAT3(80, 0, 10));
+	v.push_back(XMFLOAT3(-50, 0, 100));
+	cubeMesh->AddInstancePositions(v);
 
 	//mp.pos = XMFLOAT3(1, 1, 0);
 	//mp.material = MaterialManager::Instance()->GetMaterial("Floor");
@@ -171,6 +177,15 @@ void ModelEnvironment::RenderDeferred()
 		{
 			if (!bWireframeMode && !Quickwire())
 				m_D3DSystem->TurnOffCulling();
+		}
+
+		if ((*it)->MeshType() == ZShadeSandboxMesh::EMeshType::CUBE)
+		{
+			mrp.useInstancing = true;
+		}
+		else
+		{
+			mrp.useInstancing = false;
 		}
 
 		(*it)->Render(mrp);
@@ -388,6 +403,15 @@ bool ModelEnvironment::RenderScene()
 				m_D3DSystem->TurnOffCulling();
 		}
 
+		if ((*it)->MeshType() == ZShadeSandboxMesh::EMeshType::CUBE)
+		{
+			mrp.useInstancing = true;
+		}
+		else
+		{
+			mrp.useInstancing = false;
+		}
+
 		(*it)->EnableShadowMap(bEnableShadows);
 		(*it)->SetShadowMapSRV(mShadowTexture->SRView);
 		(*it)->SetSSAOMapSRV(0);
@@ -399,6 +423,8 @@ bool ModelEnvironment::RenderScene()
 				m_D3DSystem->TurnOnCulling();
 		}
 	}
+
+	mrp.useInstancing = false;
 	
 	// Render the plane in tessellation mode
 	//m_D3DSystem->TurnOnWireframe();

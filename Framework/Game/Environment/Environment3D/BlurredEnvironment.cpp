@@ -205,9 +205,9 @@ bool BlurredEnvironment::DownSampleTexture()
 	m_pSmallWindow->Render(mrp);
 
 	//Render the shader
-	m_pTextureShader->SetWireframe( false );
-	m_pTextureShader->UseOrtho(true);
-	m_pTextureShader->SetOrtho(ortho);
+	//m_pTextureShader->SetWireframe( false );
+	//m_pTextureShader->UseOrtho(true);
+	//m_pTextureShader->SetOrtho(ortho);
 	//m_pTextureShader->Render11(m_pSmallWindow->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
 	//	m_CameraSystem.get(), m_pRenderTexture->SRView);
 
@@ -252,8 +252,8 @@ bool BlurredEnvironment::RenderHorizontalBlurToTexture()
 
 	//Render the horizontal blur
 	m_pBlurShader->SetHorizontalBlur( true );
-	m_pBlurShader->UseOrtho(true);
-	m_pBlurShader->SetOrtho(ortho);
+	//m_pBlurShader->UseOrtho(true);
+	//m_pBlurShader->SetOrtho(ortho);
 	m_pBlurShader->Render11(m_pSmallWindow->GetIndexCount(), m_CameraSystem.get(),
 		m_D3DSystem->GetEngineOptions()->m_screenWidth,
 		m_D3DSystem->GetEngineOptions()->m_screenHeight,
@@ -299,8 +299,8 @@ bool BlurredEnvironment::RenderVerticalBlurToTexture()
 
 	//Render the vertical blur
 	m_pBlurShader->SetHorizontalBlur( false );
-	m_pBlurShader->UseOrtho(true);
-	m_pBlurShader->SetOrtho(ortho);
+	//m_pBlurShader->UseOrtho(true);
+	//m_pBlurShader->SetOrtho(ortho);
 	m_pBlurShader->Render11(m_pSmallWindow->GetIndexCount(), m_CameraSystem.get(),
 		m_D3DSystem->GetEngineOptions()->m_screenWidth,
 		m_D3DSystem->GetEngineOptions()->m_screenHeight,
@@ -345,9 +345,9 @@ bool BlurredEnvironment::UpSampleTexture()
 	m_pFullscreenWidow->Render(mrp);
 
 	//Render the shader
-	m_pTextureShader->SetWireframe( false );
-	m_pTextureShader->UseOrtho(true);
-	m_pTextureShader->SetOrtho(ortho);
+	//m_pTextureShader->SetWireframe( false );
+	//m_pTextureShader->UseOrtho(true);
+	//m_pTextureShader->SetOrtho(ortho);
 	//m_pTextureShader->Render11(m_pFullscreenWidow->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
 	//	m_CameraSystem.get(), m_pVerticalBlurTexture->SRView);
 
@@ -386,9 +386,9 @@ bool BlurredEnvironment::Render2DTextureScene()
 	m_pFullscreenWidow->Render(mrp);
 	
 	//Render the shader
-	m_pTextureShader->SetWireframe( false );
-	m_pTextureShader->UseOrtho(true);
-	m_pTextureShader->SetOrtho(m_CameraSystem.get()->Ortho());
+	//m_pTextureShader->SetWireframe( false );
+	//m_pTextureShader->UseOrtho(true);
+	//m_pTextureShader->SetOrtho(m_CameraSystem.get()->Ortho());
 	//m_pTextureShader->Render11(m_pFullscreenWidow->GetIndexCount(), ZShadeSandboxMath::XMMath4(0, 0, 0, 0),
 	//	m_CameraSystem.get(), m_pUpSampleTexture->SRView);
 

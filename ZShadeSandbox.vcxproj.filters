@@ -1277,6 +1277,9 @@
     <ClCompile Include="Framework\Shaders\Environment\Lighting\GBuffer\OBJGBufferShader.cpp">
       <Filter>Framework\Shaders\Environment\Lighting\GBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="Framework\Shaders\Basic\Shaders.cpp">
+      <Filter>Framework\Shaders\Basic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZShadeResource.h" />
@@ -2436,6 +2439,9 @@
     <ClInclude Include="Framework\Shaders\Environment\Lighting\GBuffer\OBJGBufferShader.h">
       <Filter>Framework\Shaders\Environment\Lighting\GBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="Framework\Shaders\Basic\Shaders.h">
+      <Filter>Framework\Shaders\Basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Framework\Third Party\SimpleMath.inl">
@@ -2549,6 +2555,15 @@
     </FxCompile>
     <FxCompile Include="Framework\Shaders\Environment\Lighting\GBuffer\LakeBedGBuffer.hlsl">
       <Filter>Framework\Shaders\Environment\Lighting\GBuffer</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Sky\Sky.hlsl">
+      <Filter>Framework\Shaders\Sky</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Sky\SkyPlane.hlsl">
+      <Filter>Framework\Shaders\Sky</Filter>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Terrain\TerrainTessellationQuad.hlsl">
+      <Filter>Framework\Shaders\Terrain</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

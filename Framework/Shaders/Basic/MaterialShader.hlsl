@@ -100,6 +100,14 @@ struct VertexInput
 	float2 uv					: TEXCOORD0;
 };
 
+struct VertexInputInstance
+{
+	float3 position				: POSITION;
+	float3 normal				: NORMAL;
+	float2 uv					: TEXCOORD0;
+	float3 instancePosition		: INSTANCEPOS;
+};
+
 struct PixelInput
 {
 	float4 position				: SV_POSITION;
@@ -145,6 +153,38 @@ PixelInput MaterialShaderVS(VertexInput input)
 	output.shadowPos = mul(float4(input.position, 1.0), g_ShadowMatrix);
 	
     return output;
+}
+
+PixelInput MaterialShaderInstanceVS(VertexInputInstance input, uint instanceID : SV_InstanceID)
+{
+	PixelInput output;
+
+	input.position.x += input.instancePosition.x;
+	input.position.y += input.instancePosition.y;
+	input.position.z += input.instancePosition.z;
+
+	output.position = mul(float4(input.position, 1.0), g_World);
+	output.position = mul(output.position, g_View);
+	output.position = mul(output.position, g_Proj);
+
+	output.positionW = input.position;
+	output.uv = input.uv;
+	output.normal = mul(input.normal, (float3x3)g_World);
+	output.normal = normalize(output.normal);
+
+	output.clip = dot(output.position, g_ClipPlane);
+	output.depth = output.position;
+
+	// Calculate the position of the vertices from the light source
+	output.lightViewPosition = mul(float4(input.position, 1.0), g_World);
+	output.lightViewPosition = mul(output.lightViewPosition, g_LightViewMatrix);
+	output.lightViewPosition = mul(output.lightViewPosition, g_LightProjectionMatrix);
+
+	output.worldPos = mul(float4(input.position, 1.0), g_World);
+
+	output.shadowPos = mul(float4(input.position, 1.0), g_ShadowMatrix);
+
+	return output;
 }
 
 //======================================================================================================

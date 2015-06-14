@@ -317,7 +317,7 @@ void TerrainEnvironment::Render()
 		mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
 	}*/
 
-	RenderTerrainShadowSSAO();
+	//RenderTerrainShadowSSAO();
 	
 	//We now get the position of the camera and then get the height of the triangle that would
 	//be directly underneath it. Once we get the height back we set the height of the camera two
@@ -434,6 +434,9 @@ void TerrainEnvironment::Render()
 	//Render the terrain
 	//
 
+	float    fMinTessellation = 0.0f;
+	float    fMaxTessellation = 64.0f;
+
 	XMFLOAT4 fogColor;
 	XMStoreFloat4(&fogColor, DXColors::Silver);
 
@@ -447,17 +450,6 @@ void TerrainEnvironment::Render()
 	tsc.g_TextureAmount = 1; // Amount of Layer textures (Not needed)
 	tsc.g_seaLevel = fSeaLevel;
 	tsc.g_waterBodyColor = XMFLOAT4(0.07f, 0.15f, 0.2f, 0.0f);
-	
-	float    fMinTessellation = 0.0f;
-	float    fMaxTessellation = 64.0f;
-
-	/*tsc.g_AmbientDown = mAmbientDown;
-	tsc.g_AmbientLightCount = ZShadeSandboxLighting::LightManager::Instance()->AmbientLightCount();
-	tsc.g_DirectionalLightCount = ZShadeSandboxLighting::LightManager::Instance()->DirectionalLightCount();
-	tsc.g_SpotLightCount = ZShadeSandboxLighting::LightManager::Instance()->SpotLightCount();
-	tsc.g_PointLightCount = ZShadeSandboxLighting::LightManager::Instance()->PointLightCount();
-	tsc.g_CapsuleLightCount = ZShadeSandboxLighting::LightManager::Instance()->CapsuleLightCount();
-	tsc.g_AmbientUp = mAmbientUp;*/
 	tsc.g_useClippingPlane = 0;
 	tsc.g_UseSobelFilter = 0;
 	tsc.g_useNormalMap = (bToggleTerrainNormalMap == true) ? 1 : 0;
@@ -478,11 +470,12 @@ void TerrainEnvironment::Render()
 	tsc.g_FarPlane = m_EngineOptions->fFarPlane;
 	tsc.g_MapSize = fMapSize;
 	tsc.g_DetailBrightness = 1.8f;
+	tsc.g_useReflection = false;
 	
 	m_pQuadTreeMesh->HeightScale() = fHeightScale;
 	m_pQuadTreeMesh->TerrainZScale() = fTerrSize;
 	
-	m_pQuadTreeRenderer->Render(m_CameraSystem.get(), mDirLight1->Perspective(), tsc, false);
+	m_pQuadTreeRenderer->Render(m_CameraSystem.get(), mDirLight1, tsc);
 	
 	//
 	// Render the picking sphere

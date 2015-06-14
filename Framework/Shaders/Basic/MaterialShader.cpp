@@ -37,15 +37,17 @@ bool MaterialShader::Initialize()
 	
 	ClearInputLayout();
 	
-	SetInputLayoutDesc("MaterialShader", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex, 3);
-	//SetInputLayoutDesc("MaterialShader", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_tex, 2);
-	
-	LoadVertexShader("MaterialShaderVS");
 	LoadPixelShader("MaterialShaderPS");
 	LoadPixelShader("MaterialShaderWireframePS");
-	
+
+	SetInputLayoutDesc("MaterialShader", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex, 3);
+	LoadVertexShader("MaterialShaderVS");
 	AssignVertexShaderLayout("MaterialShader");
 	
+	SetInputLayoutDesc("MaterialShaderInstance", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex_instance, 4);
+	LoadVertexShader("MaterialShaderInstanceVS");
+	AssignVertexShaderLayout("MaterialShaderInstance");
+
 	return true;
 }
 //==============================================================================================================================
@@ -56,6 +58,7 @@ void MaterialShader::Shutdown()
 //==============================================================================================================================
 bool MaterialShader::Render11
 (	int indexCount
+,	int instanceCount
 ,	ZShadeSandboxMesh::MeshRenderParameters mrp
 ,	ZShadeSandboxLighting::ShaderMaterial* material
 )
@@ -115,13 +118,29 @@ bool MaterialShader::Render11
 		SwitchTo("MaterialShaderWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
 	
+	if (mrp.useInstancing)
+	{
+		SetInputLayout("MaterialShaderInstance");
+		SwitchTo("MaterialShaderInstanceVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+	}
+	else
+	{
+		SetInputLayout("MaterialShader");
+		SwitchTo("MaterialShaderVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+	}
+
 	SetVertexShader();
 	SetPixelShader();
 
-	SetInputLayout("MaterialShader");
-
 	//Perform Drawing
-	RenderIndex11(indexCount);
+	if (mrp.useInstancing)
+	{
+		RenderIndexInstanced11(indexCount, instanceCount);
+	}
+	else
+	{
+		RenderIndex11(indexCount);
+	}
 
 	// Unbind
 	if (!m_Wireframe)

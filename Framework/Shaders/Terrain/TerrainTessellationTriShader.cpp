@@ -65,10 +65,10 @@ bool TerrainTessellationTriShader::Render(int indexCount, Camera* camera, LightC
 	//if (!m_Wireframe)
 	//	m_pD3DSystem->TurnOnCulling();
 
-	if (m_UseCustomWorld)
+	/*if (m_UseCustomWorld)
 		cMB.g_WorldMatrix = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mWorld.Get()));
 	else
-		cMB.g_WorldMatrix = camera->World4x4();
+		cMB.g_WorldMatrix = camera->World4x4();*/
 	
 	if (bReflect)
 		cMB.g_ViewMatrix = camera->ReflectionView4x4();

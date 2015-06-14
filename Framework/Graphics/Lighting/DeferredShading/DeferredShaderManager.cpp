@@ -367,7 +367,7 @@ void DeferredShaderManager::Render(Camera* camera, bool wire)
 
 				if (al != NULL)
 				{
-					mAmbientLightDeferredShader->SetWireframe(wire);
+					mAmbientLightDeferredShader->Wireframe() = wire;
 					mAmbientLightDeferredShader->Render11(
 						camera,
 						al,
@@ -386,7 +386,7 @@ void DeferredShaderManager::Render(Camera* camera, bool wire)
 
 				if (dl != NULL)
 				{
-					mDirectionalLightDeferredShader->SetWireframe(wire);
+					mDirectionalLightDeferredShader->Wireframe() = wire;
 					mDirectionalLightDeferredShader->Render11(
 						camera,
 						dl,
@@ -403,7 +403,7 @@ void DeferredShaderManager::Render(Camera* camera, bool wire)
 
 				if (pl != NULL)
 				{
-					mPointLightDeferredShader->SetWireframe(wire);
+					mPointLightDeferredShader->Wireframe() = wire;
 					mPointLightDeferredShader->Render11(
 						camera,
 						pl,
@@ -420,7 +420,7 @@ void DeferredShaderManager::Render(Camera* camera, bool wire)
 
 				if (sl != NULL)
 				{
-					mSpotLightDeferredShader->SetWireframe(wire);
+					mSpotLightDeferredShader->Wireframe() = wire;
 					mSpotLightDeferredShader->Render11(
 						camera,
 						sl,
@@ -437,7 +437,7 @@ void DeferredShaderManager::Render(Camera* camera, bool wire)
 
 				if (cl != NULL)
 				{
-					mCapsuleLightDeferredShader->SetWireframe(wire);
+					mCapsuleLightDeferredShader->Wireframe() = wire;
 					mCapsuleLightDeferredShader->Render11(
 						camera,
 						cl,

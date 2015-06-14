@@ -90,6 +90,14 @@ struct VertexInput
 	float2 uv		: TEXCOORD0;
 };
 
+struct VertexInputInstance
+{
+	float4 position				: POSITION;
+	float3 normal				: NORMAL;
+	float2 uv					: TEXCOORD0;
+	float3 instancePosition		: INSTANCEPOS;
+};
+
 struct PixelInput
 {
 	float4 position	: SV_POSITION;
@@ -129,6 +137,31 @@ PixelInput MaterialGBufferVS(VertexInput input)
 	output.depth.x = output.position.z;
 	output.depth.y = output.position.w;
 	
+	return output;
+}
+
+PixelInput MaterialGBufferInstanceVS(VertexInputInstance input, uint instanceID : SV_InstanceID)
+{
+	PixelInput output;
+
+	input.position.w = 1.0f;
+
+	input.position.x += input.instancePosition.x;
+	input.position.y += input.instancePosition.y;
+	input.position.z += input.instancePosition.z;
+
+	output.position = mul(input.position, g_World);
+	output.position = mul(output.position, g_View);
+	output.position = mul(output.position, g_Proj);
+
+	output.uv = input.uv;
+
+	output.normal = mul(input.normal, (float3x3)g_World);
+	output.normal = normalize(output.normal);
+
+	output.depth.x = output.position.z;
+	output.depth.y = output.position.w;
+
 	return output;
 }
 

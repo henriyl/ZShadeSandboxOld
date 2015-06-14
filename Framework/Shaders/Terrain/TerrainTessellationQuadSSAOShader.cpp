@@ -68,10 +68,10 @@ bool TerrainTessellationQuadSSAOShader::Render(int indexCount, Camera* camera, L
 	cDomainConstBuffer cDCB;
 	cShadingConstBuffer cSCB;
 
-	if (m_UseCustomWorld)
-		cMB.g_WorldMatrix = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mWorld.Get()));
-	else
-		cMB.g_WorldMatrix = camera->World4x4();
+	//if (m_UseCustomWorld)
+	//	cMB.g_WorldMatrix = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mWorld.Get()));
+	//else
+	//	cMB.g_WorldMatrix = camera->World4x4();
 
 	cMB.g_ViewMatrix = camera->View4x4();
 

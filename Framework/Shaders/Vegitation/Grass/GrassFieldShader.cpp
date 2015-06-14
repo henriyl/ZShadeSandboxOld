@@ -30,7 +30,7 @@ void GrassFieldShader::Shutdown()
 //==============================================================================================================================
 void GrassFieldShader::RenderFunc(Camera* pCamera, XMMATRIX view, XMMATRIX world, XMFLOAT4 clipplane)
 {
-	SetWireframe( m_Wireframe );
+	//SetWireframe( m_Wireframe );
 	//SetWorld( world );
 	//SetView( view );
 	//SetProj( pCamera->Proj() );

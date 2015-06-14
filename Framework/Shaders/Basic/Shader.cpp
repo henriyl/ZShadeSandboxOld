@@ -3,7 +3,7 @@
 #include <sstream>
 using ZShadeSandboxShader::Shader;
 //=================================================================================================================
-//=================================================================================================================
+//===============================================================================================================================
 Shader::Shader(D3D* d3d)
 :	m_pVertexShader(0)
 ,	m_pHullShader(0)
@@ -14,8 +14,8 @@ Shader::Shader(D3D* d3d)
 ,	m_Wireframe(false)
 ,	m_pD3DSystem(d3d)
 ,	m_UseInputLayout(true)
-,	m_UseOrtho(false)
-,	m_UseCustomWorld(false)
+//,	m_UseOrtho(false)
+//,	m_UseCustomWorld(false)
 ,	m_CurrentLayout11(0)
 ,	mCurrentLayoutName("")
 ,	mCurrentVSFuncName("")

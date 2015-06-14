@@ -55,12 +55,12 @@ bool SunShader::Render11(int indexCount, float alpha, float glow, Camera* camera
 	
 	Const_Per_Frame per_frame;
 
-	if (m_UseCustomWorld)
+	/*if (m_UseCustomWorld)
 	{
 		per_frame.g_World = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mWorld.Get()));
 	}
 	else
-		per_frame.g_World = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(camera->World()));
+		per_frame.g_World = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(camera->World()));*/
 	
 	//XMMATRIX WVP = world * camera->View() * camera->Proj();
 	per_frame.g_View = camera->View4x4();

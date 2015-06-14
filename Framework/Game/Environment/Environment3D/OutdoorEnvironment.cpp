@@ -1097,11 +1097,12 @@ bool OutdoorEnvironment::RenderTerrain(XMFLOAT4 clipplane, bool bReflection, boo
 	tsc.g_ClipPlane = clipplane;
 	tsc.g_MapSize = fMapSize;
 	tsc.g_DetailBrightness = 1.8f;
+	tsc.g_useReflection = bReflection;
 
 	m_pQuadTreeMesh->HeightScale() = fHeightScale;
 	m_pQuadTreeMesh->TerrainZScale() = fTerrSize;
 	
-	m_pQuadTreeRenderer->Render(m_CameraSystem.get(), mDirLight1->Perspective(), tsc, bReflection);
+	m_pQuadTreeRenderer->Render(m_CameraSystem.get(), mDirLight1, tsc);
 
 	return true;
 }

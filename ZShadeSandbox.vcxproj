@@ -309,6 +309,7 @@
     <ClCompile Include="Framework\Shaders\Basic\MaterialShader.cpp" />
     <ClCompile Include="Framework\Shaders\Basic\Shader.cpp" />
     <ClCompile Include="Framework\Shaders\Basic\ShaderCompiler.cpp" />
+    <ClCompile Include="Framework\Shaders\Basic\Shaders.cpp" />
     <ClCompile Include="Framework\Shaders\Basic\TextureShader.cpp" />
     <ClCompile Include="Framework\Shaders\Environment\BlurShader.cpp" />
     <ClCompile Include="Framework\Shaders\Environment\Lighting\DeferredShading\AmbientLightDeferredShader.cpp" />
@@ -703,6 +704,7 @@
     <ClInclude Include="Framework\Shaders\Basic\MaterialShader.h" />
     <ClInclude Include="Framework\Shaders\Basic\Shader.h" />
     <ClInclude Include="Framework\Shaders\Basic\ShaderCompiler.h" />
+    <ClInclude Include="Framework\Shaders\Basic\Shaders.h" />
     <ClInclude Include="Framework\Shaders\Basic\ShaderStruct.h" />
     <ClInclude Include="Framework\Shaders\Basic\TextureShader.h" />
     <ClInclude Include="Framework\Shaders\Environment\BlurShader.h" />
@@ -884,6 +886,15 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Framework\Shaders\Mesh\OBJMesh\OBJMeshTessellation.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Sky\Sky.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Sky\SkyPlane.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Framework\Shaders\Terrain\TerrainTessellationQuad.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Framework\Shaders\Water\LakeBed.hlsl">

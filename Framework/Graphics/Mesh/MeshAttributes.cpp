@@ -99,6 +99,16 @@ XMMATRIX MeshAttributes::WorldXM()
 	world = XMMatrixMultiply( world, rz );
 	world = XMMatrixMultiply( world, translate );
 
+	if (mInstancePos.size() > 0)
+	{
+		world = XMMatrixIdentity();
+		world = XMMatrixMultiply(world, scale);
+		world = XMMatrixMultiply(world, rx);
+		world = XMMatrixMultiply(world, ry);
+		world = XMMatrixMultiply(world, rz);
+		world = XMMatrixMultiply(world, XMMatrixTranslation(0, 0, 0));
+	}
+
 	return world;
 }
 //===============================================================================================================================
@@ -269,7 +279,7 @@ void MeshAttributes::BuildInstanceBuffer()
 		mInstanceByteWidth = sizeof(ZShadeSandboxMesh::InstancePos);
 		
 		// Setup the description of the instance buffer
-		instanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		instanceBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		instanceBufferDesc.ByteWidth = mInstanceByteWidth * mInstanceCount;
 		instanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		instanceBufferDesc.CPUAccessFlags = 0;

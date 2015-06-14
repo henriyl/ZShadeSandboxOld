@@ -37,7 +37,7 @@ public:
 	QuadTreeRenderer(D3D* d3d, ZShadeSandboxTerrain::QuadTreeMesh* qtm);
 	~QuadTreeRenderer();
 	
-	void Render(Camera* pCamera, LightCamera* lightcamera, ZShadeSandboxTerrain::TerrainShadingConst tsc, bool bReflect);
+	void Render(Camera* pCamera, ZShadeSandboxLighting::Light* light, ZShadeSandboxTerrain::TerrainShadingConst tsc);
 	void RenderShadowMap(Camera* pCamera, LightCamera* camera, ZShadeSandboxTerrain::TerrainShadingConst tsc);
 	void RenderSSAO(Camera* pCamera, LightCamera* camera, ZShadeSandboxTerrain::TerrainShadingConst tsc);
 	
@@ -57,7 +57,7 @@ public:
 	
 private:
 	
-	void Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCamera, LightCamera* lightcamera, ZShadeSandboxTerrain::TerrainShadingConst tsc, bool bReflect);
+	void Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCamera, ZShadeSandboxLighting::Light* light, ZShadeSandboxTerrain::TerrainShadingConst tsc);
 	void RenderShadowMap(ZShadeSandboxTerrain::QMeshNode* node, ZShadeSandboxTerrain::TerrainShadingConst tsc, Camera* pCamera, LightCamera* camera);
 	void RenderSSAO(ZShadeSandboxTerrain::QMeshNode* node, ZShadeSandboxTerrain::TerrainShadingConst tsc, Camera* pCamera, LightCamera* camera);
 	void RenderMeshBuffers(ZShadeSandboxTerrain::QMeshNode* node);

@@ -39,7 +39,7 @@ SunRenderer::SunRenderer(Sun* sun)
 //===============================================================================================================================
 void SunRenderer::SetWireframe(bool wire)
 {
-	mShader->SetWireframe(wire);
+	mShader->Wireframe() = wire;
 }
 //===============================================================================================================================
 void SunRenderer::RenderMeshBuffers(int renderType, int sunQuadID)
@@ -64,7 +64,7 @@ void SunRenderer::RenderMeshBuffers(int renderType, int sunQuadID)
 //===============================================================================================================================
 void SunRenderer::Render(Camera* camera, int renderType)
 {
-	if (!mShader->IsWireframe())
+	if (!mShader->Wireframe())
 		mD3DSystem->TurnOffCulling();
 
 	ZShadeSandboxMath::XMMath3 cameraPosition(camera->Position());
@@ -78,8 +78,8 @@ void SunRenderer::Render(Camera* camera, int renderType)
 	{
 		XMMATRIX world = mSun->GetQuad(0)->World();
 		RenderMeshBuffers(renderType, 0);
-		mShader->UseCustomWorld(true);
-		mShader->SetCustomWorld(world);
+		//mShader->UseCustomWorld(true);
+		//mShader->SetCustomWorld(world);
 		mShader->Render11(mSun->GetQuad(0)->IndexCount(), mSun->Alpha(), mSun->GlowFactor(), camera, mMaterial->GetTexture(0)->getTexture11());
 	}
 	
@@ -88,13 +88,13 @@ void SunRenderer::Render(Camera* camera, int renderType)
 		for (int i = 1; i < 4; i++)
 		{
 			RenderMeshBuffers(renderType, i);
-			mShader->UseCustomWorld(true);
-			mShader->SetCustomWorld(mSun->GetQuad(i)->CalculateWorldMatrix());
+			//mShader->UseCustomWorld(true);
+			//mShader->SetCustomWorld(mSun->GetQuad(i)->CalculateWorldMatrix());
 			mShader->Render11(mSun->GetQuad(i)->IndexCount(), mSun->Alpha(), mSun->GlowFactor(), camera, mMaterial->GetTexture(i)->getTexture11());
 		}
 	}
 
-	if (!mShader->IsWireframe())
+	if (!mShader->Wireframe())
 		mD3DSystem->TurnOnCulling();
 }
 //===============================================================================================================================

@@ -68,6 +68,7 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	
 	// ==================================== Compile the Material Shader
 	Compile(d3d, "Basic\\MaterialShader.hlsl", "MaterialShaderVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Basic\\MaterialShader.hlsl", "MaterialShaderInstanceVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Basic\\MaterialShader.hlsl", "MaterialShaderPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Basic\\MaterialShader.hlsl", "MaterialShaderWireframePS", EShaderTypes::ST_PIXEL);
 	
@@ -163,14 +164,14 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	Compile(d3d, "Sun\\Sun.hlsl", "SunWireframePS", EShaderTypes::ST_PIXEL);
 	
 	// ==================================== Compile the Terrain Shader
-	Compile(d3d, "Terrain\\TerrainTessellationQuadVS.hlsl", "TerrainTessellationQuadVS", EShaderTypes::ST_VERTEX);
-	Compile(d3d, "Terrain\\TerrainTessellationQuadHS.hlsl", "TerrainTessellationQuadHS", EShaderTypes::ST_HULL);
+	Compile(d3d, "Terrain\\TerrainTessellationQuad.hlsl", "TerrainTessellationQuadVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Terrain\\TerrainTessellationQuad.hlsl", "TerrainTessellationQuadHS", EShaderTypes::ST_HULL);
+	Compile(d3d, "Terrain\\TerrainTessellationQuad.hlsl", "TerrainTessellationQuadDS", EShaderTypes::ST_DOMAIN);
+	Compile(d3d, "Terrain\\TerrainTessellationQuad.hlsl", "TerrainTessellationQuadPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Terrain\\TerrainTessellationQuad.hlsl", "TerrainTessellationNormalDepthPS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Terrain\\TerrainTessellationQuad.hlsl", "TerrainTessellationWireframePS", EShaderTypes::ST_PIXEL);
+	Compile(d3d, "Terrain\\TerrainTessellationQuad.hlsl", "TerrainTessellationShadowPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Terrain\\TerrainTessellationQuadShadowHS.hlsl", "TerrainTessellationQuadShadowHS", EShaderTypes::ST_HULL);
-	Compile(d3d, "Terrain\\TerrainTessellationQuadDS.hlsl", "TerrainTessellationQuadDS", EShaderTypes::ST_DOMAIN);
-	Compile(d3d, "Terrain\\TerrainTessellationQuadPS.hlsl", "TerrainTessellationQuadPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Terrain\\TerrainTessellationQuadPS.hlsl", "TerrainTessellationNormalDepthPS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Terrain\\TerrainTessellationQuadPS.hlsl", "TerrainTessellationWireframePS", EShaderTypes::ST_PIXEL);
-	Compile(d3d, "Terrain\\TerrainTessellationQuadPS.hlsl", "TerrainTessellationShadowPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Terrain\\TerrainTessellationTriVS.hlsl", "TerrainTessellationTriVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Terrain\\TerrainTessellationTriHS.hlsl", "TerrainTessellationTriHS", EShaderTypes::ST_HULL);
 	Compile(d3d, "Terrain\\TerrainTessellationTriDS.hlsl", "TerrainTessellationTriDS", EShaderTypes::ST_DOMAIN);
@@ -194,6 +195,7 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	Compile(d3d, "Environment\\Lighting\\GBuffer\\ClearGBuffer.hlsl", "ClearGBufferVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Environment\\Lighting\\GBuffer\\ClearGBuffer.hlsl", "ClearGBufferPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\GBuffer\\MaterialGBuffer.hlsl", "MaterialGBufferVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Environment\\Lighting\\GBuffer\\MaterialGBuffer.hlsl", "MaterialGBufferInstanceVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Environment\\Lighting\\GBuffer\\MaterialGBuffer.hlsl", "MaterialGBufferPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\GBuffer\\MaterialGBuffer.hlsl", "MaterialGBufferWireframePS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Environment\\Lighting\\GBuffer\\OBJGBuffer.hlsl", "OBJGBufferVS", EShaderTypes::ST_VERTEX);

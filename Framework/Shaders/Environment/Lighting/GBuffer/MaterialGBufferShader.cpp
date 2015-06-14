@@ -29,12 +29,17 @@ bool MaterialGBufferShader::Initialize()
 	m_pMatrixCB = matrixCB.Buffer();
 	
 	ClearInputLayout();
-	SetInputLayoutDesc("MaterialGBufferShader", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex, 3);
-	LoadVertexShader("MaterialGBufferVS");
 	LoadPixelShader("MaterialGBufferPS");
 	LoadPixelShader("MaterialGBufferWireframePS");
+	
+	SetInputLayoutDesc("MaterialGBufferShader", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex, 3);
+	LoadVertexShader("MaterialGBufferVS");
 	AssignVertexShaderLayout("MaterialGBufferShader");
 	
+	SetInputLayoutDesc("MaterialGBufferShaderInstance", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex_instance, 4);
+	LoadVertexShader("MaterialGBufferInstanceVS");
+	AssignVertexShaderLayout("MaterialGBufferShaderInstance");
+
 	return true;
 }
 //==============================================================================================================================
@@ -45,6 +50,7 @@ void MaterialGBufferShader::Shutdown()
 //==============================================================================================================================
 bool MaterialGBufferShader::Render11
 (	int indexCount
+,	int instanceCount
 ,	ZShadeSandboxMesh::MeshRenderParameters mrp
 ,	ZShadeSandboxLighting::ShaderMaterial* material
 )
@@ -101,13 +107,29 @@ bool MaterialGBufferShader::Render11
 		SwitchTo("MaterialGBufferWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
 
-	SetInputLayout("MaterialGBufferShader");
-	
+	if (mrp.useInstancing)
+	{
+		SetInputLayout("MaterialGBufferShaderInstance");
+		SwitchTo("MaterialGBufferInstanceVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+	}
+	else
+	{
+		SetInputLayout("MaterialGBufferShader");
+		SwitchTo("MaterialGBufferVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+	}
+
 	SetVertexShader();
 	SetPixelShader();
 	
 	//Perform Drawing
-	RenderIndex11(indexCount);
+	if (mrp.useInstancing)
+	{
+		RenderIndexInstanced11(indexCount, instanceCount);
+	}
+	else
+	{
+		RenderIndex11(indexCount);
+	}
 
 	// Unbind
 	if (!m_Wireframe)

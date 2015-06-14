@@ -26,12 +26,12 @@ class BlurShader : public ZShadeSandboxShader::Shader
 		XMFLOAT2 dummy;
 	};
 
-	struct Const_Per_Frame
+	/*struct Const_Per_Frame
 	{
 		XMMATRIX g_World;
 		XMMATRIX g_View;
 		XMMATRIX g_Proj;
-	};
+	};*/
 
 public:
 	BlurShader(D3D* d3d);

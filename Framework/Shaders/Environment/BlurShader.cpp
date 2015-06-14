@@ -22,8 +22,8 @@ bool BlurShader::Initialize()
 	perCBConst.Initialize(PAD16(sizeof(CB_Const)));
 	m_pCBConst = perCBConst.Buffer();
 
-	ConstantBuffer<Const_Per_Frame> perObjectCB(m_pD3DSystem);
-	perObjectCB.Initialize(PAD16(sizeof(Const_Per_Frame)));
+	ConstantBuffer<cbMatrixBuffer> perObjectCB(m_pD3DSystem);
+	perObjectCB.Initialize(PAD16(sizeof(cbMatrixBuffer)));
 	m_pPerObjectCB = perObjectCB.Buffer();
 
 	ClearInputLayout();
@@ -56,14 +56,6 @@ bool BlurShader::Render11(int indexCount, Camera* camera, float w, float h,
 	per_cb_const.g_Width = w;
 	per_cb_const.g_Height = h;
 
-	Const_Per_Frame per_object;
-	
-	ZShadeSandboxMath::XMMatrix matProj;
-
-	per_object.g_World = camera->World();
-	per_object.g_View = camera->View();
-	per_object.g_Proj = camera->Proj();
-
 	// Consts
 	D3D11_MAPPED_SUBRESOURCE mapped_res;
 	m_pD3DSystem->GetDeviceContext()->Map(m_pCBConst, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
@@ -73,13 +65,23 @@ bool BlurShader::Render11(int indexCount, Camera* camera, float w, float h,
 	}
 	m_pD3DSystem->GetDeviceContext()->Unmap(m_pCBConst, 0);
 
+	/*Const_Per_Frame per_object;
+
+	ZShadeSandboxMath::XMMatrix matProj;
+
+	per_object.g_World = camera->World();
+	per_object.g_View = camera->View();
+	per_object.g_Proj = camera->Proj();
+
 	D3D11_MAPPED_SUBRESOURCE mapped_res2;
 	m_pD3DSystem->GetDeviceContext()->Map(m_pPerObjectCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res2);
 	{
 		assert(mapped_res2.pData);
 		*(Const_Per_Frame*)mapped_res2.pData = per_object;
 	}
-	m_pD3DSystem->GetDeviceContext()->Unmap(m_pPerObjectCB, 0);
+	m_pD3DSystem->GetDeviceContext()->Unmap(m_pPerObjectCB, 0);*/
+
+	camera->BuildCameraConstantBuffer(m_pD3DSystem, m_pPerObjectCB, camera->World(), false);
 
 	ID3D11Buffer* vs_cbs[2] = { m_pCBConst, m_pPerObjectCB };
 	m_pD3DSystem->GetDeviceContext()->VSSetConstantBuffers(0, 2, vs_cbs);

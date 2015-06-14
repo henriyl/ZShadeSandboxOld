@@ -3,16 +3,23 @@
 #include "TextureManager.h"
 #include "ZShadeMessageCenter.h"
 #include "MeshUtil.h"
+#include "Shaders.h"
+#include "MaterialShader.h"
+#include "ShadowMapBuildShader.h"
+#include "MaterialGBufferShader.h"
+#include "MaterialLightShader.h"
+#include "MaterialTessellationShader.h"
+#include "MaterialLightTessellationShader.h"
 using ZShadeSandboxMesh::CustomMesh;
 //===============================================================================================================================
-MaterialShader*						CustomMesh::pMaterialShader = 0;
-MaterialLightShader*				CustomMesh::pLightShader = 0;
-MaterialTessellationShader*			CustomMesh::pQuadMaterialTessellationShader = 0;
-MaterialTessellationShader* 		CustomMesh::pTriMaterialTessellationShader = 0;
-MaterialLightTessellationShader*	CustomMesh::pQuadMaterialLightTessellationShader = 0;
-MaterialLightTessellationShader*	CustomMesh::pTriMaterialLightTessellationShader = 0;
-ShadowMapBuildShader*				CustomMesh::pShadowMapBuildShader = 0;
-MaterialGBufferShader*				CustomMesh::pMaterialGBufferShader = 0;
+//MaterialShader*						CustomMesh::pMaterialShader = 0;
+//MaterialLightShader*				CustomMesh::pLightShader = 0;
+//MaterialTessellationShader*			CustomMesh::pQuadMaterialTessellationShader = 0;
+//MaterialTessellationShader* 		CustomMesh::pTriMaterialTessellationShader = 0;
+//MaterialLightTessellationShader*	CustomMesh::pQuadMaterialLightTessellationShader = 0;
+//MaterialLightTessellationShader*	CustomMesh::pTriMaterialLightTessellationShader = 0;
+//ShadowMapBuildShader*				CustomMesh::pShadowMapBuildShader = 0;
+//MaterialGBufferShader*				CustomMesh::pMaterialGBufferShader = 0;
 //===============================================================================================================================
 CustomMesh::CustomMesh(D3D* d3d, ZShadeSandboxMesh::MeshParameters mp, char* filename)
 :   mD3DSystem(d3d)
@@ -153,25 +160,25 @@ void CustomMesh::InitializeMesh()
 //===============================================================================================================================
 void CustomMesh::Init()
 {
-	// Create the shaders only once if they do not exist
-	if (CustomMesh::pMaterialShader == 0
-		&& CustomMesh::pLightShader == 0
-		&& CustomMesh::pQuadMaterialTessellationShader == 0
-		&& CustomMesh::pTriMaterialTessellationShader == 0
-		&& CustomMesh::pQuadMaterialLightTessellationShader == 0
-		&& CustomMesh::pTriMaterialLightTessellationShader == 0
-		&& CustomMesh::pShadowMapBuildShader == 0
-		&& CustomMesh::pMaterialGBufferShader == 0)
-	{
-		CustomMesh::pMaterialShader = new MaterialShader(mD3DSystem);
-		CustomMesh::pLightShader = new MaterialLightShader(mD3DSystem);
-		CustomMesh::pQuadMaterialTessellationShader = new MaterialTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eQuad);
-		CustomMesh::pTriMaterialTessellationShader = new MaterialTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eTri);
-		CustomMesh::pQuadMaterialLightTessellationShader = new MaterialLightTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eQuad);
-		CustomMesh::pTriMaterialLightTessellationShader = new MaterialLightTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eTri);
-		CustomMesh::pShadowMapBuildShader = new ShadowMapBuildShader(mD3DSystem);
-		CustomMesh::pMaterialGBufferShader = new MaterialGBufferShader(mD3DSystem);
-	}
+	//// Create the shaders only once if they do not exist
+	//if (CustomMesh::pMaterialShader == 0
+	//	&& CustomMesh::pLightShader == 0
+	//	&& CustomMesh::pQuadMaterialTessellationShader == 0
+	//	&& CustomMesh::pTriMaterialTessellationShader == 0
+	//	&& CustomMesh::pQuadMaterialLightTessellationShader == 0
+	//	&& CustomMesh::pTriMaterialLightTessellationShader == 0
+	//	&& CustomMesh::pShadowMapBuildShader == 0
+	//	&& CustomMesh::pMaterialGBufferShader == 0)
+	//{
+	//	CustomMesh::pMaterialShader = new MaterialShader(mD3DSystem);
+	//	CustomMesh::pLightShader = new MaterialLightShader(mD3DSystem);
+	//	CustomMesh::pQuadMaterialTessellationShader = new MaterialTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eQuad);
+	//	CustomMesh::pTriMaterialTessellationShader = new MaterialTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eTri);
+	//	CustomMesh::pQuadMaterialLightTessellationShader = new MaterialLightTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eQuad);
+	//	CustomMesh::pTriMaterialLightTessellationShader = new MaterialLightTessellationShader(mD3DSystem, ZShadeSandboxLighting::EMaterialTessellationType::eTri);
+	//	CustomMesh::pShadowMapBuildShader = new ShadowMapBuildShader(mD3DSystem);
+	//	CustomMesh::pMaterialGBufferShader = new MaterialGBufferShader(mD3DSystem);
+	//}
 	
 	//pVB = 0;
 	//pInstanceBuffer = 0;
@@ -748,9 +755,10 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 	
 	if (mrp.renderDeferred)
 	{
-		CustomMesh::pMaterialGBufferShader->SetWireframe(m_Wireframe);
-		CustomMesh::pMaterialGBufferShader->Render11(
+		ZShadeSandboxShader::Shaders::pMaterialGBufferShader->Wireframe() = m_Wireframe;
+		ZShadeSandboxShader::Shaders::pMaterialGBufferShader->Render11(
 			mAttributes->mIndexCount,
+			mAttributes->mInstanceCount,
 			mrp,
 			mMaterial
 		);
@@ -761,7 +769,7 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 	// Create a shadow map of the mesh
 	if (mrp.shadowMap)
 	{
-		CustomMesh::pShadowMapBuildShader->Render(mAttributes->mIndexCount, mrp.world, mrp.light->Perspective());
+		ZShadeSandboxShader::Shaders::pShadowMapBuildShader->Render(mAttributes->mIndexCount, mrp.world, mrp.light->Perspective());
 		return;
 	}
 	
@@ -790,14 +798,14 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 		{
 			case ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList:
 			{
-				CustomMesh::pTriMaterialTessellationShader->SetWireframe(m_Wireframe);
-				CustomMesh::pTriMaterialTessellationShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
+				ZShadeSandboxShader::Shaders::pTriMaterialTessellationShader->Wireframe() = m_Wireframe;
+				ZShadeSandboxShader::Shaders::pTriMaterialTessellationShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
 			}
 			break;
 			case ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList:
 			{
-				CustomMesh::pQuadMaterialTessellationShader->SetWireframe(m_Wireframe);
-				CustomMesh::pQuadMaterialTessellationShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
+				ZShadeSandboxShader::Shaders::pQuadMaterialTessellationShader->Wireframe() = m_Wireframe;
+				ZShadeSandboxShader::Shaders::pQuadMaterialTessellationShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
 			}
 			break;
 			default:
@@ -810,16 +818,16 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 	}
 	else
 	{
-		CustomMesh::pMaterialShader->SetWireframe(m_Wireframe);
+		ZShadeSandboxShader::Shaders::pMaterialShader->Wireframe() = m_Wireframe;
 		// mAttributes->mInstanceCount
-		CustomMesh::pMaterialShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
+		ZShadeSandboxShader::Shaders::pMaterialShader->Render11(mAttributes->mIndexCount, mAttributes->mInstanceCount, mrp, mMaterial);
 		
-		/*CustomMesh::pLightShader->SetWireframe(m_Wireframe);
-		CustomMesh::pLightShader->UseCustomWorld(true);
-		CustomMesh::pLightShader->SetCustomWorld(mrp.world);
-		CustomMesh::pLightShader->UseCustomView(true);
-		CustomMesh::pLightShader->SetCustomView(mrp.view);
-		CustomMesh::pLightShader->Render11(mIndexCount, cp, mrp.pCamera, mrp.dirLight, mMaterial);*/
+		//CustomMesh::pLightShader->SetWireframe(m_Wireframe);
+		//CustomMesh::pLightShader->UseCustomWorld(true);
+		//CustomMesh::pLightShader->SetCustomWorld(mrp.world);
+		//CustomMesh::pLightShader->UseCustomView(true);
+		//CustomMesh::pLightShader->SetCustomView(mrp.view);
+		//CustomMesh::pLightShader->Render11(mIndexCount, cp, mrp.pCamera, mrp.dirLight, mMaterial);
 	}
 }
 //===============================================================================================================================

@@ -25,14 +25,7 @@
 #include "CustomMeshParameters.h"
 #include "ShaderMaterial.h"
 #include "MeshAttributes.h"
-
-// Shader includes
-#include "MaterialShader.h"
-#include "ShadowMapBuildShader.h"
-#include "MaterialGBufferShader.h"
-#include "MaterialLightShader.h"
-#include "MaterialTessellationShader.h"
-#include "MaterialLightTessellationShader.h"
+#include "MeshRenderParameters.h"
 
 //===============================================================================================================================
 //===============================================================================================================================
@@ -195,14 +188,14 @@ protected:
 	//XMMATRIX   mBillboardWorld;
 	
 	// These shaders should only be created one time
-	static MaterialShader*					pMaterialShader;
+	/*static MaterialShader*					pMaterialShader;
 	static MaterialLightShader*				pLightShader;
 	static MaterialTessellationShader*		pQuadMaterialTessellationShader;
 	static MaterialTessellationShader*		pTriMaterialTessellationShader;
 	static MaterialLightTessellationShader*	pQuadMaterialLightTessellationShader;
 	static MaterialLightTessellationShader* pTriMaterialLightTessellationShader;
 	static ShadowMapBuildShader*			pShadowMapBuildShader;
-	static MaterialGBufferShader*			pMaterialGBufferShader;
+	static MaterialGBufferShader*			pMaterialGBufferShader;*/
 	
 	//vector<ZShadeSandboxMesh::VertexNormalTex>		mVerticesVNT;
 	//vector<ZShadeSandboxMesh::VertexNormalTexTan>	mVerticesVNTT;

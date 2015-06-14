@@ -162,9 +162,9 @@ void QuadTreeRenderer::RenderSSAO(ZShadeSandboxTerrain::QMeshNode* node, ZShadeS
 			{
 			case ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList:
 			{
-				m_TerrainTessellationQuadSSAOShader->SetWireframe(bWireframe);
+				/*m_TerrainTessellationQuadSSAOShader->SetWireframe(bWireframe);
 				m_TerrainTessellationQuadSSAOShader->UseCustomWorld(true);
-				m_TerrainTessellationQuadSSAOShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));
+				m_TerrainTessellationQuadSSAOShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));*/
 				m_TerrainTessellationQuadSSAOShader->Render(node->m_index_count, pCamera, camera, tsc, m_quadtreeMesh->GetHeightMapSRV());
 			}
 			break;
@@ -321,17 +321,17 @@ void QuadTreeRenderer::RenderShadowMap(ZShadeSandboxTerrain::QMeshNode* node, ZS
 			{
 				case ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList:
 				{
-					m_TerrainTessellationQuadShadowShader->SetWireframe(bWireframe);
+					/*m_TerrainTessellationQuadShadowShader->SetWireframe(bWireframe);
 					m_TerrainTessellationQuadShadowShader->UseCustomWorld(true);
-					m_TerrainTessellationQuadShadowShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));
+					m_TerrainTessellationQuadShadowShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));*/
 					m_TerrainTessellationQuadShadowShader->Render(node->m_index_count, camera, tsc, m_quadtreeMesh->GetHeightMapSRV());
 				}
 				break;
 				case ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList:
 				{
-					m_TerrainTessellationTriShadowShader->SetWireframe(bWireframe);
+					/*m_TerrainTessellationTriShadowShader->SetWireframe(bWireframe);
 					m_TerrainTessellationTriShadowShader->UseCustomWorld(true);
-					m_TerrainTessellationTriShadowShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));
+					m_TerrainTessellationTriShadowShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));*/
 					m_TerrainTessellationTriShadowShader->Render(node->m_index_count, camera, tsc, m_quadtreeMesh->GetHeightMapSRV());
 				}
 				break;
@@ -355,7 +355,7 @@ void QuadTreeRenderer::RenderShadowMap(ZShadeSandboxTerrain::QMeshNode* node, ZS
 	}
 }
 //================================================================================================================
-void QuadTreeRenderer::Render(Camera* pCamera, LightCamera* lightcamera, ZShadeSandboxTerrain::TerrainShadingConst tsc, bool bReflect)
+void QuadTreeRenderer::Render(Camera* pCamera, ZShadeSandboxLighting::Light* light, ZShadeSandboxTerrain::TerrainShadingConst tsc)
 {
 	// Currently only running DirectX 11
 	if (!m_EngineOptions->m_d3dVersion == DIRECTX11)
@@ -375,7 +375,7 @@ void QuadTreeRenderer::Render(Camera* pCamera, LightCamera* lightcamera, ZShadeS
 		m_quadtreeMesh->GetRootBoxMesh()->Render(mrp);
 	}
 	
-	ZShadeSandboxLighting::ShaderMaterial* mat = m_quadtreeMesh->GetMaterial();
+	/*ZShadeSandboxLighting::ShaderMaterial* mat = m_quadtreeMesh->GetMaterial();
 
 	tsc.g_MaterialDiffuseColor = mat->vDiffuseColor;
 	tsc.g_MaterialAmbientColor = mat->vAmbientColor;
@@ -399,18 +399,20 @@ void QuadTreeRenderer::Render(Camera* pCamera, LightCamera* lightcamera, ZShadeS
 				detailmap = mat->GetTexture(i);
 			break;
 		}
-	}
+	}*/
 
-	Render(m_quadtreeMesh->GetRootNode(), pCamera, lightcamera, tsc, bReflect);
+	Render(m_quadtreeMesh->GetRootNode(), pCamera, light, tsc);
 }
 //================================================================================================================
-void QuadTreeRenderer::Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCamera, LightCamera* lightcamera, ZShadeSandboxTerrain::TerrainShadingConst tsc, bool bReflect)
+void QuadTreeRenderer::Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCamera, ZShadeSandboxLighting::Light* light, ZShadeSandboxTerrain::TerrainShadingConst tsc)
 {
 	if (node == 0) return;
 	
 	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
-	bool result = pCamera->ViewingFrustum()->ContainsCube(node->center, (node->fWidth / 2.0f));
+	//bool result = pCamera->ViewingFrustum()->ContainsCube(node->center, (node->fWidth / 2.0f));
 	
+	bool result = false;
+
 	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
 	if (!result)
 		result = pCamera->ViewingFrustum()->ContainsAABB(node->boundary.vMin, node->boundary.vMax);
@@ -530,24 +532,25 @@ void QuadTreeRenderer::Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCa
 			{
 				case ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList:
 				{
-					m_TerrainTessellationQuadShader->SetWireframe(bWireframe);
-					m_TerrainTessellationQuadShader->UseCustomWorld(true);
-					m_TerrainTessellationQuadShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));
-					m_TerrainTessellationQuadShader->Render(node->m_index_count, pCamera, lightcamera, bReflect, tsc,
-						diffuseArray->getTexture11(), blendmap->getTexture11(),
-						m_quadtreeMesh->GetHeightMapSRV(), normalmap->getTexture11(),
-						mShadowMapTarget->SRView, detailmap->getTexture11(),
-						mSSAOTarget->SRView);
+					m_TerrainTessellationQuadShader->Wireframe() = bWireframe;
+					m_TerrainTessellationQuadShader->Render(
+						node->m_index_count,
+						pCamera,
+						light,
+						tsc,
+						m_quadtreeMesh->GetHeightMapSRV(),
+						m_quadtreeMesh->GetMaterial()
+					);
 				}
 				break;
 				case ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList:
 				{
-					m_TerrainTessellationTriShader->UseCustomWorld(true);
+					/*m_TerrainTessellationTriShader->UseCustomWorld(true);
 					m_TerrainTessellationTriShader->SetCustomWorld(ZShadeSandboxMath::ZMath::GMathFM(mWorld));
 					m_TerrainTessellationTriShader->Render(node->m_index_count, pCamera, lightcamera, bReflect, tsc,
 						diffuseArray->getTexture11(), blendmap->getTexture11(),
 						m_quadtreeMesh->GetHeightMapSRV(), normalmap->getTexture11(),
-						mShadowMapTarget->SRView);
+						mShadowMapTarget->SRView);*/
 				}
 				break;
 			}
@@ -563,10 +566,10 @@ void QuadTreeRenderer::Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCa
 	else
 	{
 		//Render the children
-		Render(node->children[0], pCamera, lightcamera, tsc, bReflect);
-		Render(node->children[1], pCamera, lightcamera, tsc, bReflect);
-		Render(node->children[2], pCamera, lightcamera, tsc, bReflect);
-		Render(node->children[3], pCamera, lightcamera, tsc, bReflect);
+		Render(node->children[0], pCamera, light, tsc);
+		Render(node->children[1], pCamera, light, tsc);
+		Render(node->children[2], pCamera, light, tsc);
+		Render(node->children[3], pCamera, light, tsc);
 	}
 }
 //================================================================================================================

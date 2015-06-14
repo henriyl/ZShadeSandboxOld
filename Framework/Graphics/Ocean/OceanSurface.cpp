@@ -55,7 +55,7 @@ void OceanSurface::SetRefractionMap(ID3D11ShaderResourceView* srv)
 //==============================================================================================================================
 void OceanSurface::SetWireframe(bool wire)
 {
-	mSurfaceShader->SetWireframe(wire);
+	mSurfaceShader->Wireframe() = wire;
 }
 //==============================================================================================================================
 void OceanSurface::Update(float seaLevel, float dt)
