@@ -79,6 +79,23 @@ void ShaderMaterial::BuildMaterialConstantBuffer(ID3D11Buffer*& buffer, XMFLOAT3
 	}
 }
 //==============================================================================================================================
+void ShaderMaterial::BuildMaterialVertexConstBuffer(ID3D11Buffer*& buffer)
+{
+	ZShadeSandboxLighting::cbMaterialVertexBuffer cVB;
+	cVB.materialpadding2 = XMFLOAT3(0, 0, 0);
+	cVB.g_UsingDisplacementMap = (bHasDisplacementMap) ? 1 : 0;
+	// Map the Material shading constant buffer
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped_res;
+		m_D3DSystem->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
+		{
+			assert(mapped_res.pData);
+			*(ZShadeSandboxLighting::cbMaterialVertexBuffer*)mapped_res.pData = cVB;
+		}
+		m_D3DSystem->GetDeviceContext()->Unmap(buffer, 0);
+	}
+}
+//==============================================================================================================================
 void ShaderMaterial::BuildMaterialTessellationBuffer(ID3D11Buffer*& buffer, XMFLOAT3 eye)
 {
 	ZShadeSandboxLighting::cbMaterialTessellationBuffer cTB;
@@ -138,6 +155,7 @@ void ShaderMaterial::GetTextures
 ,	ID3D11ShaderResourceView*& alphaMapTexture
 ,	ID3D11ShaderResourceView*& shadowMapTexture
 ,	ID3D11ShaderResourceView*& ssaoMapTexture
+,	ID3D11ShaderResourceView*& displacementMapTexture
 )
 {
 	for (int i = 0; i < TextureCount(); i++)
@@ -177,6 +195,9 @@ void ShaderMaterial::GetTextures
 			case ZShadeSandboxLighting::EMaterialTextureType::eSSAOMap:
 				ssaoMapTexture = GetTexture(i)->getTexture11();
 			break;
+			case ZShadeSandboxLighting::EMaterialTextureType::eDisplacementMap:
+				displacementMapTexture = GetTexture(i)->getTexture11();
+			break;
 		}
 	}
 }
@@ -213,6 +234,7 @@ void ShaderMaterial::Init()
 	bHasAlphaMapTexture = false;
 	bHasShadowMap = false;
 	bHasSSAOMap = false;
+	bHasDisplacementMap = false;
 	bEnableLighting = true;
 	bFlipTextureH = false;
 	bFlipTextureV = false;
@@ -402,6 +424,20 @@ void ShaderMaterial::SetMaterialSSAOMapTexture(ID3D11ShaderResourceView* texSRV)
 	mMaterialTextures.push_back(matTexture);
 }
 //==============================================================================================================================
+void ShaderMaterial::SetMaterialDisplacementMapTexture(ID3D11ShaderResourceView* texSRV)
+{
+	Texture* tex = new Texture(m_D3DSystem);
+	tex->SetSRV(texSRV);
+
+	MaterialTextureType* matTexture = new MaterialTextureType();
+	matTexture->materialTextureType = EMaterialTextureType::eDisplacementMap;
+	matTexture->texture = tex;
+
+	bHasDisplacementMap = true;
+
+	mMaterialTextures.push_back(matTexture);
+}
+//==============================================================================================================================
 void ShaderMaterial::AddDiffuseTexture(BetterString texturePath, BetterString textureName)
 {
 	Texture* tex = new Texture(m_D3DSystem);
@@ -510,6 +546,20 @@ void ShaderMaterial::AddAlphaMapTexture(BetterString texturePath, BetterString t
 	matTexture->texture = tex;
 	
 	bHasAlphaMapTexture = true;
+
+	mMaterialTextures.push_back(matTexture);
+}
+//==============================================================================================================================
+void ShaderMaterial::AddDisplacementMapTexture(BetterString texturePath, BetterString textureName)
+{
+	Texture* tex = new Texture(m_D3DSystem);
+	tex->Initialize(texturePath, textureName);
+
+	MaterialTextureType* matTexture = new MaterialTextureType();
+	matTexture->materialTextureType = EMaterialTextureType::eDisplacementMap;
+	matTexture->texture = tex;
+
+	bHasDisplacementMap = true;
 
 	mMaterialTextures.push_back(matTexture);
 }

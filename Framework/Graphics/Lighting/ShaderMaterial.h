@@ -37,7 +37,8 @@ namespace EMaterialTextureType
 		eBlend,
 		eAlpha,
 		eShadowMap,
-		eSSAOMap
+		eSSAOMap,
+		eDisplacementMap
 	};
 }
 
@@ -85,6 +86,7 @@ public:
 	void AddNormalMapTexture(BetterString texturePath, BetterString textureName);
 	void AddBlendMapTexture(BetterString texturePath, BetterString textureName);
 	void AddAlphaMapTexture(BetterString texturePath, BetterString textureName);
+	void AddDisplacementMapTexture(BetterString texturePath, BetterString textureName);
 	
 	void SetMaterialDiffuseTexture(ID3D11ShaderResourceView* texSRV);
 	void SetMaterialAmbientTexture(ID3D11ShaderResourceView* texSRV);
@@ -96,6 +98,7 @@ public:
 	void SetMaterialAlphaMapTexture(ID3D11ShaderResourceView* texSRV);
 	void SetMaterialShadowMapTexture(ID3D11ShaderResourceView* texSRV);
 	void SetMaterialSSAOMapTexture(ID3D11ShaderResourceView* texSRV);
+	void SetMaterialDisplacementMapTexture(ID3D11ShaderResourceView* texSRV);
 
 	void RemoveTexture(int i);
 
@@ -120,9 +123,11 @@ public:
 	,	ID3D11ShaderResourceView*& alphaMapTexture
 	,	ID3D11ShaderResourceView*& shadowMapTexture
 	,	ID3D11ShaderResourceView*& ssaoMapTexture
+	,	ID3D11ShaderResourceView*& displacementMapTexture
 	);
 	
 	void BuildMaterialConstantBuffer(ID3D11Buffer*& buffer, XMFLOAT3 eye, XMFLOAT4 clipplane);
+	void BuildMaterialVertexConstBuffer(ID3D11Buffer*& buffer);
 	void BuildMaterialTessellationBuffer(ID3D11Buffer*& buffer, XMFLOAT3 eye);
 	void BuildMaterialDomainBuffer(ID3D11Buffer*& buffer, XMMATRIX world, Camera* camera, XMFLOAT4 clipplane, bool reflection);
 	
@@ -229,6 +234,7 @@ public:
 	bool						bHasAlphaMapTexture;
 	bool						bHasShadowMap;
 	bool						bHasSSAOMap;
+	bool						bHasDisplacementMap;
 	bool						bEnableLighting;
 	bool						bFlipTextureH;
 	bool						bFlipTextureV;

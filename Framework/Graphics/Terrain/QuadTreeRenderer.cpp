@@ -69,6 +69,19 @@ QuadTreeRenderer::QuadTreeRenderer(D3D* d3d, ZShadeSandboxTerrain::QuadTreeMesh*
 	mGroundCursorCamera->LookAt() = XMFLOAT3(0, 0, 0);
 	mGroundCursorCamera->SetLens(8, 8, m_EngineOptions->fNearPlane, m_EngineOptions->fFarPlane);
 	
+	ZShadeSandboxMesh::MeshParameters mp;
+	mp.vertexType = ZShadeSandboxMesh::EVertexType::VT_NormalTex;
+	mp.rotationAxisX = false;
+	mp.rotationAxisY = false;
+	mp.rotationAxisZ = false;
+	mp.pos = XMFLOAT3(0, 0, 0);
+	mp.scale = XMFLOAT3(10, 10, 10);
+	mp.shader = 0;
+	mp.useCustomShader = false;
+	mp.material = MaterialManager::Instance()->GetMaterial("Target");
+	//mp.material->SetMaterialDisplacementMapTexture(m_quadtreeMesh->GetHeightMapSRV());
+	mCursorMesh = new ZShadeSandboxMesh::CubeMesh(d3d, mp);
+
 	/*if (QuadTreeRenderer::cursorMesh == 0)
 	{
 		ZShadeSandboxMesh::MeshParameters mp;
@@ -91,7 +104,7 @@ void QuadTreeRenderer::UpdateGroundCursor(XMFLOAT3 position)
 	mGroundCursorCamera->Update(position);
 
 	QuadTreeRenderer::mGroundCursorPos = position;
-	//QuadTreeRenderer::cursorMesh->Position() = QuadTreeRenderer::mGroundCursorPos;
+	//mCursorMesh->Position() = QuadTreeRenderer::mGroundCursorPos;
 	QuadTreeRenderer::mLastGroundCursorPos = QuadTreeRenderer::mGroundCursorPos;
 }
 //================================================================================================================
@@ -426,6 +439,10 @@ void QuadTreeRenderer::Render(Camera* pCamera, ZShadeSandboxLighting::Light* lig
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
 	mrp.camera = pCamera;
+	mrp.light = light;
+	m_d3d->TurnOffCulling();
+	mCursorMesh->Render(mrp);
+	m_d3d->TurnOnCulling();
 
 	// Need to fix the size of the bounding box with the terrain
 	if (bShowBoundingBox)

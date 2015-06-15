@@ -177,6 +177,7 @@ bool TerrainTessellationQuadShader::Render
 	ID3D11ShaderResourceView* alphaMapTexture = 0;
 	ID3D11ShaderResourceView* shadowMapTexture = 0;
 	ID3D11ShaderResourceView* ssaoTexture = 0;
+	ID3D11ShaderResourceView* displacementTexture = 0;
 
 	terrainMaterial->GetTextures(
 		diffuseArrayTexture,
@@ -189,7 +190,8 @@ bool TerrainTessellationQuadShader::Render
 		detailMapTexture,
 		alphaMapTexture,
 		shadowMapTexture,
-		ssaoTexture
+		ssaoTexture,
+		displacementTexture
 	);
 
 	ZShadeSandboxTerrain::BuildTerrainTessellationConstantBuffer(m_pD3DSystem, m_pTessellationCB, terrainShadingConst);

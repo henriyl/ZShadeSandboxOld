@@ -84,7 +84,8 @@ bool MaterialLightShader::Render11
 	ID3D11ShaderResourceView* alphaMapTexture = 0;
 	ID3D11ShaderResourceView* shadowMapTexture = 0;
 	ID3D11ShaderResourceView* ssaoTexture = 0;
-	
+	ID3D11ShaderResourceView* displacementMapTexture = 0;
+
 	material->GetTextures(
 		diffuseArrayTexture,
 		diffuseTexture,
@@ -96,7 +97,8 @@ bool MaterialLightShader::Render11
 		detailMapTexture,
 		alphaMapTexture,
 		shadowMapTexture,
-		ssaoTexture
+		ssaoTexture,
+		displacementMapTexture
 	);
 	
 	material->BuildMaterialConstantBuffer(m_pShadingCB, mrp.camera->Position(), mrp.clipplane);

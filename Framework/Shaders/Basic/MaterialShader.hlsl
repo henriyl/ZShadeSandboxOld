@@ -48,7 +48,7 @@ cbuffer cbShadingBuffer : register(b2)
 	int		g_UsingTransparency;
 	int		g_UsingShadowMap;
 	int		g_UsingSSAOMap;
-	float	materialpadding;
+	int		materialpadding;
 	float	g_FarPlane;
 	int		g_SpecularToggle;
 	int		g_EnableLighting;
@@ -63,6 +63,12 @@ cbuffer cbMatrixBuffer : register(b3)
 	matrix g_LightViewMatrix;
     matrix g_LightProjectionMatrix;
 };
+
+cbuffer cbVertexBuffer : register(b4)
+{
+	float3	materialpadding2;
+	int		g_UsingDisplacementMap;
+}
 
 //======================================================================================================
 
@@ -81,8 +87,10 @@ Texture2D g_MaterialDetailMapTexture 			: register(t7);
 Texture2D g_MaterialAlphaMapTexture 			: register(t8);
 Texture2D g_ShadowMap							: register(t9);
 Texture2D g_SSAOMap								: register(t10);
+Texture2D g_DisplacementMap						: register(t11);
 
-SamplerState g_LinearSampler : register(s0);
+SamplerState g_PointSampler		: register(s0);
+SamplerState g_LinearSampler	: register(s1);
 
 static const float SMAP_SIZE = 256.0f;
 static const float SMAP_DX = 1.0f / SMAP_SIZE;
@@ -151,6 +159,11 @@ PixelInput MaterialShaderVS(VertexInput input)
 	output.worldPos = mul(float4(input.position, 1.0), g_World);
 	
 	output.shadowPos = mul(float4(input.position, 1.0), g_ShadowMatrix);
+
+	//if (g_UsingDisplacementMap == 1)
+	//{
+	//	output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	//}
 	
     return output;
 }
@@ -183,6 +196,11 @@ PixelInput MaterialShaderInstanceVS(VertexInputInstance input, uint instanceID :
 	output.worldPos = mul(float4(input.position, 1.0), g_World);
 
 	output.shadowPos = mul(float4(input.position, 1.0), g_ShadowMatrix);
+
+	if (g_UsingDisplacementMap == 1)
+	{
+		output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
 
 	return output;
 }

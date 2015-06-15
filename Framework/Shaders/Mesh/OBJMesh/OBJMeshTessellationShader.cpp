@@ -75,6 +75,7 @@ bool OBJMeshTessellationShader::Render
 	ID3D11ShaderResourceView* alphaMapTexture = 0;
 	ID3D11ShaderResourceView* shadowMapTexture = 0;
 	ID3D11ShaderResourceView* ssaoTexture = 0;
+	ID3D11ShaderResourceView* displacementMapTexture = 0;
 
 	material->GetTextures(
 		diffuseArrayTexture,
@@ -87,8 +88,9 @@ bool OBJMeshTessellationShader::Render
 		detailMapTexture,
 		alphaMapTexture,
 		shadowMapTexture,
-		ssaoTexture
-		);
+		ssaoTexture,
+		displacementMapTexture
+	);
 
 	material->BuildMaterialTessellationBuffer(m_pTessellationCB, mrp.camera->Position());
 	material->BuildMaterialDomainBuffer(m_pDomainCB, mrp.world, mrp.camera, mrp.clipplane, mrp.reflection);

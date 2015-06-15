@@ -84,6 +84,7 @@ private:
 	static float	mGroundCursorScale;
 	static float	mGroundCursorStrength;
 	static ID3D11ShaderResourceView* mTargetSRV;
+	ZShadeSandboxMesh::CubeMesh* mCursorMesh;
 	ProjectedCamera* mGroundCursorCamera;
 
 	ZShadeSandboxTerrain::QuadTreeMesh* m_quadtreeMesh;
