@@ -8,6 +8,7 @@ DefaultMaterials::DefaultMaterials()
 //===============================================================================================================================
 void DefaultMaterials::Build(D3D* d3d, string base_path)
 {
+	MaterialManager::Instance()->AddDiffuse(d3d, base_path, "Target", "target.png");
 	MaterialManager::Instance()->AddDiffuse(d3d, base_path, "White", "white.png");
 	MaterialManager::Instance()->AddDiffuse(d3d, base_path, "Black", "black.png");
 	MaterialManager::Instance()->AddDiffuse(d3d, base_path, "Blue", "blue.png");

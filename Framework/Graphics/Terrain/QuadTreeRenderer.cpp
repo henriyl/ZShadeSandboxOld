@@ -1,7 +1,18 @@
 #include "afxHeader.h"
 #include "QuadTreeRenderer.h"
 #include "CGlobal.h"
+#include "TextureManager.h"
+#include "MaterialManager.h"
 using ZShadeSandboxTerrain::QuadTreeRenderer;
+//================================================================================================================
+ID3D11ShaderResourceView* QuadTreeRenderer::mTargetSRV = 0;
+ID3D11ShaderResourceView* QuadTreeRenderer::mBlendMapSRV = 0;
+bool		QuadTreeRenderer::mShowGroundCursor = true;
+XMFLOAT3	QuadTreeRenderer::mGroundCursorPos = XMFLOAT3(0, 0, 0);
+XMFLOAT3	QuadTreeRenderer::mLastGroundCursorPos = XMFLOAT3(0, 0, 0);
+float		QuadTreeRenderer::mGroundCursorSize = 0;
+float		QuadTreeRenderer::mGroundCursorScale = 0;
+float		QuadTreeRenderer::mGroundCursorStrength = 0;
 //================================================================================================================
 QuadTreeRenderer::QuadTreeRenderer(D3D* d3d, ZShadeSandboxTerrain::QuadTreeMesh* qtm)
 :	m_d3d(d3d)
@@ -30,6 +41,58 @@ QuadTreeRenderer::QuadTreeRenderer(D3D* d3d, ZShadeSandboxTerrain::QuadTreeMesh*
 
 	//Load the world matrix
 	XMStoreFloat4x4(&mWorld, XMMatrixIdentity());
+
+	if (QuadTreeRenderer::mTargetSRV == 0)
+	{
+		QuadTreeRenderer::mTargetSRV = TextureManager::Instance()->GetTexture("Textures\\target.png");
+
+		QuadTreeRenderer::mGroundCursorSize = 2;
+		QuadTreeRenderer::mGroundCursorScale = 40;
+		QuadTreeRenderer::mGroundCursorStrength = 50;
+	}
+
+	bTextureUpdated = false;
+
+	int size = m_quadtreeMesh->GetQuadTree()->MapSize();
+
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			mBlendMapValues.push_back(XMFLOAT4(0, 0, 0, 0));
+		}
+	}
+
+	BuildBlendMapSRV();
+
+	mGroundCursorCamera = new ProjectedCamera();
+	mGroundCursorCamera->LookAt() = XMFLOAT3(0, 0, 0);
+	mGroundCursorCamera->SetLens(8, 8, m_EngineOptions->fNearPlane, m_EngineOptions->fFarPlane);
+	
+	/*if (QuadTreeRenderer::cursorMesh == 0)
+	{
+		ZShadeSandboxMesh::MeshParameters mp;
+		mp.vertexType = ZShadeSandboxMesh::EVertexType::VT_NormalTex;
+		mp.rotationAxisX = false;
+		mp.rotationAxisY = false;
+		mp.rotationAxisZ = false;
+		mp.pos = XMFLOAT3(0, 0, 0);
+		mp.scale = XMFLOAT3(1, 1, 1);
+		mp.shader = 0;
+		mp.useCustomShader = false;
+		mp.material = MaterialManager::Instance()->GetMaterial("Target");
+		QuadTreeRenderer::cursorMesh = new ZShadeSandboxMesh::QuadMesh(d3d, mp, true);
+	}*/
+}
+//================================================================================================================
+void QuadTreeRenderer::UpdateGroundCursor(XMFLOAT3 position)
+{
+	// Build the ground cursor camera view
+	mGroundCursorCamera->Update(position);
+
+	QuadTreeRenderer::mGroundCursorPos = position;
+	//QuadTreeRenderer::cursorMesh->Position() = QuadTreeRenderer::mGroundCursorPos;
+	QuadTreeRenderer::mLastGroundCursorPos = QuadTreeRenderer::mGroundCursorPos;
 }
 //================================================================================================================
 XMMATRIX QuadTreeRenderer::GetWorld()
@@ -361,11 +424,12 @@ void QuadTreeRenderer::Render(Camera* pCamera, ZShadeSandboxLighting::Light* lig
 	if (!m_EngineOptions->m_d3dVersion == DIRECTX11)
 		return;
 	
+	ZShadeSandboxMesh::MeshRenderParameters mrp;
+	mrp.camera = pCamera;
+
 	// Need to fix the size of the bounding box with the terrain
 	if (bShowBoundingBox)
 	{
-		ZShadeSandboxMesh::MeshRenderParameters mrp;
-		mrp.camera = pCamera;
 		//if (bReflect)
 		//{
 		//	mrp.bReflection = true;
@@ -375,6 +439,34 @@ void QuadTreeRenderer::Render(Camera* pCamera, ZShadeSandboxLighting::Light* lig
 		m_quadtreeMesh->GetRootBoxMesh()->Render(mrp);
 	}
 	
+	XMMATRIX scale, rx, ry, rz, translate;
+	scale = XMMatrixScaling(0.03f, 0.03f, 0.03f);
+	rx = XMMatrixRotationX(0);
+	ry = XMMatrixRotationY(0);
+	rz = XMMatrixRotationZ(0);
+	translate = XMMatrixTranslation(QuadTreeRenderer::mGroundCursorPos.x, QuadTreeRenderer::mGroundCursorPos.y, QuadTreeRenderer::mGroundCursorPos.z);
+	XMMATRIX world = XMMatrixIdentity();
+	world = XMMatrixMultiply(world, scale);
+	world = XMMatrixMultiply(world, rx);
+	world = XMMatrixMultiply(world, ry);
+	world = XMMatrixMultiply(world, rz);
+	world = XMMatrixMultiply(world, translate);
+
+	tsc.g_inEditingTerrainHeight = 1;
+	tsc.g_GroundCursorPosition = QuadTreeRenderer::mGroundCursorPos;
+	tsc.g_GroundCursorSize = QuadTreeRenderer::mGroundCursorSize;
+	tsc.g_CursorScale = QuadTreeRenderer::mGroundCursorScale;
+	
+	tsc.g_GroundCursorWorld = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(world));
+	tsc.g_GroundCursorView = mGroundCursorCamera->View4x4();
+	tsc.g_GroundCursorProj = mGroundCursorCamera->Proj4x4();
+
+	if (!bTextureUpdated)
+	{
+		m_quadtreeMesh->GetMaterial()->SetMaterialBlendMapTexture(mBlendMapSRV);
+		bTextureUpdated = true;
+	}
+
 	/*ZShadeSandboxLighting::ShaderMaterial* mat = m_quadtreeMesh->GetMaterial();
 
 	tsc.g_MaterialDiffuseColor = mat->vDiffuseColor;
@@ -539,6 +631,7 @@ void QuadTreeRenderer::Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCa
 						light,
 						tsc,
 						m_quadtreeMesh->GetHeightMapSRV(),
+						QuadTreeRenderer::mTargetSRV,
 						m_quadtreeMesh->GetMaterial()
 					);
 				}
@@ -599,5 +692,39 @@ void QuadTreeRenderer::RenderMeshBuffers(ZShadeSandboxTerrain::QMeshNode* node)
 			m_d3d->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		break;
 	}
+}
+//================================================================================================================
+void QuadTreeRenderer::BuildBlendMapSRV()
+{
+	D3D11_TEXTURE2D_DESC texDesc;
+	texDesc.Width = m_quadtreeMesh->GetQuadTree()->MapSize();
+	texDesc.Height = m_quadtreeMesh->GetQuadTree()->MapSize();
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = DXGI_FORMAT_R16_FLOAT;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = &mBlendMapValues[0];
+	data.SysMemPitch = m_quadtreeMesh->GetQuadTree()->MapSize() * sizeof(XMFLOAT4);
+	data.SysMemSlicePitch = 0;
+
+	ID3D11Texture2D* hmapTex = 0;
+	m_d3d->GetDevice11()->CreateTexture2D(&texDesc, &data, &hmapTex);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = texDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = -1;
+	m_d3d->GetDevice11()->CreateShaderResourceView(hmapTex, &srvDesc, &mBlendMapSRV);
+
+	// SRV saves reference.
+	SAFE_RELEASE(hmapTex);
 }
 //================================================================================================================

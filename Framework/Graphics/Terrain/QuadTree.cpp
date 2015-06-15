@@ -526,6 +526,13 @@ void QuadTree::CreateNode(ZShadeSandboxTerrain::QNode*& node, XMFLOAT3 bounds[4]
 	}
 }
 //==============================================================================================================================
+float QuadTree::PerlinValue(int x, int y, int random)
+{
+	int n = x + y * 57 + (rand() % random) * 131;
+	n = (n << 13) ^ n;
+	return (1.0f - ((n * (SQR(n) * 15731 + 789221) + 1376312589) & 0x7fffffff) * 0.000000000931322574615478515625f);
+}
+//==============================================================================================================================
 XMFLOAT2 QuadTree::MinMaxY(XMFLOAT3 topLeft, XMFLOAT3 bottomRight)
 {
 	float fmax = FLT_MIN;

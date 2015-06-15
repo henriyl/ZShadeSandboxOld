@@ -1280,6 +1280,9 @@
     <ClCompile Include="Framework\Shaders\Basic\Shaders.cpp">
       <Filter>Framework\Shaders\Basic</Filter>
     </ClCompile>
+    <ClCompile Include="Framework\General\Camera\ProjectedCamera.cpp">
+      <Filter>Framework\General\Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZShadeResource.h" />
@@ -2441,6 +2444,9 @@
     </ClInclude>
     <ClInclude Include="Framework\Shaders\Basic\Shaders.h">
       <Filter>Framework\Shaders\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\General\Camera\ProjectedCamera.h">
+      <Filter>Framework\General\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

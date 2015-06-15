@@ -121,6 +121,8 @@ private:
 	// Creates the ZShadeSandboxShader::Shader Resource View for the height map
 	void BuildHeightmapSRV();
 	
+	float PerlinValue(int x, int y, int random);
+
 private:
 
 	//

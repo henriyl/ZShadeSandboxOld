@@ -4,6 +4,8 @@
 #include "AmbientLight.h"
 #include "LightShadingBuffers.h"
 #include "MaterialManager.h"
+#include "ProjectedCamera.h"
+
 //===============================================================================================================================
 //===============================================================================================================================
 TerrainEnvironment::TerrainEnvironment(LPCSTR base_window_name, LPCSTR render_window_name, EngineOptions* eo, bool init_lua)
@@ -42,7 +44,7 @@ void TerrainEnvironment::Init()
 	// Initialize the terrain
 	//
 	
-	fMapSize = 1024;
+	fMapSize = 256;// 1024;
 	fMinDist = 20.0f;
 	fMaxDist = fMapSize / 2;
 	fHeightScale = 1.0f;
@@ -54,8 +56,8 @@ void TerrainEnvironment::Init()
 	
 	ZShadeSandboxTerrain::TerrainParameters tp;
 	tp.g_extension = ZShadeSandboxTerrain::EHeightExtension::BMP;
-	//tp.g_heightmapName = "Textures/Terrain/heightmap01.bmp";
-	tp.g_heightmapName = "Textures/Terrain/valleyBig.bmp";
+	tp.g_heightmapName = "Textures/Terrain/heightmap01.bmp";
+	//tp.g_heightmapName = "Textures/Terrain/valleyBig.bmp";
 	tp.g_TerrainSize = fMapSize;
 	tp.g_leafWidth = fLeafWidth;
 	tp.g_cellSpacing = 0.5f;
@@ -66,11 +68,11 @@ void TerrainEnvironment::Init()
 	m_pQuadTreeMesh = new ZShadeSandboxTerrain::QuadTreeMesh(m_D3DSystem, tp);
 	
 	vector<string> names;
-	names.push_back("Textures\\grass.dds");
-	names.push_back("Textures\\darkdirt.dds");
-	names.push_back("Textures\\lightdirt.dds");
-	names.push_back("Textures\\darkgrass.dds");
-	names.push_back("Textures\\soil.dds");
+	names.push_back("Textures\\checker.dds");
+	//names.push_back("Textures\\darkdirt.dds");
+	//names.push_back("Textures\\lightdirt.dds");
+	//names.push_back("Textures\\darkgrass.dds");
+	//names.push_back("Textures\\soil.dds");
 	
 	m_pQuadTreeMesh->AddMaterialColors();
 	m_pQuadTreeMesh->AddSpecularPower();
@@ -348,7 +350,15 @@ void TerrainEnvironment::Render()
 	
 	if (mPickingRay != NULL)
 	{
-		if (bLeftMouseDown)
+		//ZShadeSandboxMath::XMMath3 rayTarget = ZShadeSandboxMath::XMMath3(mPickingRay->position) + ZShadeSandboxMath::XMMath3(mPickingRay->direction);// *rayLength;
+		//XMFLOAT3 gPos;
+		//gPos.x = rayTarget.x / (m_pQuadTreeMesh->GetQuadTree()->MapSize() * m_pQuadTreeMesh->GetQuadTree()->LeafWidth());
+		//gPos.y = rayTarget.y;
+		//gPos.z = rayTarget.z / (m_pQuadTreeMesh->GetQuadTree()->MapSize() * m_pQuadTreeMesh->GetQuadTree()->LeafWidth());
+
+		//m_pQuadTreeRenderer->UpdateGroundCursor(gPos);
+
+		//if (bLeftMouseDown)
 		{
 			bLeftMouseDown = false;
 			bool hit = false;
@@ -357,6 +367,8 @@ void TerrainEnvironment::Render()
 			m_pQuadTreeMesh->Intersects(ray, hit, hitPoint);
 			if (hit)
 			{
+				m_pQuadTreeRenderer->UpdateGroundCursor(hitPoint);
+
 				// Create a sphere at the point of intersection
 				if (mPickingSphere == NULL)
 				{

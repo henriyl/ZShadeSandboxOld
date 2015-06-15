@@ -1,2 +1,2 @@
-texconv colorm01.bmp
+texconv checker.png
 pause

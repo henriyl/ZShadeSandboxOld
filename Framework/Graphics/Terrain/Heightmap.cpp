@@ -125,7 +125,8 @@ bool Heightmap::LoadElevation(string heightmap)
 			{
 				for (i = 0; i < m_heightmap_width; i++)
 				{
-					height = (bitmapImage[k]/* / 255.0f*/) * m_height_scale;
+					//height = (bitmapImage[k] / 255.0f) * m_height_scale;
+					height = bitmapImage[k] * m_height_scale;
 
 					_data.x = i;
 					_data.y = height;

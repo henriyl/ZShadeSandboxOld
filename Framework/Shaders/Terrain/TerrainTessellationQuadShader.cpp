@@ -65,6 +65,7 @@ bool TerrainTessellationQuadShader::Render
 ,	ZShadeSandboxLighting::Light* light
 ,	ZShadeSandboxTerrain::TerrainShadingConst terrainShadingConst
 ,	ID3D11ShaderResourceView* heightMapSRV
+,	ID3D11ShaderResourceView* targetSRV
 ,	ZShadeSandboxLighting::ShaderMaterial* terrainMaterial
 )
 {
@@ -218,8 +219,8 @@ bool TerrainTessellationQuadShader::Render
 	ID3D11ShaderResourceView* vsds_srvs[1] = { heightMapSRV };
 	
 	// Set the textures into the Pixel Shader
-	ID3D11ShaderResourceView* ps_srvs[7] = {
-		diffuseArrayTexture, blendMapTexture, normalMapTexture, heightMapSRV, detailMapTexture, shadowMapTexture, ssaoTexture
+	ID3D11ShaderResourceView* ps_srvs[8] = {
+		diffuseArrayTexture, blendMapTexture, normalMapTexture, heightMapSRV, detailMapTexture, shadowMapTexture, ssaoTexture, targetSRV
 	};
 	ID3D11SamplerState* ps_samp[3] = { m_pD3DSystem->Point(), m_pD3DSystem->Linear(), m_pD3DSystem->ShadowMapPCF() };
 	
@@ -234,7 +235,7 @@ bool TerrainTessellationQuadShader::Render
 		
 		m_pD3DSystem->GetDeviceContext()->VSSetShaderResources(3, 1, vsds_srvs);
 		m_pD3DSystem->GetDeviceContext()->DSSetShaderResources(3, 1, vsds_srvs);
-		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 7, ps_srvs);
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 8, ps_srvs);
 
 		SwitchTo("TerrainTessellationQuadPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
@@ -267,8 +268,8 @@ bool TerrainTessellationQuadShader::Render
 		m_pD3DSystem->GetDeviceContext()->VSSetShaderResources(0, 1, vsds_srvs);
 		m_pD3DSystem->GetDeviceContext()->DSSetShaderResources(0, 1, vsds_srvs);
 		
-		for (int i = 0; i < 7; i++) ps_srvs[i] = NULL;
-		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 7, ps_srvs);
+		for (int i = 0; i < 8; i++) ps_srvs[i] = NULL;
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 8, ps_srvs);
 	}
 	
 	return true;

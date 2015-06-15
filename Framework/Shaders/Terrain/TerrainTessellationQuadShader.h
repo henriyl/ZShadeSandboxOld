@@ -42,6 +42,7 @@ public:
 	,	ZShadeSandboxLighting::Light* light
 	,	ZShadeSandboxTerrain::TerrainShadingConst terrainShadingConst
 	,	ID3D11ShaderResourceView* heightMapSRV
+	,	ID3D11ShaderResourceView* targetSRV
 	,	ZShadeSandboxLighting::ShaderMaterial* terrainMaterial
 	);
 

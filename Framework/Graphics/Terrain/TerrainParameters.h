@@ -108,6 +108,15 @@ struct TerrainShadingConst
 	float       	g_TexelCellSpaceU;
 	float       	g_TexelCellSpaceV;
 
+	// Terrain editor attributes
+	float			g_GroundCursorSize;
+	int				g_inEditingTerrainHeight;
+	XMFLOAT3		g_GroundCursorPosition;
+	float			g_CursorScale;
+	XMFLOAT4X4		g_GroundCursorWorld;
+	XMFLOAT4X4		g_GroundCursorView;
+	XMFLOAT4X4		g_GroundCursorProj;
+
 	// The parameters for terrain/water updating
 	XMFLOAT4      	g_ClipPlane;
 };
@@ -137,6 +146,9 @@ struct cbDomainConstBuffer
 	XMFLOAT4X4	g_ProjMatrix;
 	XMFLOAT4X4	g_TexSpaceMatrix;
 	XMFLOAT4X4  g_ShadowMatrix;
+	XMFLOAT4X4	g_GroundCursorWorld;
+	XMFLOAT4X4	g_GroundCursorView;
+	XMFLOAT4X4	g_GroundCursorProj;
 };
 //==============================================================================================================================
 //==============================================================================================================================
@@ -175,8 +187,14 @@ struct cbShadingConstBuffer
 	int			g_useNormalMap;
 	int			g_UseSobelFilter;
 	int			g_useShadowMap;
-	XMFLOAT3	tpadding2;
+	int			tpadding2;
 	int			g_useSSAO;
+
+	// Terrain editor attributes
+	float		g_GroundCursorSize;
+	int			g_inEditingTerrainHeight;
+	XMFLOAT3	g_GroundCursorPosition;
+	float		g_CursorScale;
 
 	XMFLOAT4X4	g_ViewMatrix;
 };
@@ -222,6 +240,9 @@ inline void BuildTerrainDomainConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer, XM
 	XMMATRIX toTexSpace = XMMatrixScaling(0.5f, -0.5f, 1.0f) * XMMatrixTranslation(0.5f, 0.5f, 0);
 	cDB.g_TexSpaceMatrix = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(toTexSpace));
 	cDB.g_ShadowMatrix = light->Perspective()->ShadowTransform4x4();
+	cDB.g_GroundCursorWorld = tsc.g_GroundCursorWorld;
+	cDB.g_GroundCursorView = tsc.g_GroundCursorView;
+	cDB.g_GroundCursorProj = tsc.g_GroundCursorProj;
 	// Map the terrain domain constant buffer
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped_res;
@@ -260,9 +281,13 @@ inline void BuildTerrainShadingConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer, X
 	cSB.g_useNormalMap = tsc.g_useNormalMap;
 	cSB.g_UseSobelFilter = tsc.g_UseSobelFilter;
 	cSB.g_useShadowMap = tsc.g_useShadowMap;
-	cSB.tpadding2 = XMFLOAT3(0, 0, 0);
+	cSB.tpadding2 = 0;
 	cSB.g_useSSAO = tsc.g_useSSAO;
 	cSB.g_ViewMatrix = view;
+	cSB.g_GroundCursorSize = tsc.g_GroundCursorSize;
+	cSB.g_inEditingTerrainHeight = tsc.g_inEditingTerrainHeight;
+	cSB.g_GroundCursorPosition = tsc.g_GroundCursorPosition;
+	cSB.g_CursorScale = tsc.g_CursorScale;
 	// Map the terrain tessellation constant buffer
 	{
 		D3D11_MAPPED_SUBRESOURCE mapped_res;
