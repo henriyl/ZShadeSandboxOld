@@ -160,10 +160,10 @@ PixelInput MaterialShaderVS(VertexInput input)
 	
 	output.shadowPos = mul(float4(input.position, 1.0), g_ShadowMatrix);
 
-	//if (g_UsingDisplacementMap == 1)
-	//{
-	//	output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
-	//}
+	if (g_UsingDisplacementMap == 1)
+	{
+		output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
 	
     return output;
 }
