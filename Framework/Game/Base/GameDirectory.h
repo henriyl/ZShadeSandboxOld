@@ -78,6 +78,7 @@ struct GameDirectory3D
 	string m_scripts_path;
 	string m_music_path;
 	string m_materials_path;
+	string m_heightmaps_path;
 	string m_models_path;
 	string m_textures_path;
 	string m_xml_path;

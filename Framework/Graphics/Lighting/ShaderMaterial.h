@@ -127,7 +127,6 @@ public:
 	);
 	
 	void BuildMaterialConstantBuffer(ID3D11Buffer*& buffer, XMFLOAT3 eye, XMFLOAT4 clipplane);
-	void BuildMaterialVertexConstBuffer(ID3D11Buffer*& buffer);
 	void BuildMaterialTessellationBuffer(ID3D11Buffer*& buffer, XMFLOAT3 eye);
 	void BuildMaterialDomainBuffer(ID3D11Buffer*& buffer, XMMATRIX world, Camera* camera, XMFLOAT4 clipplane, bool reflection);
 	

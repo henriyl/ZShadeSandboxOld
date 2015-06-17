@@ -38,6 +38,7 @@ public:
 	
 	bool Render11
 	(	int indexCount
+	,	int instanceCount
 	,	ZShadeSandboxMesh::MeshRenderParameters mrp
 	,	ZShadeSandboxLighting::ShaderMaterial* material
 	);

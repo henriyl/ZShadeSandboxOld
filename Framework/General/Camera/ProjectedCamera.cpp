@@ -26,7 +26,7 @@ void ProjectedCamera::SetLens(int width, int height, int nearPlane, int farPlane
 	fAspect = (float)width / (float)height;
 	fNear = nearPlane;
 	fFar = farPlane;
-	//mProj = XMMatrixPerspectiveFovLH(fFOV, fAspect, fNear, fFar);
-	mProj = XMMatrixOrthographicLH(width, height, fNear, fFar);
+	mProj = XMMatrixPerspectiveFovLH(fFOV, fAspect, fNear, fFar);
+	//mProj = XMMatrixOrthographicLH(width, height, fNear, fFar);
 }
 //==================================================================================================================================

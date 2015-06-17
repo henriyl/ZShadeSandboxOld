@@ -27,10 +27,6 @@ bool MaterialShader::Initialize()
 	matrixCB.Initialize(PAD16(sizeof(cbMatrixBufferLight)));
 	m_pMatrixCB = matrixCB.Buffer();
 	
-	ConstantBuffer<ZShadeSandboxLighting::cbMaterialVertexBuffer> vertexCB(m_pD3DSystem);
-	vertexCB.Initialize(PAD16(sizeof(ZShadeSandboxLighting::cbMaterialVertexBuffer)));
-	m_pVertexCB = vertexCB.Buffer();
-
 	ConstantBuffer<ZShadeSandboxLighting::cbLightBuffer> lightCB(m_pD3DSystem);
 	lightCB.Initialize(PAD16(sizeof(ZShadeSandboxLighting::cbLightBuffer)));
 	m_pLightCB = lightCB.Buffer();
@@ -96,28 +92,33 @@ bool MaterialShader::Render11
 	);
 	
 	material->BuildMaterialConstantBuffer(m_pShadingCB, mrp.camera->Position(), mrp.clipplane);
-	material->BuildMaterialVertexConstBuffer(m_pVertexCB);
 
 	mrp.camera->BuildCameraConstantBuffer(m_pD3DSystem, m_pMatrixCB, mrp.light, mrp.world, mrp.reflection);
 	
 	ZShadeSandboxLighting::LightManager::Instance()->BuildFinalLightBuffers(m_pLightCB, m_pSunCB);
 	
 	
-	ID3D11Buffer* vs_cbs[3] = { m_pShadingCB, m_pMatrixCB, m_pVertexCB };
-	m_pD3DSystem->GetDeviceContext()->VSSetConstantBuffers(2, 3, vs_cbs);
+	ID3D11Buffer* vs_cbs[2] = { m_pShadingCB, m_pMatrixCB };
+	m_pD3DSystem->GetDeviceContext()->VSSetConstantBuffers(2, 2, vs_cbs);
 	
 	ID3D11Buffer* ps_cbs[3] = { m_pLightCB, m_pSunCB, m_pShadingCB };
 	m_pD3DSystem->GetDeviceContext()->PSSetConstantBuffers(0, 3, ps_cbs);
 	
-	ID3D11ShaderResourceView* ps_srvs[12] = { diffuseArrayTexture, diffuseTexture, ambientTexture, specularTexture, emissiveTexture, normalMapTexture, blendMapTexture, detailMapTexture, alphaMapTexture, shadowMapTexture, ssaoTexture, displacementMapTexture };
+	ID3D11ShaderResourceView* ps_srvs[11] = { diffuseArrayTexture, diffuseTexture, ambientTexture, specularTexture, emissiveTexture, normalMapTexture, blendMapTexture, detailMapTexture, alphaMapTexture, shadowMapTexture, ssaoTexture };
 	ID3D11SamplerState* ps_samp[2] = { m_pD3DSystem->Point(), m_pD3DSystem->Linear() };
 	
+	ID3D11ShaderResourceView* vs_srvs[1] = { displacementMapTexture };
+
 	if (!m_Wireframe)
 	{
 		// Assign Texture
-		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 12, ps_srvs);
+		
+		m_pD3DSystem->GetDeviceContext()->VSSetSamplers(0, 2, ps_samp);
 		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 2, ps_samp);
 		
+		m_pD3DSystem->GetDeviceContext()->VSSetShaderResources(11, 1, vs_srvs);
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 11, ps_srvs);
+
 		SwitchTo("MaterialShaderPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
 	else
@@ -154,10 +155,14 @@ bool MaterialShader::Render11
 	{
 		ps_samp[0] = NULL;
 		ps_samp[1] = NULL;
+		m_pD3DSystem->GetDeviceContext()->VSSetSamplers(0, 2, ps_samp);
 		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 2, ps_samp);
 		
-		for (int i = 0; i < 12; i++) ps_srvs[i] = NULL;
-		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 12, ps_srvs);
+		vs_srvs[0] = NULL;
+		m_pD3DSystem->GetDeviceContext()->VSSetShaderResources(11, 1, vs_srvs);
+
+		for (int i = 0; i < 11; i++) ps_srvs[i] = NULL;
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 11, ps_srvs);
 	}
 
 	return true;

@@ -35,9 +35,6 @@ cbuffer cbDomainConst : register(b3)
 	matrix	g_ProjMatrix;
 	matrix	g_TexSpaceMatrix;
 	matrix	g_ShadowMatrix;
-	matrix	g_GroundCursorWorld;
-	matrix	g_GroundCursorView;
-	matrix	g_GroundCursorProj;
 };
 
 cbuffer cbShadingConst : register(b4)
@@ -75,14 +72,8 @@ cbuffer cbShadingConst : register(b4)
 	int			g_useNormalMap;
 	int			g_UseSobelFilter;
 	int			g_useShadowMap;
-	int			tpadding;
+	float3		tpadding;
 	int			g_useSSAO;
-
-	// Terrain editor attributes
-	float		g_GroundCursorSize;
-	int			g_inEditingTerrainHeight;
-	float3		g_GroundCursorPosition;
-	float		g_CursorScale;
 
 	matrix		g_View;
 };
@@ -104,12 +95,9 @@ Texture2D	   g_DetailMap		: register(t4);
 Texture2D	   g_ShadowMap		: register(t5);
 Texture2D	   g_SSAOMap		: register(t6);
 
-// This is for the terrain editor
-Texture2D	   g_Target			: register(t7);
-
 SamplerState g_PointSampler							: register(s0);
 SamplerState g_LinearSampler						: register(s1);
-SamplerComparisonState ShadowMapSamplerComparison	: register(s2);
+SamplerComparisonState ShadowMapSamplerComparison	: register(s3);
 
 //======================================================================================================
 
@@ -259,7 +247,6 @@ struct PixelInput
 	float4 depth		: TEXCOORD4;
 	float4 shadowPos	: TEXCOORD5;
 	float4 ssaoPos		: TEXCOORD6;
-	float4 cursorPos	: TEXCOORD7;
 };
 
 [domain("quad")]
@@ -314,10 +301,6 @@ PixelInput TerrainTessellationQuadDS(PatchConstOutput input, float2 uv : SV_Doma
 	output.ssaoPos = mul(float4(vPos, 1.0f), g_ViewMatrix);
 	output.ssaoPos = mul(output.ssaoPos, g_ProjMatrix);
 	output.ssaoPos = mul(output.ssaoPos, g_TexSpaceMatrix);
-
-	output.cursorPos = mul(float4(vPos, 1.0f), g_GroundCursorWorld);
-	output.cursorPos = mul(output.cursorPos, g_GroundCursorView);
-	output.cursorPos = mul(output.cursorPos, g_GroundCursorProj);
 
 	return output;
 }
@@ -656,59 +639,6 @@ float4 TerrainTessellationQuadPS(PixelInput input) : SV_Target
 	{
 		clip((input.clip < 0.0) ? -1 : 1);
 	}
-
-	//============================================ Add the ground cursor color
-
-	if (g_inEditingTerrainHeight == 1)
-	{
-		//input.cursorPos.xyz /= input.cursorPos.w;
-
-		//if (input.cursorPos.x < -1.0f || input.cursorPos.x > 1.0f ||
-		//	input.cursorPos.y < -1.0f || input.cursorPos.y > 1.0f)//||
-		//	//In.DecalprojTex.z < 0.0f )
-		//{
-
-		//}
-		//else
-		//{
-		//	input.cursorPos.x =  0.5f * input.cursorPos.x + 0.5f;
-		//	input.cursorPos.y = -0.5f * input.cursorPos.y + 0.5f;
-
-		//	float2 groundCursorUV = input.cursorPos.xy;
-
-		//	float4 targetColor = g_Target.Sample(g_LinearSampler, groundCursorUV);
-
-		//	//blend the 2 images
-		//	finalColor = lerp(float4(finalColor.rgb, 0.5f), targetColor, 0.8f);
-		//}
-		
-		//float2 groundCursorUV;
-
-		//groundCursorUV.x =  input.cursorPos.x / input.cursorPos.w / 2.0f + 0.5f;
-		//groundCursorUV.y = -input.cursorPos.y / input.cursorPos.w / 2.0f + 0.5f;
-
-		//if ((saturate(groundCursorUV.x) == groundCursorUV.x) && (saturate(groundCursorUV.y) == groundCursorUV.y))
-		//{
-		//	float4 targetColor = g_Target.Sample(g_LinearSampler, groundCursorUV);
-
-		//	//blend the 2 images
-		//	finalColor = lerp(float4(finalColor.rgb, 0.5f), targetColor, 0.8f);
-		//}
-	}
-
-	//if (g_inEditingTerrainHeight == 1)
-	//{
-	//	float4 cursorColor = g_Target.Sample(g_LinearSampler, (input.uv * (g_CursorScale / g_GroundCursorSize)) - (g_GroundCursorPosition.xz * (g_CursorScale / g_GroundCursorSize)) + 0.5f);
-	//	//if (cursorColor.x == 1 && cursorColor.y == 1 && cursorColor.z == 1)
-	//	if (cursorColor.a == 0)
-	//	{
-
-	//	}
-	//	else
-	//	{
-	//		finalColor += cursorColor;
-	//	}
-	//}
 
 	//============================================ Combine all Colors
 

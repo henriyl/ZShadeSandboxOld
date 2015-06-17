@@ -74,6 +74,7 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	
 	// ==================================== Compile the Material Light Shader
 	Compile(d3d, "Basic\\MaterialLightShader.hlsl", "MaterialLightVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "Basic\\MaterialLightShader.hlsl", "MaterialLightInstanceVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "Basic\\MaterialLightShader.hlsl", "MaterialLightPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "Basic\\MaterialLightShader.hlsl", "MaterialLightWireframePS", EShaderTypes::ST_PIXEL);
 
@@ -87,24 +88,28 @@ void ShaderCompiler::CompileAll(D3D* d3d)
 	
 	// ==================================== Compile the Material Tessellation Shader
 	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationInstanceVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationHS", EShaderTypes::ST_HULL);
 	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationDS", EShaderTypes::ST_DOMAIN);
 	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "BasicTessellation\\QuadMaterialTessellation.hlsl", "QuadMaterialTessellationWireframePS", EShaderTypes::ST_PIXEL);
 	
 	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationInstanceVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationHS", EShaderTypes::ST_HULL);
 	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationDS", EShaderTypes::ST_DOMAIN);
 	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "BasicTessellation\\TriMaterialTessellation.hlsl", "TriMaterialTessellationWireframePS", EShaderTypes::ST_PIXEL);
 	
 	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationInstanceVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationHS", EShaderTypes::ST_HULL);
 	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationDS", EShaderTypes::ST_DOMAIN);
 	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationPS", EShaderTypes::ST_PIXEL);
 	Compile(d3d, "BasicTessellation\\QuadMaterialLightTessellation.hlsl", "QuadMaterialLightTessellationWireframePS", EShaderTypes::ST_PIXEL);
 
 	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationVS", EShaderTypes::ST_VERTEX);
+	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationInstanceVS", EShaderTypes::ST_VERTEX);
 	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationHS", EShaderTypes::ST_HULL);
 	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationDS", EShaderTypes::ST_DOMAIN);
 	Compile(d3d, "BasicTessellation\\TriMaterialLightTessellation.hlsl", "TriMaterialLightTessellationPS", EShaderTypes::ST_PIXEL);

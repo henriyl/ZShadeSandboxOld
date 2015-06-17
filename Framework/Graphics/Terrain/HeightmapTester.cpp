@@ -4,7 +4,7 @@ using ZShadeSandboxTerrain::HeightmapTester;
 HeightmapTester::HeightmapTester(string heightmap, D3D* d3d) :
 	m_d3d(d3d)
 {
-	m_heightmap = new ZShadeSandboxTerrain::Heightmap(heightmap, ZShadeSandboxTerrain::EHeightExtension::BMP, 0, 0, 0.5f, 50.0f, 64);
+	m_heightmap = new ZShadeSandboxTerrain::Heightmap(heightmap, 0, 0, 0.5f, 50.0f, 64);
 	//m_heightmap->LoadElevation(heightmap);
 	//m_heightmap->Normalize();
 

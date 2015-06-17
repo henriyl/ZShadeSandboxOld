@@ -69,7 +69,7 @@ cbuffer cbShadingBuffer : register(b4)
 	int		g_UsingTransparency;
 	int		g_UsingShadowMap;
 	int		g_UsingSSAOMap;
-	float	materialpadding;
+	int		g_UsingDisplacementMap;
 	float	g_FarPlanes;
 	int		g_SpecularToggle;
 	int		g_EnableLighting;
@@ -92,8 +92,10 @@ Texture2D g_MaterialDetailMapTexture 			: register(t7);
 Texture2D g_MaterialAlphaMapTexture 			: register(t8);
 Texture2D g_ShadowMap							: register(t9);
 Texture2D g_SSAOMap								: register(t10);
+Texture2D g_DisplacementMap						: register(t11);
 
-SamplerState g_LinearSampler	: register(s0);
+SamplerState g_PointSampler		: register(s0);
+SamplerState g_LinearSampler	: register(s1);
 
 //======================================================================================================
 
@@ -106,6 +108,14 @@ struct VertexInput
 	float3 position		: POSITION;
 	float3 normal		: NORMAL;
 	float2 uv			: TEXCOORD0;
+};
+
+struct VertexInputInstance
+{
+	float3 position				: POSITION;
+	float3 normal				: NORMAL;
+	float2 uv					: TEXCOORD0;
+	float3 instancePosition		: INSTANCEPOS;
 };
 
 struct HullInput
@@ -121,10 +131,42 @@ HullInput QuadMaterialTessellationVS(VertexInput input)
 	
 	// Pass vertex position into the hull shader
 	output.position = input.position;
-	
-	// Pass texture uv and normal into the hull shader
-	output.uv = input.uv;
+
+	if (g_UsingDisplacementMap == 1)
+	{
+		output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
+
+	// Pass normal into the hull shader
 	output.normal = input.normal;
+
+	// Pass texture uv into the hull shader
+	output.uv = input.uv;
+	
+	return output;
+}
+
+HullInput QuadMaterialTessellationInstanceVS(VertexInputInstance input, uint instanceID : SV_InstanceID)
+{
+	HullInput output;
+	
+	input.position.x += input.instancePosition.x;
+	input.position.y += input.instancePosition.y;
+	input.position.z += input.instancePosition.z;
+	
+	// Pass vertex position into the hull shader
+	output.position = input.position;
+
+	if (g_UsingDisplacementMap == 1)
+	{
+		output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
+
+	// Pass normal into the hull shader
+	output.normal = input.normal;
+
+	// Pass texture uv into the hull shader
+	output.uv = input.uv;
 	
 	return output;
 }
@@ -256,6 +298,13 @@ PixelInput QuadMaterialTessellationDS(PatchConstOutput input, float2 uv : SV_Dom
 
 	// Find the texture coordinate of the new vertex
 	float2 vTex = lerp(lerp(inputPatch[0].uv, inputPatch[1].uv, uv.x), lerp(inputPatch[2].uv, inputPatch[3].uv, uv.x), uv.y);
+
+	if (g_UsingDisplacementMap == 1)
+	{
+		vPos.y = g_DisplacementMap.SampleLevel(g_PointSampler, vTex, 0).r;
+	}
+
+	output.positionW = vPos;
 
 	// Calculate the new position of the new vertex with WVP matrices
 	output.position = mul(float4(vPos, 1.0f), g_World);

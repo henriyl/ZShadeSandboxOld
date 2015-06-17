@@ -3,11 +3,12 @@
 #include "TextureManager.h"
 using ZShadeSandboxTerrain::QuadTree;
 //==============================================================================================================================
-QuadTree::QuadTree(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp)
+QuadTree::QuadTree(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp, GameDirectory3D* gd3d)
 :   m_d3d(d3d)
 ,   m_heightmapName(tp.g_heightmapName)
 ,	m_procedural(tp.g_procedural)
-,	m_mapExt(tp.g_extension)
+//,	m_mapExt(tp.g_extension)
+,	m_makeFlat(tp.g_makeFlat)
 ,	m_heightScale(tp.g_heightScale)
 ,	m_cellSpacing(tp.g_cellSpacing)
 ,	m_tessellate(tp.g_tessellate)
@@ -17,6 +18,7 @@ QuadTree::QuadTree(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp)
 ,   m_textureRepeat(tp.g_TextureRepeat)
 ,	m_RenderPrimitive(tp.g_RenderPrimitive)
 ,   m_seaLevel(tp.g_seaLevel)
+,	m_GameDirectory3D(gd3d)
 {
 	m_EngineOptions = m_d3d->GetEngineOptions();
 	m_terrainZScale = 1;
@@ -33,18 +35,20 @@ QuadTree::~QuadTree()
 //==============================================================================================================================
 void QuadTree::LoadQuadTree()
 {
-	if (m_mapExt != EHeightExtension::HENONE)
+	if (m_makeFlat)
 	{
-		m_useHeight = true;
-
-		if (m_procedural)
-			LoadMap();
-		else
-			LoadMap(m_heightmapName);
+		m_useHeight = false;
 	}
 	else
 	{
-		m_useHeight = false;
+		if (m_procedural)
+		{
+			LoadMap();
+		}
+		else
+		{
+			LoadMap(m_heightmapName);
+		}
 	}
 	
 	BuildHeight();
@@ -99,23 +103,22 @@ void QuadTree::UpdateHeightValues(float heightScale, float zScale)
 //==============================================================================================================================
 void QuadTree::LoadMap(string heightmap)
 {
-	if (m_mapExt == EHeightExtension::RAW)
-	{
-		m_heightmap = new ZShadeSandboxTerrain::Heightmap(heightmap, m_mapExt, m_QuadTreeSize, m_QuadTreeSize, m_cellSpacing, m_heightScale, m_leafWidth);
-		//m_heightmap->Smooth();
-	}
-	else
-		m_heightmap = new ZShadeSandboxTerrain::Heightmap(heightmap, m_mapExt, 0, 0, m_cellSpacing, m_heightScale, m_leafWidth);
-
-	//m_heightmap->LoadElevation(heightmap);
-	//m_heightmap->Normalize();
-
+	m_useHeight = true;
+	
+	string heightmapName = m_GameDirectory3D->m_heightmaps_path + "\\" + heightmap;
+	
+	m_heightmap = new ZShadeSandboxTerrain::Heightmap(heightmapName, m_QuadTreeSize, m_QuadTreeSize, m_heightScale, m_seaLevel, 70);
+	
 	m_QuadTreeSize = m_heightmap->Height();
 }
 //==============================================================================================================================
 void QuadTree::LoadMap()
 {
-	// Procedurally load a height map
+	m_useHeight = true;
+	
+	m_heightmap = new ZShadeSandboxTerrain::Heightmap(m_QuadTreeSize, m_QuadTreeSize, m_heightScale, m_seaLevel, 70);
+
+	m_QuadTreeSize = m_heightmap->Height();
 }
 //==============================================================================================================================
 bool QuadTree::InHeightmap(float x, float z)
@@ -130,14 +133,14 @@ bool QuadTree::InHeightmap(float x, float z)
 		return false;
 	}
 
-	return true;
+	return false;
 }
 //==============================================================================================================================
 float QuadTree::GetHeight(float x, float z)
 {
 	if (InHeightmap(x, z))
 	{
-		if (m_mapExt == EHeightExtension::RAW)
+		/*if (m_mapExt == EHeightExtension::eRaw)
 		{
 			int index = (z * m_QuadTreeSize) + x;
 			float h = m_heightmap->SampleHeight(index);
@@ -147,7 +150,9 @@ float QuadTree::GetHeight(float x, float z)
 		{
 			float h = m_heightmap->SampleHeight(x, z);
 			return h;
-		}
+		}*/
+		
+		return m_heightmap->SampleHeight(x, z);
 	}
 
 	return 0;
@@ -524,13 +529,6 @@ void QuadTree::CreateNode(ZShadeSandboxTerrain::QNode*& node, XMFLOAT3 bounds[4]
 		//======================================================================================================================
 		#pragma endregion
 	}
-}
-//==============================================================================================================================
-float QuadTree::PerlinValue(int x, int y, int random)
-{
-	int n = x + y * 57 + (rand() % random) * 131;
-	n = (n << 13) ^ n;
-	return (1.0f - ((n * (SQR(n) * 15731 + 789221) + 1376312589) & 0x7fffffff) * 0.000000000931322574615478515625f);
 }
 //==============================================================================================================================
 XMFLOAT2 QuadTree::MinMaxY(XMFLOAT3 topLeft, XMFLOAT3 bottomRight)

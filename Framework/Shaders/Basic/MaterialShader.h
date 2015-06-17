@@ -42,7 +42,6 @@ private:
 	
 	ID3D11Buffer* m_pShadingCB;
 	ID3D11Buffer* m_pMatrixCB;
-	ID3D11Buffer* m_pVertexCB;
 	ID3D11Buffer* m_pLightCB;
 	ID3D11Buffer* m_pSunCB;
 };

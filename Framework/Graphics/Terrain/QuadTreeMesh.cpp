@@ -3,45 +3,32 @@
 #include "TextureManager.h"
 #include "Triangle.h"
 #include "ShapeContact.h"
+#include "BoundingBox.h"
 using ZShadeSandboxTerrain::QuadTreeMesh;
 //==============================================================================================================================
 //==============================================================================================================================
-QuadTreeMesh::QuadTreeMesh(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp)
-:  m_d3d(d3d)
-,  m_cameraCollided(false)
+QuadTreeMesh::QuadTreeMesh(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp, GameDirectory3D* gd3d)
+:	m_d3d(d3d)
+,	m_cameraCollided(false)
+,	m_DefaultTextureName("checker.dds")
 {
 	m_EngineOptions = d3d->GetEngineOptions();
 
 	// Create the Quad Tree
-	m_QuadTree = new ZShadeSandboxTerrain::QuadTree(d3d, tp);
+	m_QuadTree = new ZShadeSandboxTerrain::QuadTree(d3d, tp, gd3d);
 	
-	// Create the mesh for the Quad Tree
-	BuildMeshNodes();
-	GenerateMesh();
-
-	// Create the collision objects for the mesh
-	CreateNodeBox();
-	CreateNodeSphere();
-	
-	mMaterial = new ZShadeSandboxLighting::ShaderMaterial(m_d3d, "Terrain");
+	Init();
 }
 //==============================================================================================================================
 QuadTreeMesh::QuadTreeMesh(D3D* d3d, ZShadeSandboxTerrain::QuadTree* qtree)
 :   m_QuadTree(qtree)
 ,   m_d3d(d3d)
 ,   m_cameraCollided(false)
+,	m_DefaultTextureName("checker.dds")
 {
 	m_EngineOptions = d3d->GetEngineOptions();
 	
-	// Create the mesh for the Quad Tree
-	BuildMeshNodes();
-	GenerateMesh();
-
-	// Create the collision objects for the mesh
-	CreateNodeBox();
-	CreateNodeSphere();
-	
-	mMaterial = new ZShadeSandboxLighting::ShaderMaterial(m_d3d, "Terrain");
+	Init();
 }
 //==============================================================================================================================
 QuadTreeMesh::QuadTreeMesh(const QuadTreeMesh& qtree)
@@ -50,6 +37,25 @@ QuadTreeMesh::QuadTreeMesh(const QuadTreeMesh& qtree)
 //==============================================================================================================================
 QuadTreeMesh::~QuadTreeMesh()
 {
+}
+//==============================================================================================================================
+void QuadTreeMesh::Init()
+{
+	// Create the mesh for the Quad Tree
+	BuildMeshNodes();
+	GenerateMesh();
+
+	// Create the collision objects for the mesh
+	CreateNodeBox();
+	CreateNodeSphere();
+	
+	ClearLayerMapNames();
+	
+	mMaterial = new ZShadeSandboxLighting::ShaderMaterial(m_d3d, "Terrain");
+	
+	// Add the default diffuse array SRV with default texture
+	AddDiffuseLayerMapName(m_DefaultTextureName, 0);
+	CreateDiffuseLayerMap();
 }
 //==============================================================================================================================
 void QuadTreeMesh::BuildMeshNodes()
@@ -339,7 +345,7 @@ void QuadTreeMesh::ReGenMeshNT(ZShadeSandboxTerrain::QMeshNode*& node)
 			{
 				if (x < MapSize && z < MapSize)
 				{
-					if (m_QuadTree->GetMapExt() == EHeightExtension::RAW)
+					if (m_QuadTree->GetMapExt() == EHeightExtension::eRaw)
 						height = m_QuadTree->SampleHeight(x + (z * MapSize + 1));
 					else
 						height = m_QuadTree->SampleHeight(x, z);
@@ -595,7 +601,7 @@ void QuadTreeMesh::GenerateMeshNT(ZShadeSandboxTerrain::QMeshNode*& node)
 			{
 				if (x < MapSize && z < MapSize)
 				{
-					if (m_QuadTree->GetMapExt() == EHeightExtension::RAW)
+					if (m_QuadTree->GetMapExt() == EHeightExtension::eRaw)
 						height = m_QuadTree->SampleHeight(x + (z * MapSize + 1));
 					else
 						height = m_QuadTree->SampleHeight(x, z);
@@ -1036,22 +1042,6 @@ bool QuadTreeMesh::FindNodeHeight(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT
 void QuadTreeMesh::Intersects(ZShadeSandboxMath::Ray ray, bool& hit, XMFLOAT3& hitPoint)
 {
 	Intersects(m_MeshNodes, ray, hit, hitPoint);
-	
-	// If an intersection was found get the height at the intersection point
-	//if (hit)
-	//{
-		//int LeafWidth = m_QuadTree->LeafWidth();
-		//int TerrScale = m_QuadTree->TerrainScale();
-
-		//// Center the grid in model space
-		//float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
-		//float halfLength = ((float)LeafWidth - 1.0f) / 2.0f;
-		//
-		//hitPoint.x = (hitPoint.x + halfWidth) / TerrScale;
-		//hitPoint.z = (hitPoint.z + halfWidth) / TerrScale;
-
-	//	hitPoint.y = m_QuadTree->GetHeight(hitPoint.x, hitPoint.z);
-	//}
 }
 //==============================================================================================================================
 void QuadTreeMesh::Intersects(ZShadeSandboxTerrain::QMeshNode* node, ZShadeSandboxMath::Ray ray, bool& hit, XMFLOAT3& hitPoint)
@@ -1096,7 +1086,7 @@ void QuadTreeMesh::Intersects(ZShadeSandboxTerrain::QMeshNode* node, ZShadeSandb
 				if (m_QuadTree->UsingHeight())
 				{
 					h = m_QuadTree->GetHeight(x, z);
-					h = ((h * m_heightScale * 100.0f) / 255.0) / ((m_terrainZScale * 2) + 1);
+					//h = ((h * m_heightScale * 100.0f) / 255.0) / ((m_terrainZScale * 2) + 1);
 				}
 
 				XMFLOAT3 point((x - halfWidth) * TerrScale, h, (z - halfWidth) * TerrScale);
@@ -1206,6 +1196,150 @@ void QuadTreeMesh::Intersects(ZShadeSandboxTerrain::QMeshNode* node, ZShadeSandb
 	hit = intersect;
 }
 //==============================================================================================================================
+void QuadTreeMesh::GenerateHeightQuad(XMFLOAT3 point, int areaSize, ID3D11ShaderResourceView*& heightAreaSRV)
+{
+	// Decompose the point since it was based on getting the height from a position
+	XMFLOAT3 p;// = point;
+	DecomposePoint(point, p);
+
+	vector<float> heightList;
+	
+	if (m_QuadTree->UsingHeight())
+	{
+		// Find the node that contains this point and get all the nodes around it
+		GenerateHeightQuad(m_MeshNodes, p, areaSize, heightList);
+	}
+	else
+	{
+		// Not using height so the mesh is flat at sea level
+		if (areaSize > 0)
+		{
+			for (int y = 0; y < areaSize; y++)
+			{
+				for (int x = 0; x < areaSize; x++)
+				{
+					heightList.push_back(m_QuadTree->SeaLevel());
+				}
+			}
+		}
+	}
+	
+	// Build the heightAreaSRV from the area chosen
+	if (areaSize > 0 && heightList.size() > 0)
+	{
+		D3D11_TEXTURE2D_DESC texDesc;
+		texDesc.Width = areaSize;
+		texDesc.Height = areaSize;
+		texDesc.MipLevels = 1;
+		texDesc.ArraySize = 1;
+		texDesc.Format = DXGI_FORMAT_R16_FLOAT;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.SampleDesc.Quality = 0;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		texDesc.CPUAccessFlags = 0;
+		texDesc.MiscFlags = 0;
+		
+		vector<float> hv = heightList;
+		// HALF is defined in xnamath.h, for storing 16-bit float.
+		std::vector<HALF> hmap(hv.size());
+		std::transform(hv.begin(), hv.end(), hmap.begin(), XMConvertFloatToHalf);
+		
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = &hmap[0];
+		data.SysMemPitch = areaSize * sizeof(HALF);
+		data.SysMemSlicePitch = 0;
+
+		ID3D11Texture2D* hmapTex = 0;
+		m_d3d->GetDevice11()->CreateTexture2D(&texDesc, &data, &hmapTex);
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+		srvDesc.Format = texDesc.Format;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = -1;
+		m_d3d->GetDevice11()->CreateShaderResourceView(hmapTex, &srvDesc, &heightAreaSRV);
+
+		// SRV saves reference.
+		SAFE_RELEASE(hmapTex);
+	}
+	else
+	{
+		heightAreaSRV = NULL;
+	}
+}
+//==============================================================================================================================
+void QuadTreeMesh::GenerateHeightQuad(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT3 point, int areaSize, vector<float>& heightList)
+{
+	if (node == 0) return;
+	
+	if (node->type == ZShadeSandboxTerrain::EQuadNodeType::LEAF)
+	{
+		//ZShadeSandboxMath::BoundingBox bb;
+		//bb.x = point.x;
+		//bb.y = point.z; // Not using height since the terrain is xz
+		//bb.width = areaSize;
+		//bb.height = areaSize;
+		
+		ZShadeSandboxMath::AABB aabb;
+		aabb.Construct(point, XMFLOAT3(areaSize, 2, areaSize));
+
+		float h;
+		
+		for (int z = (int)node->boundingCoord[0].z; z <= (int)node->boundingCoord[2].z; z++)
+		{
+			for (int x = (int)node->boundingCoord[0].x; x <= (int)node->boundingCoord[1].x; x++)
+			{
+				h = m_QuadTree->GetHeight(x, z);
+				h = ((h * m_heightScale * 100.0f) / 255.0) / ((m_terrainZScale * 2) + 1);
+				
+				XMFLOAT3 p(x, h, z);
+				
+				// If the point is inside the bounding box then add the height to the height list
+				if (aabb.ContainsPoint3DOmitY(p))
+				{
+					heightList.push_back(h);
+				}
+			}
+		}
+	}
+	
+	//
+	// Search the children to build the height list
+	//
+	
+	GenerateHeightQuad(node->children[0], point, areaSize, heightList);
+	GenerateHeightQuad(node->children[1], point, areaSize, heightList);
+	GenerateHeightQuad(node->children[2], point, areaSize, heightList);
+	GenerateHeightQuad(node->children[3], point, areaSize, heightList);
+}
+//==============================================================================================================================
+void QuadTreeMesh::DecomposePoint(XMFLOAT3 pointIn, XMFLOAT3& pointOut)
+{
+	int LeafWidth = m_QuadTree->LeafWidth();
+	int TerrScale = m_QuadTree->TerrainScale();
+	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
+	
+	float x = (pointIn.x / TerrScale) + halfWidth;
+	float y = pointIn.y;
+	float z = (pointIn.z / TerrScale) + halfWidth;
+	
+	pointOut = XMFLOAT3(x, y, z);
+}
+//==============================================================================================================================
+void QuadTreeMesh::TransformPoint(XMFLOAT3 pointIn, XMFLOAT3& pointOut)
+{
+	int LeafWidth = m_QuadTree->LeafWidth();
+	int TerrScale = m_QuadTree->TerrainScale();
+	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
+
+	float x = (pointIn.x + halfWidth) * TerrScale;
+	float y = pointIn.y;
+	float z = (pointIn.z + halfWidth) * TerrScale;
+
+	pointOut = XMFLOAT3(x, y, z);
+}
+//==============================================================================================================================
 void QuadTreeMesh::AddMaterialColors(XMFLOAT4 ambient, XMFLOAT4 diffuse, XMFLOAT4 specular)
 {
 	AddDiffuseColor(diffuse);
@@ -1238,18 +1372,51 @@ void QuadTreeMesh::AddSpecularIntensity(float intensity)
 	mMaterial->fSpecularIntensity = intensity;
 }
 //==============================================================================================================================
-void QuadTreeMesh::AddMaterialTextures(vector<string> textureNames, string basePath, string blendMapFilename, string normalMapFilename, string detailMapFilename)
+/*void QuadTreeMesh::AddMaterialTextures(vector<string> textureNames, string basePath, string blendMapFilename, string normalMapFilename, string detailMapFilename)
 {
 	AddDiffuseLayerMap(textureNames);
 	AddBlendMap(basePath, blendMapFilename);
 	AddNormalMap(basePath, normalMapFilename);
 	AddDetailMap(basePath, detailMapFilename);
+}*/
+//================================================================================================================
+void QuadTreeMesh::ClearLayerMapNames()
+{
+	if (mLayerTextureNames.size() > 0)
+		mLayerTextureNames.clear();
+	mLayerTextureNames.resize(5);
 }
 //================================================================================================================
-void QuadTreeMesh::AddDiffuseLayerMap(vector<string> textureNames)
+void QuadTreeMesh::AddDiffuseLayerMapName(string textureName, int position)
 {
-	mMaterial->CreateTexture2DArray(textureNames);
+	string fullTexName = m_QuadTree->GetGD3D()->m_textures_path + "\\" + textureName;
+	mLayerTextureNames[position] = fullTexName;
 }
+//================================================================================================================
+void QuadTreeMesh::CreateDiffuseLayerMap()
+{
+	vector<string> names;
+	for (int i = 0; i < 5; i++)
+	{
+		if (mLayerTextureNames[i] != "")
+		{
+			names.push_back(mLayerTextureNames[i]);
+		}
+	}
+	mMaterial->CreateTexture2DArray(names);
+}
+//================================================================================================================
+/*void QuadTreeMesh::AddDiffuseLayerMap(vector<string> textureNames)
+{
+	string fullDefaultTexName = m_QuadTree->GetGD3D()->m_textures_path + "\\" + m_DefaultTextureName;
+	
+	vector<string> names;
+	
+	names.push_back(fullDefaultTexName);
+	
+	
+	mMaterial->CreateTexture2DArray(textureNames);
+}*/
 //================================================================================================================
 void QuadTreeMesh::AddBlendMap(string basePath, string blendMapFilename)
 {

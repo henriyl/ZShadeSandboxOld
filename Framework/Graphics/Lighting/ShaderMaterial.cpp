@@ -63,7 +63,7 @@ void ShaderMaterial::BuildMaterialConstantBuffer(ID3D11Buffer*& buffer, XMFLOAT3
 	cMSB.g_UsingTransparency = (bHasTransparency) ? 1 : 0;
 	cMSB.g_UsingShadowMap = (bHasShadowMap) ? 1 : 0;
 	cMSB.g_UsingSSAOMap = (bHasSSAOMap) ? 1 : 0;
-	cMSB.materialpadding = 0;
+	cMSB.g_UsingDisplacementMap = (bHasDisplacementMap) ? 1 : 0;
 	cMSB.g_FarPlane = fFarPlane;
 	cMSB.g_SpecularToggle = (bSpecularToggle) ? 1 : 0;
 	cMSB.g_EnableLighting = (bEnableLighting) ? 1 : 0;
@@ -74,23 +74,6 @@ void ShaderMaterial::BuildMaterialConstantBuffer(ID3D11Buffer*& buffer, XMFLOAT3
 		{
 			assert(mapped_res.pData);
 			*(ZShadeSandboxLighting::cbMaterialShadingBuffer*)mapped_res.pData = cMSB;
-		}
-		m_D3DSystem->GetDeviceContext()->Unmap(buffer, 0);
-	}
-}
-//==============================================================================================================================
-void ShaderMaterial::BuildMaterialVertexConstBuffer(ID3D11Buffer*& buffer)
-{
-	ZShadeSandboxLighting::cbMaterialVertexBuffer cVB;
-	cVB.materialpadding2 = XMFLOAT3(0, 0, 0);
-	cVB.g_UsingDisplacementMap = (bHasDisplacementMap) ? 1 : 0;
-	// Map the Material shading constant buffer
-	{
-		D3D11_MAPPED_SUBRESOURCE mapped_res;
-		m_D3DSystem->GetDeviceContext()->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
-		{
-			assert(mapped_res.pData);
-			*(ZShadeSandboxLighting::cbMaterialVertexBuffer*)mapped_res.pData = cVB;
 		}
 		m_D3DSystem->GetDeviceContext()->Unmap(buffer, 0);
 	}

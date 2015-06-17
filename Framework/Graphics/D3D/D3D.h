@@ -174,6 +174,7 @@ public:
 
 	ID3D11SamplerState* Mirror()       { return m_pMirror; }
 	ID3D11SamplerState* Linear()       { return m_pLinear; }
+	ID3D11SamplerState* LinearClamp()  { return m_pLinearClamp; }
     ID3D11SamplerState* Point()        { return m_pPoint; }
     ID3D11SamplerState* Anisotropic()  { return m_pAnisotropic; }
     ID3D11SamplerState* ShadowMap()    { return m_pShadowMap; }
@@ -332,6 +333,7 @@ private:
 
 	ID3D11SamplerState* m_pMirror;
 	ID3D11SamplerState* m_pLinear;
+	ID3D11SamplerState* m_pLinearClamp;
 	ID3D11SamplerState* m_pPoint;
 	ID3D11SamplerState* m_pAnisotropic;
 	ID3D11SamplerState* m_pShadowMap;

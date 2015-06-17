@@ -56,8 +56,6 @@ public:
 	
 	const ZShadeSandboxTerrain::QuadTreeMesh* GetMesh() const				{ return m_quadtreeMesh; }
 	
-	void UpdateGroundCursor(XMFLOAT3 position);
-
 private:
 	
 	void Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCamera, ZShadeSandboxLighting::Light* light, ZShadeSandboxTerrain::TerrainShadingConst tsc);
@@ -75,18 +73,6 @@ private:
 	
 	vector<XMFLOAT4> mBlendMapValues;
 	static ID3D11ShaderResourceView* mBlendMapSRV;
-
-	bool bTextureUpdated;
-	static bool		mShowGroundCursor;
-	static XMFLOAT3 mGroundCursorPos;
-	static XMFLOAT3 mLastGroundCursorPos;
-	static float	mGroundCursorSize;
-	static float	mGroundCursorScale;
-	static float	mGroundCursorStrength;
-	static ID3D11ShaderResourceView* mTargetSRV;
-	ZShadeSandboxMesh::CubeMesh* mCursorMesh;
-	ProjectedCamera* mGroundCursorCamera;
-
 	ZShadeSandboxTerrain::QuadTreeMesh* m_quadtreeMesh;
 	EngineOptions* m_EngineOptions;
 	D3D* m_d3d;
@@ -110,6 +96,7 @@ private:
 	
 	float bRenderSize;
 	
+	bool bTextureUpdated;
 	bool bRenderFullMap;
 	bool bRenderExtraRenderDist;
 	bool bRootContainsCamera;

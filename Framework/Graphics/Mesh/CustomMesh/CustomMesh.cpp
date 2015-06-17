@@ -794,18 +794,62 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 	
 	if (mrp.tessellate)
 	{
+		// Assign the tessellation attributes to the material
+		mMaterial->bEnableDistTess = mrp.enableDistTess;
+		mMaterial->fMinTessDist = mrp.minTessDist;
+		mMaterial->fMaxTessDist = mrp.maxTessDist;
+		mMaterial->fMinTessFactor = mrp.minTess;
+		mMaterial->fMaxTessFactor = mrp.maxTess;
+		mMaterial->fNoDistTessFactor = mrp.noDistTessFactor;
+
 		switch (mrp.renderType)
 		{
 			case ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList:
 			{
-				ZShadeSandboxShader::Shaders::pTriMaterialTessellationShader->Wireframe() = m_Wireframe;
-				ZShadeSandboxShader::Shaders::pTriMaterialTessellationShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
+				if (mrp.renderLight)
+				{
+					ZShadeSandboxShader::Shaders::pTriMaterialLightTessellationShader->Wireframe() = m_Wireframe;
+					ZShadeSandboxShader::Shaders::pTriMaterialLightTessellationShader->Render11(
+						mAttributes->mIndexCount,
+						mAttributes->mInstanceCount,
+						mrp,
+						mMaterial
+					);
+				}
+				else
+				{
+					ZShadeSandboxShader::Shaders::pTriMaterialTessellationShader->Wireframe() = m_Wireframe;
+					ZShadeSandboxShader::Shaders::pTriMaterialTessellationShader->Render11(
+						mAttributes->mIndexCount,
+						mAttributes->mInstanceCount,
+						mrp,
+						mMaterial
+					);
+				}
 			}
 			break;
 			case ZShadeSandboxMesh::ERenderType::e4ControlPointPatchList:
 			{
-				ZShadeSandboxShader::Shaders::pQuadMaterialTessellationShader->Wireframe() = m_Wireframe;
-				ZShadeSandboxShader::Shaders::pQuadMaterialTessellationShader->Render11(mAttributes->mIndexCount, mrp, mMaterial);
+				if (mrp.renderLight)
+				{
+					ZShadeSandboxShader::Shaders::pQuadMaterialLightTessellationShader->Wireframe() = m_Wireframe;
+					ZShadeSandboxShader::Shaders::pQuadMaterialLightTessellationShader->Render11(
+						mAttributes->mIndexCount,
+						mAttributes->mInstanceCount,
+						mrp,
+						mMaterial
+					);
+				}
+				else
+				{
+					ZShadeSandboxShader::Shaders::pQuadMaterialTessellationShader->Wireframe() = m_Wireframe;
+					ZShadeSandboxShader::Shaders::pQuadMaterialTessellationShader->Render11(
+						mAttributes->mIndexCount,
+						mAttributes->mInstanceCount,
+						mrp,
+						mMaterial
+					);
+				}
 			}
 			break;
 			default:
@@ -818,9 +862,26 @@ void CustomMesh::Shade(ZShadeSandboxMesh::MeshRenderParameters mrp)
 	}
 	else
 	{
-		ZShadeSandboxShader::Shaders::pMaterialShader->Wireframe() = m_Wireframe;
-		// mAttributes->mInstanceCount
-		ZShadeSandboxShader::Shaders::pMaterialShader->Render11(mAttributes->mIndexCount, mAttributes->mInstanceCount, mrp, mMaterial);
+		if (mrp.renderLight)
+		{
+			ZShadeSandboxShader::Shaders::pMaterialLightShader->Wireframe() = m_Wireframe;
+			ZShadeSandboxShader::Shaders::pMaterialLightShader->Render11(
+				mAttributes->mIndexCount,
+				mAttributes->mInstanceCount,
+				mrp,
+				mMaterial
+			);
+		}
+		else
+		{
+			ZShadeSandboxShader::Shaders::pMaterialShader->Wireframe() = m_Wireframe;
+			ZShadeSandboxShader::Shaders::pMaterialShader->Render11(
+				mAttributes->mIndexCount,
+				mAttributes->mInstanceCount,
+				mrp,
+				mMaterial
+			);
+		}
 		
 		//CustomMesh::pLightShader->SetWireframe(m_Wireframe);
 		//CustomMesh::pLightShader->UseCustomWorld(true);

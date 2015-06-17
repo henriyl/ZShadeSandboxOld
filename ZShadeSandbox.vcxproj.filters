@@ -1283,6 +1283,12 @@
     <ClCompile Include="Framework\General\Camera\ProjectedCamera.cpp">
       <Filter>Framework\General\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="Framework\Graphics\Terrain\HeightErosion.cpp">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Terrain\ProceduralGenerator.cpp">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZShadeResource.h" />
@@ -2447,6 +2453,15 @@
     </ClInclude>
     <ClInclude Include="Framework\General\Camera\ProjectedCamera.h">
       <Filter>Framework\General\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\HeightErosion.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\HeightmapData.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\ProceduralGenerator.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,18 +1,50 @@
 #include "Heightmap.h"
 #include "BetterString.h"
+#include "CGlobal.h"
+#include "ProceduralGenerator.h"
 #include <fstream>
 using namespace std;
 using ZShadeSandboxTerrain::Heightmap;
 //===================================================================================================================
-Heightmap::Heightmap(string heightmap, int extension, int width, int height, float cellSpacing, float heightScale, int leafSize)
+Heightmap::Heightmap(string heightmap, int width, int height, float heightScale, float seaLevel, float maxHeight)
 {
 	m_heightmap_width = width;
 	m_heightmap_height = height;
 	m_height_scale = heightScale;
-	m_cellSpacing = cellSpacing;
-	m_ext = extension;
+	m_seaLevel = seaLevel;
+	m_maxHeight = maxHeight;
 
+	// Auto detect the height extension
+	//m_ext = extension;
+	string fileExt = CGlobal::GetFileExt(heightmap);
+	
+	if (fileExt == "bmp")
+	{
+		m_ext = EHeightExtension::Type::eBmp;
+		
+		
+	}
+	else if (fileExt == "raw")
+	{
+		m_ext = EHeightExtension::Type::eRaw;
+	}
+	else
+	{
+		m_ext = EHeightExtension::Type::eNone;
+	}
+	
 	LoadElevation(heightmap);
+}
+//===================================================================================================================
+Heightmap::Heightmap(int width, int height, float heightScale, float seaLevel, float maxHeight)
+{
+	m_heightmap_width = width;
+	m_heightmap_height = height;
+	m_height_scale = heightScale;
+	m_seaLevel = seaLevel;
+	m_maxHeight = maxHeight;
+
+	LoadProceduralElevation();
 }
 //===================================================================================================================
 Heightmap::Heightmap(const Heightmap& o)
@@ -44,6 +76,43 @@ void Heightmap::UpdateHeightValues(float heightScale, float zScale)
 	}
 }
 //===================================================================================================================
+void Heightmap::LoadProceduralElevation()
+{
+	// Heightmap Erosion
+	// Google: simple heightmap erosion
+	// http://ranmantaru.com/blog/2011/10/08/water-erosion-on-heightmap-terrain/
+	// http://www.dreamincode.net/forums/blog/2250/entry-4550-terrain-erosion/
+
+	// Procedurally load a height map
+
+	ZShadeSandboxTerrain::ProceduralGenerator pgen(m_heightmap_width, m_seaLevel, m_maxHeight, m_heightmap);
+
+	pgen.BuildDiamondSquare();
+	//pgen.BuildPerlinNoiseHeightmap();
+	pgen.ErodeProceduralMap(0.4);
+	pgen.Smooth();
+	pgen.Normalize(2);
+
+	if (m_heightmap.size() > 0) m_heightmap.clear();
+	m_heightmap.resize(m_heightmap_width * m_heightmap_width);
+
+	int index = 0;
+
+	for (int z = 0; z < m_heightmap_width; z++)
+	{
+		for (int x = 0; x < m_heightmap_width; x++)
+		{
+			ZShadeSandboxTerrain::HeightData hd;
+
+			hd.x = x;
+			hd.y = pgen.ReadProceduralHeight(x, z);
+			hd.z = z;
+
+			m_heightmap[index++] = hd;
+		}
+	}
+}
+//===================================================================================================================
 bool Heightmap::LoadElevation(string heightmap)
 {
 	//Check the extention of the file
@@ -60,7 +129,7 @@ bool Heightmap::LoadElevation(string heightmap)
 
 	switch (m_ext)
 	{
-		case EHeightExtension::BMP:
+		case EHeightExtension::Type::eBmp:
 		{
 			#pragma region "Load BMP"
 			FILE* file_ptr;
@@ -112,7 +181,7 @@ bool Heightmap::LoadElevation(string heightmap)
 
 			if (error != 0) return false;
 
-			HEIGHT_DATA _data;
+			HeightData _data;
 
 			m_heightmap.resize(m_heightmap_width * m_heightmap_height);
 			
@@ -135,6 +204,32 @@ bool Heightmap::LoadElevation(string heightmap)
 					m_heightmap[index++] = _data;
 
 					k += 3;
+				}
+			}
+
+			ZShadeSandboxTerrain::ProceduralGenerator pgen(m_heightmap_width, m_seaLevel, m_maxHeight, m_heightmap);
+
+			//pgen.AddPerlinNoiseHeightmap();
+			pgen.ErodeHeightmapInput(0.3);
+			pgen.Smooth(1);
+			//pgen.Normalize(2);
+
+			if (m_heightmap.size() > 0) m_heightmap.clear();
+			m_heightmap.resize(m_heightmap_width * m_heightmap_width);
+
+			index = 0;
+
+			for (int z = 0; z < m_heightmap_width; z++)
+			{
+				for (int x = 0; x < m_heightmap_width; x++)
+				{
+					ZShadeSandboxTerrain::HeightData hd;
+
+					hd.x = x;
+					hd.y = pgen.ReadProceduralHeight(x, z);
+					hd.z = z;
+
+					m_heightmap[index++] = hd;
 				}
 			}
 
@@ -173,7 +268,7 @@ bool Heightmap::LoadElevation(string heightmap)
 			#pragma endregion
 		}
 		break;
-		case EHeightExtension::RAW:
+		case EHeightExtension::eRaw:
 		{
 			#pragma region "Load RAW"
 			vector<unsigned char> in (m_heightmap_width * m_heightmap_height);
@@ -193,7 +288,7 @@ bool Heightmap::LoadElevation(string heightmap)
 			int k = 0, index = 0;
 			float height;
 
-			HEIGHT_DATA _data;
+			HeightData _data;
 
 			m_heightmap.resize(m_heightmap_width * m_heightmap_height);
 

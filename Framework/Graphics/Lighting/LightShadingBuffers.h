@@ -232,7 +232,7 @@ struct cbMaterialShadingBuffer
 	int			g_UsingTransparency;
 	int			g_UsingShadowMap;
 	int			g_UsingSSAOMap;
-	float		materialpadding;
+	int			g_UsingDisplacementMap;
 	float		g_FarPlane;
 	int			g_SpecularToggle;
 	int			g_EnableLighting;

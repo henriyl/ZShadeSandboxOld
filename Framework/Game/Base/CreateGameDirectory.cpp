@@ -81,6 +81,7 @@ CreateGameDirectory::CreateGameDirectory(GameDirectory3D* gd)
 	_mkdir(gd->m_scripts_path.c_str());
 	_mkdir(gd->m_music_path.c_str());
 	_mkdir(gd->m_materials_path.c_str());
+	_mkdir(gd->m_heightmaps_path.c_str());
 	_mkdir(gd->m_models_path.c_str());
 	_mkdir(gd->m_textures_path.c_str());
 	_mkdir(gd->m_xml_path.c_str());

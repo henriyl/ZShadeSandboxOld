@@ -55,15 +55,10 @@ struct MeshParameters
 		pos = XMFLOAT3(0,0,0);
 		rot = XMFLOAT3(0,0,0);
 		scale = XMFLOAT3(1,1,1);
-		//color = XMFLOAT4(0,0,0,1);
-		//textureName = "";
-		//tt = PNG;
 		in2D = true;
 		textureWidth = -1;
 		textureHeight = -1;
 		shader = 0;
-		//useCubemap = false;
-		//useTexture = false;
 		bUseTessellation = false;
 		material = 0;
 	}

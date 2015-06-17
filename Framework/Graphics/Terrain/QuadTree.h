@@ -29,6 +29,8 @@ using namespace std;
 #include "BetterString.h"
 #include "AABB.h"
 #include "TerrainParameters.h"
+#include "GameDirectory.h"
+#include "HeightmapData.h"
 //==============================================================================================================================
 namespace ZShadeSandboxTerrain {
 //Default QuadTree -> 4*4 w/ 16x16 node size
@@ -37,7 +39,7 @@ class QuadTree
 public:
 	
 	// Constructor for loading a Quad Tree
-	QuadTree(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp);
+	QuadTree(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp, GameDirectory3D* gd3d);
 	
 	// Copy Constructor
 	QuadTree(const QuadTree& qtree);
@@ -77,17 +79,20 @@ public:
 	int& TerrainScale()				{ return m_terrScale; }
 	int TerrainScale() const		{ return m_terrScale; }
 	bool UsingHeight() const		{ return m_useHeight; }
-	int GetMapExt()const			{ return m_mapExt; }
 	float GetCellSpacing()const		{ return m_cellSpacing; }
 	bool IsProcedural() const		{ return m_procedural; }
-	int GetRenderPrimitive() const 	{ return m_RenderPrimitive; }
+	float SeaLevel() const			{ return m_seaLevel; }
+	GameDirectory3D* GetGD3D()		{ return m_GameDirectory3D; }
 	
+	EHeightExtension::Type GetMapExt()const		{ return m_mapExt; }
 	ZShadeSandboxTerrain::QNode* GetNodes()		{ return m_nodes; }
 	vector<float> GetHeightmapVec() 			{ return heightmap_vec; }
 	int SampleHeight(int index) 				{ return m_heightmap->SampleHeight(index); }
 	int SampleHeight(int x, int z) 				{ return m_heightmap->SampleHeight(x, z); }
 	int SampleHeightVec(int x, int z)			{ return heightmap_vec[(z * m_QuadTreeSize) + x]; }
 	ID3D11ShaderResourceView* GetHeightMapSRV()	{ return mHeightMapSRV; }
+	
+	ZShadeSandboxMesh::ERenderType::Type GetRenderPrimitive() const { return m_RenderPrimitive; }
 	
 private:
 	
@@ -120,8 +125,6 @@ private:
 	
 	// Creates the ZShadeSandboxShader::Shader Resource View for the height map
 	void BuildHeightmapSRV();
-	
-	float PerlinValue(int x, int y, int random);
 
 private:
 
@@ -158,7 +161,7 @@ private:
 	int m_terrScale;
 	
 	// extension to load for the height map (.bmp, .raw)
-	int m_mapExt;
+	ZShadeSandboxTerrain::EHeightExtension::Type m_mapExt;
 	
 	// Amount to scale the height map after it is loaded
 	float m_heightScale;
@@ -177,13 +180,16 @@ private:
 	bool m_useHeight;
 	
 	// Specifies the render primitive the terrain must be generated with
-	int m_RenderPrimitive;
+	ZShadeSandboxMesh::ERenderType::Type m_RenderPrimitive;
 	
 	// Enables tessellation in DX11
 	bool m_tessellate;
 
 	// procedurally generate a height map for the Quad Tree when enabled
 	bool m_procedural;
+	
+	// Flattens the terrain to sea level
+	bool m_makeFlat;
 	
 	// How many times is the texture repeated
 	int m_textureRepeat;
@@ -194,8 +200,10 @@ private:
 	// Lets the quad tree know where sea level is to load a flat Quad Tree at water level
 	float m_seaLevel;
 	
-	// The ZShadeSandboxShader::Shader Resource View for the base height map
+	// The Shader Resource View for the base height map
 	ID3D11ShaderResourceView* mHeightMapSRV;
+	
+	GameDirectory3D* m_GameDirectory3D;
 	
 	// root node of the Quad Tree
 	ZShadeSandboxTerrain::QNode* m_nodes;

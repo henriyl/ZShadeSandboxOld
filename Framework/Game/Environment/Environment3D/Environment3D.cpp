@@ -80,6 +80,8 @@ bool Environment3D::Init(bool init_lua)
 		if (bUseEngineTextures)
 		{
 			m_GameDirectory3D->m_textures_path = "Textures";
+			m_GameDirectory3D->m_models_path = "Models";
+			m_GameDirectory3D->m_heightmaps_path = "Textures\\Terrain";
 		}
 
 		m_EngineOptions->m_GD3D = m_GameDirectory3D;

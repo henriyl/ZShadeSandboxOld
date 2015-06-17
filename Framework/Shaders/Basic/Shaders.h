@@ -30,7 +30,7 @@ namespace ZShadeSandboxShader {
 struct Shaders
 {
 	static MaterialShader*					pMaterialShader;
-	static MaterialLightShader*				pLightShader;
+	static MaterialLightShader*				pMaterialLightShader;
 	static MaterialTessellationShader*		pQuadMaterialTessellationShader;
 	static MaterialTessellationShader*		pTriMaterialTessellationShader;
 	static MaterialLightTessellationShader*	pQuadMaterialLightTessellationShader;

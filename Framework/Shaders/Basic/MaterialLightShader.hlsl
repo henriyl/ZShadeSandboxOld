@@ -48,7 +48,7 @@ cbuffer cbShadingBuffer : register(b2)
 	int		g_UsingTransparency;
 	int		g_UsingShadowMap;
 	int		g_UsingSSAOMap;
-	float	materialpadding;
+	int		g_UsingDisplacementMap;
 	float	g_FarPlane;
 	int		g_SpecularToggle;
 	int		g_EnableLighting;
@@ -148,8 +148,10 @@ Texture2D g_MaterialDetailMapTexture 			: register(t7);
 Texture2D g_MaterialAlphaMapTexture 			: register(t8);
 Texture2D g_ShadowMap							: register(t9);
 Texture2D g_SSAOMap								: register(t10);
+Texture2D g_DisplacementMap						: register(t11);
 
-SamplerState g_LinearSampler : register(s0);
+SamplerState g_PointSampler		: register(s0);
+SamplerState g_LinearSampler	: register(s1);
 
 //======================================================================================================
 
@@ -162,6 +164,14 @@ struct VertexInput
 	float3 position				: POSITION;
 	float3 normal				: NORMAL;
 	float2 uv					: TEXCOORD0;
+};
+
+struct VertexInputInstance
+{
+	float3 position				: POSITION;
+	float3 normal				: NORMAL;
+	float2 uv					: TEXCOORD0;
+	float3 instancePosition		: INSTANCEPOS;
 };
 
 struct PixelInput
@@ -186,6 +196,11 @@ struct PixelInput
 PixelInput MaterialLightVS(VertexInput input)
 {
 	PixelInput output;
+	
+	if (g_UsingDisplacementMap == 1)
+	{
+		input.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
     
     output.position = mul(float4(input.position, 1.0), g_World);
     output.position = mul(output.position, g_View);
@@ -209,6 +224,43 @@ PixelInput MaterialLightVS(VertexInput input)
 	output.shadowPos = mul(float4(input.position, 1.0), g_ShadowMatrix);
 	
     return output;
+}
+
+PixelInput MaterialLightInstanceVS(VertexInputInstance input, uint instanceID : SV_InstanceID)
+{
+	PixelInput output;
+	
+	input.position.x += input.instancePosition.x;
+	input.position.y += input.instancePosition.y;
+	input.position.z += input.instancePosition.z;
+	
+	if (g_UsingDisplacementMap == 1)
+	{
+		input.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
+	
+	output.position = mul(float4(input.position, 1.0), g_World);
+	output.position = mul(output.position, g_View);
+	output.position = mul(output.position, g_Proj);
+
+	output.positionW = input.position;
+	output.uv = input.uv;
+	output.normal = mul(input.normal, (float3x3)g_World);
+	output.normal = normalize(output.normal);
+
+	output.clip = dot(output.position, g_ClipPlane);
+	output.depth = output.position;
+
+	// Calculate the position of the vertices from the light source
+	output.lightViewPosition = mul(float4(input.position, 1.0), g_World);
+	output.lightViewPosition = mul(output.lightViewPosition, g_LightViewMatrix);
+	output.lightViewPosition = mul(output.lightViewPosition, g_LightProjectionMatrix);
+
+	output.worldPos = mul(float4(input.position, 1.0), g_World);
+
+	output.shadowPos = mul(float4(input.position, 1.0), g_ShadowMatrix);
+
+	return output;
 }
 
 //======================================================================================================

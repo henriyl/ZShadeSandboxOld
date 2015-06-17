@@ -702,6 +702,9 @@ GameDirectory3D* CGlobal::LoadGameDirectory3D(string game_folder)
 	string material_folder = gameDirectory->GAME_FOLDER; material_folder.append("\\Materials");
 	gameDirectory->m_materials_path = material_folder;
 	
+	string heightmaps_folder = gameDirectory->GAME_FOLDER; heightmaps_folder.append("\\Heightmaps");
+	gameDirectory->m_heightmaps_path = heightmaps_folder;
+	
 	string music_folder = gameDirectory->GAME_FOLDER; music_folder.append("\\Music");
 	gameDirectory->m_music_path = music_folder;
 
@@ -766,7 +769,10 @@ GameDirectory3D* CGlobal::CreateGD3D(string gameFolder)
 	
 	string material_folder = gameDirectory->GAME_FOLDER; material_folder.append("\\Materials");
 	gameDirectory->m_materials_path = material_folder;
-
+	
+	string heightmaps_folder = gameDirectory->GAME_FOLDER; heightmaps_folder.append("\\Heightmaps");
+	gameDirectory->m_heightmaps_path = heightmaps_folder;
+	
 	string scripts_folder = gameDirectory->GAME_FOLDER; scripts_folder.append("\\Scripts");
 	gameDirectory->m_scripts_path = scripts_folder;
 

@@ -30,19 +30,12 @@ public:
 	bool Initialize();
 	void Shutdown();
 	
-	//bool Render(int indexCount, Camera* camera, LightCamera* lightcamera, bool bReflect, ZShadeSandboxTerrain::TerrainShadingConst terrainShadingConst,
-	//	ID3D11ShaderResourceView* layerMapSRV, ID3D11ShaderResourceView* blendMapSRV,
-	//	ID3D11ShaderResourceView* heightMapSRV, ID3D11ShaderResourceView* normalMapSRV,
-	//	ID3D11ShaderResourceView* shadowMapSRV, ID3D11ShaderResourceView* detailMapSRV,
-	//	ID3D11ShaderResourceView* ssaoMapSRV);
-	
 	bool Render
 	(	int indexCount
 	,	Camera* camera
 	,	ZShadeSandboxLighting::Light* light
 	,	ZShadeSandboxTerrain::TerrainShadingConst terrainShadingConst
 	,	ID3D11ShaderResourceView* heightMapSRV
-	,	ID3D11ShaderResourceView* targetSRV
 	,	ZShadeSandboxLighting::ShaderMaterial* terrainMaterial
 	);
 

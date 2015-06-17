@@ -65,107 +65,9 @@ bool TerrainTessellationQuadShader::Render
 ,	ZShadeSandboxLighting::Light* light
 ,	ZShadeSandboxTerrain::TerrainShadingConst terrainShadingConst
 ,	ID3D11ShaderResourceView* heightMapSRV
-,	ID3D11ShaderResourceView* targetSRV
 ,	ZShadeSandboxLighting::ShaderMaterial* terrainMaterial
 )
 {
-	/*cTessellationBuffer cTB;
-	cDomainConstBuffer cDCB;
-	cShadingConstBuffer cSCB;
-	
-	cTB.g_EyePosW = terrainShadingConst.g_EyePosW;
-	cTB.g_MinDist = terrainShadingConst.g_MinDist;
-	cTB.g_MaxDist = terrainShadingConst.g_MaxDist;
-	cTB.g_MinTess = terrainShadingConst.g_MinTess;
-	cTB.g_MaxTess = terrainShadingConst.g_MaxTess;
-	cTB.g_FrustumCull = terrainShadingConst.g_FrustumCull;
-	cTB.padding = XMFLOAT2(0, 0);
-	cTB.g_TerrSize = terrainShadingConst.g_MapSize;
-	cTB.g_TerrScale = terrainShadingConst.g_TerrSize;
-
-	cDCB.g_TexScale = XMFLOAT2(66.0f, 66.0f);
-	cDCB.g_HeightScale = terrainShadingConst.g_HeightScale;
-	cDCB.g_TerrainZScale = terrainShadingConst.g_TerrSize;
-	cDCB.g_ClipPlane = terrainShadingConst.g_ClipPlane;
-	cDCB.g_tpadding = XMFLOAT3(0, 0, 0);
-	cDCB.g_FarPlane = terrainShadingConst.g_FarPlane;
-	if (m_UseCustomWorld)
-		cDCB.g_WorldMatrix = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(mWorld.Get()));
-	else
-		cDCB.g_WorldMatrix = camera->World4x4();
-
-	if (bReflect)
-		cDCB.g_ViewMatrix = camera->ReflectionView4x4();
-	else
-		cDCB.g_ViewMatrix = camera->View4x4();
-
-	cDCB.g_ProjMatrix = camera->Proj4x4();
-
-	XMMATRIX toTexSpace = XMMatrixScaling(0.5f, -0.5f, 1.0f) * XMMatrixTranslation(0.5f, 0.5f, 0);
-	cDCB.g_TexSpaceMatrix = ZShadeSandboxMath::ZMath::GMathMF(XMMatrixTranspose(toTexSpace));
-
-	// Need to create the shadow matrix
-	cDCB.g_ShadowMatrix = lightcamera->ShadowTransform4x4();
-	
-	cSCB.g_EyePosW = terrainShadingConst.g_EyePosW;
-	cSCB.g_DetailBrightness = terrainShadingConst.g_DetailBrightness;
-	cSCB.g_fogThinning = terrainShadingConst.g_fogThinning;
-	cSCB.g_fogAltitude = terrainShadingConst.g_fogAltitude;
-	cSCB.g_fogNear = terrainShadingConst.g_fogNear;
-	cSCB.g_fogFar = terrainShadingConst.g_fogFar;
-	cSCB.g_fogColor = terrainShadingConst.g_fogColor;
-	cSCB.g_TextureAmount = terrainShadingConst.g_TextureAmount;
-	cSCB.g_TextureWidth = terrainShadingConst.g_TextureWidth;
-	cSCB.g_TextureHeight = terrainShadingConst.g_TextureHeight;
-	cSCB.g_seaLevel = terrainShadingConst.g_seaLevel;
-	cSCB.g_waterBodyColor = terrainShadingConst.g_waterBodyColor;
-	cSCB.g_MaterialDiffuseColor = terrainShadingConst.g_MaterialDiffuseColor;
-	cSCB.g_MaterialAmbientColor = terrainShadingConst.g_MaterialAmbientColor;
-	cSCB.g_TexelCellSpaceU = terrainShadingConst.g_TexelCellSpaceU;
-	cSCB.g_TexelCellSpaceV = terrainShadingConst.g_TexelCellSpaceV;
-	cSCB.g_MaterialSpecularPower = terrainShadingConst.g_MaterialSpecularPower;
-	cSCB.g_MaterialSpecularIntensity = terrainShadingConst.g_MaterialSpecularIntensity;
-	cSCB.g_useClippingPlane = terrainShadingConst.g_useClippingPlane;
-	cSCB.g_useNormalMap = terrainShadingConst.g_useNormalMap;
-	cSCB.g_UseSobelFilter = terrainShadingConst.g_UseSobelFilter;
-	cSCB.g_useShadowMap = terrainShadingConst.g_useShadowMap;
-	cSCB.tpadding = XMFLOAT3(0, 0, 0);
-	cSCB.g_useSSAO = terrainShadingConst.g_useSSAO;
-	cSCB.g_ViewMatrix = cDCB.g_ViewMatrix;
-	
-	// Map tessellation constants
-	{
-		D3D11_MAPPED_SUBRESOURCE mapped_res;
-		m_pD3DSystem->GetDeviceContext()->Map(m_pTessellationCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
-		{
-			assert(mapped_res.pData);
-			*(cTessellationBuffer*)mapped_res.pData = cTB;
-		}
-		m_pD3DSystem->GetDeviceContext()->Unmap(m_pTessellationCB, 0);
-	}
-	
-	// Map domain shader constants
-	{
-		D3D11_MAPPED_SUBRESOURCE mapped_res;
-		m_pD3DSystem->GetDeviceContext()->Map(m_pDomainCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
-		{
-			assert(mapped_res.pData);
-			*(cDomainConstBuffer*)mapped_res.pData = cDCB;
-		}
-		m_pD3DSystem->GetDeviceContext()->Unmap(m_pDomainCB, 0);
-	}
-	
-	// Map pixel shading constants
-	{
-		D3D11_MAPPED_SUBRESOURCE mapped_res;
-		m_pD3DSystem->GetDeviceContext()->Map(m_pShadingCB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
-		{
-			assert(mapped_res.pData);
-			*(cShadingConstBuffer*)mapped_res.pData = cSCB;
-		}
-		m_pD3DSystem->GetDeviceContext()->Unmap(m_pShadingCB, 0);
-	}*/
-
 	ID3D11ShaderResourceView* diffuseArrayTexture = 0;
 	ID3D11ShaderResourceView* diffuseTexture = 0;
 	ID3D11ShaderResourceView* ambientTexture = 0;
@@ -221,23 +123,23 @@ bool TerrainTessellationQuadShader::Render
 	ID3D11ShaderResourceView* vsds_srvs[1] = { heightMapSRV };
 	
 	// Set the textures into the Pixel Shader
-	ID3D11ShaderResourceView* ps_srvs[8] = {
-		diffuseArrayTexture, blendMapTexture, normalMapTexture, heightMapSRV, detailMapTexture, shadowMapTexture, ssaoTexture, targetSRV
+	ID3D11ShaderResourceView* ps_srvs[7] = {
+		diffuseArrayTexture, blendMapTexture, normalMapTexture, heightMapSRV, detailMapTexture, shadowMapTexture, ssaoTexture
 	};
-	ID3D11SamplerState* ps_samp[3] = { m_pD3DSystem->Point(), m_pD3DSystem->Linear(), m_pD3DSystem->ShadowMapPCF() };
+	ID3D11SamplerState* ps_samp[4] = { m_pD3DSystem->Point(), m_pD3DSystem->Linear(), m_pD3DSystem->LinearClamp(), m_pD3DSystem->ShadowMapPCF() };
 	
 	// Tell the shader what input layout to use
 	SetInputLayout("TerrainTessellationQuadShader");
 
 	if (!m_Wireframe)
 	{
-		m_pD3DSystem->GetDeviceContext()->VSSetSamplers(0, 3, ps_samp);
-		m_pD3DSystem->GetDeviceContext()->DSSetSamplers(0, 3, ps_samp);
-		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 3, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->VSSetSamplers(0, 4, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->DSSetSamplers(0, 4, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 4, ps_samp);
 		
 		m_pD3DSystem->GetDeviceContext()->VSSetShaderResources(3, 1, vsds_srvs);
 		m_pD3DSystem->GetDeviceContext()->DSSetShaderResources(3, 1, vsds_srvs);
-		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 8, ps_srvs);
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 7, ps_srvs);
 
 		SwitchTo("TerrainTessellationQuadPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
 	}
@@ -262,16 +164,17 @@ bool TerrainTessellationQuadShader::Render
 		ps_samp[0] = NULL;
 		ps_samp[1] = NULL;
 		ps_samp[2] = NULL;
-		m_pD3DSystem->GetDeviceContext()->VSSetSamplers(0, 3, ps_samp);
-		m_pD3DSystem->GetDeviceContext()->DSSetSamplers(0, 3, ps_samp);
-		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 3, ps_samp);
+		ps_samp[3] = NULL;
+		m_pD3DSystem->GetDeviceContext()->VSSetSamplers(0, 4, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->DSSetSamplers(0, 4, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 4, ps_samp);
 
 		vsds_srvs[0] = NULL;
 		m_pD3DSystem->GetDeviceContext()->VSSetShaderResources(0, 1, vsds_srvs);
 		m_pD3DSystem->GetDeviceContext()->DSSetShaderResources(0, 1, vsds_srvs);
 		
-		for (int i = 0; i < 8; i++) ps_srvs[i] = NULL;
-		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 8, ps_srvs);
+		for (int i = 0; i < 7; i++) ps_srvs[i] = NULL;
+		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 7, ps_srvs);
 	}
 	
 	return true;

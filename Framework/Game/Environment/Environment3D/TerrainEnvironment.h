@@ -47,7 +47,8 @@ protected:
 	//
 	ZShadeSandboxTerrain::QuadTreeMesh* m_pQuadTreeMesh;
 	ZShadeSandboxTerrain::QuadTreeRenderer* m_pQuadTreeRenderer;
-
+	ZShadeSandboxMesh::QuadMesh* mGroundCursorMesh;
+	
 	float fHeightScale;
 	float fTerrSize;
 	float fMinDist;

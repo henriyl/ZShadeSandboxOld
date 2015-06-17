@@ -145,15 +145,12 @@ bool OutdoorEnvironment::InitializeTerrain()
 	//m_pQuadTree = new ZShadeSandboxTerrain::QuadTree(m_D3DSystem, "Textures/Terrain/Chatham-terrain.raw", gCellSize, gLeafSize, gCellSpacing, gHeightScale, RAW, gTessellate, gTerrSize);
 
 	ZShadeSandboxTerrain::TerrainParameters tp;
-	tp.g_extension = ZShadeSandboxTerrain::EHeightExtension::BMP;
-	//tp.g_extension = ZShadeSandboxTerrain::EHeightExtension::RAW;
-	//tp.g_ext = HeightExt::HENONE;
-	//tp.g_heightmapName = "Textures/Terrain/terrain3.bmp";
-	//tp.g_heightmapName = "Textures/Terrain/Island3Big.bmp";
-	tp.g_heightmapName = "Textures/Terrain/heightmap01.bmp";
-	//tp.g_heightmapName = "Textures/Terrain/valleyBig.bmp";
-	//tp.g_heightmapName = "Textures/Terrain/gcanyon.bmp";
-	//tp.g_heightmapName = "Textures\\Terrain\\terrain.raw";
+	//tp.g_heightmapName = "terrain3.bmp";
+	//tp.g_heightmapName = "Island3Big.bmp";
+	tp.g_heightmapName = "heightmap01.bmp";
+	//tp.g_heightmapName = "valleyBig.bmp";
+	//tp.g_heightmapName = "gcanyon.bmp";
+	//tp.g_heightmapName = "terrain.raw";
 	tp.g_TerrainSize = fMapSize;
 	tp.g_leafWidth = iLeafSize;
 	tp.g_cellSpacing = 0.5f;
@@ -161,20 +158,21 @@ bool OutdoorEnvironment::InitializeTerrain()
 	tp.g_tessellate = bEnableTessellation;
 	tp.g_terrScale = fTerrSize;
 
-	m_pQuadTreeMesh = new ZShadeSandboxTerrain::QuadTreeMesh(m_D3DSystem, tp);
+	m_pQuadTreeMesh = new ZShadeSandboxTerrain::QuadTreeMesh(m_D3DSystem, tp, m_GameDirectory3D);
 
-	vector<string> names;
-
-	names.push_back("Textures\\grass.dds");
-	names.push_back("Textures\\darkdirt.dds");
-	names.push_back("Textures\\lightdirt.dds");
-	names.push_back("Textures\\darkgrass.dds");
-	names.push_back("Textures\\soil.dds");
+	//vector<string> names;
+	//names.push_back("Textures\\grass.dds");
+	//names.push_back("Textures\\darkdirt.dds");
+	//names.push_back("Textures\\lightdirt.dds");
+	//names.push_back("Textures\\darkgrass.dds");
+	//names.push_back("Textures\\soil.dds");
 	
 	m_pQuadTreeMesh->AddMaterialColors();
 	m_pQuadTreeMesh->AddSpecularPower();
 	m_pQuadTreeMesh->AddSpecularIntensity();
-	m_pQuadTreeMesh->AddMaterialTextures(names, "Textures", "blend.dds", "lichen1_normal.dds", "detail001.dds");
+	m_pQuadTreeMesh->AddNormalMap(m_GameDirectory3D->m_textures_path, "lichen1_normal.dds");
+	m_pQuadTreeMesh->AddDetailMap(m_GameDirectory3D->m_textures_path, "detail001.dds");
+	//m_pQuadTreeMesh->AddMaterialTextures(names, "Textures", "blend.dds", "lichen1_normal.dds", "detail001.dds");
 
 	//m_pQuadTreeMesh->BuildLayerMapArraySRV("Textures\\grass.dds");
 	////m_pQuadTreeMesh->BuildLayerMapArraySRV("Textures\\darkdirt.dds");

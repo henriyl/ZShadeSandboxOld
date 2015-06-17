@@ -290,8 +290,10 @@
     <ClCompile Include="Framework\Graphics\Sun\Sun.cpp" />
     <ClCompile Include="Framework\Graphics\Sun\SunQuad.cpp" />
     <ClCompile Include="Framework\Graphics\Sun\SunRenderer.cpp" />
+    <ClCompile Include="Framework\Graphics\Terrain\HeightErosion.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\Heightmap.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\HeightmapTester.cpp" />
+    <ClCompile Include="Framework\Graphics\Terrain\ProceduralGenerator.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\QNode.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\QuadTree.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\QuadTreeMesh.cpp" />
@@ -683,8 +685,11 @@
     <ClInclude Include="Framework\Graphics\Sun\SunParameters.h" />
     <ClInclude Include="Framework\Graphics\Sun\SunQuad.h" />
     <ClInclude Include="Framework\Graphics\Sun\SunRenderer.h" />
+    <ClInclude Include="Framework\Graphics\Terrain\HeightErosion.h" />
     <ClInclude Include="Framework\Graphics\Terrain\Heightmap.h" />
+    <ClInclude Include="Framework\Graphics\Terrain\HeightmapData.h" />
     <ClInclude Include="Framework\Graphics\Terrain\HeightmapTester.h" />
+    <ClInclude Include="Framework\Graphics\Terrain\ProceduralGenerator.h" />
     <ClInclude Include="Framework\Graphics\Terrain\QMeshNode.h" />
     <ClInclude Include="Framework\Graphics\Terrain\QNode.h" />
     <ClInclude Include="Framework\Graphics\Terrain\QNodeType.h" />

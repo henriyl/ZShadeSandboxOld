@@ -35,6 +35,8 @@ void TerrainEnvironment::Init()
 	m_CameraSystem->SetPosition(0.0f, 100.0f, 100.0f);
 	
 	fSeaLevel = 0.0f;
+	
+	// No Reflections here
 	m_CameraSystem->SetRenderReflectionView( false );
 	
 	// Enable directional lights for this scene
@@ -44,42 +46,101 @@ void TerrainEnvironment::Init()
 	// Initialize the terrain
 	//
 	
-	fMapSize = 256;// 1024;
+	// The reason why the terrain size has to be specified is because the quad tree builds itself from the terrain size.
+	// Also with a procedural heightmap the terrain size has to be specified
+	
+	ZShadeSandboxTerrain::TerrainParameters tp;
+	
+	bool heightmap1 = true;
+	bool heightmap2 = false;
+	bool heightmap3 = false;
+	
+	if (heightmap1)
+	{
+		fMapSize = 256;
+		tp.g_heightmapName = "heightmap01.bmp";
+	}
+	else
+	{
+		if (heightmap2)
+		{
+			fMapSize = 1024;
+			tp.g_heightmapName = "valleyBig.bmp";
+		}
+		else
+		{
+			if (heightmap3)
+			{
+				fMapSize = 2048;
+				tp.g_heightmapName = "terrain.raw";
+			}
+		}
+	}
+	
 	fMinDist = 20.0f;
 	fMaxDist = fMapSize / 2;
 	fHeightScale = 1.0f;
 	fTerrSize = 1.0f;
 	fMinDist = 20;
-	fMaxDist = 256;
+	fMaxDist = fMapSize;
 	fTerrRenderSize = 1.0f;
 	fLeafWidth = 64.0f;
 	
-	ZShadeSandboxTerrain::TerrainParameters tp;
-	tp.g_extension = ZShadeSandboxTerrain::EHeightExtension::BMP;
-	tp.g_heightmapName = "Textures/Terrain/heightmap01.bmp";
-	//tp.g_heightmapName = "Textures/Terrain/valleyBig.bmp";
 	tp.g_TerrainSize = fMapSize;
 	tp.g_leafWidth = fLeafWidth;
 	tp.g_cellSpacing = 0.5f;
 	tp.g_heightScale = fHeightScale;
 	tp.g_tessellate = bEnableTessellation;
 	tp.g_terrScale = fTerrSize;
+	tp.g_makeFlat = false;
+	tp.g_procedural = true;
 	
-	m_pQuadTreeMesh = new ZShadeSandboxTerrain::QuadTreeMesh(m_D3DSystem, tp);
+	m_pQuadTreeMesh = new ZShadeSandboxTerrain::QuadTreeMesh(m_D3DSystem, tp, m_GameDirectory3D);
 	
-	vector<string> names;
-	names.push_back("Textures\\checker.dds");
-	//names.push_back("Textures\\darkdirt.dds");
-	//names.push_back("Textures\\lightdirt.dds");
-	//names.push_back("Textures\\darkgrass.dds");
-	//names.push_back("Textures\\soil.dds");
+	// The terrain in the editor does not need to load a blend map from a file initially since it is built
+	// when a texture is painted onto the terrain.
+	// The blend map is only loaded from a file in the editor or from the terrain loader xml file
 	
 	m_pQuadTreeMesh->AddMaterialColors();
 	m_pQuadTreeMesh->AddSpecularPower();
 	m_pQuadTreeMesh->AddSpecularIntensity();
-	m_pQuadTreeMesh->AddMaterialTextures(names, "Textures", "blend.dds", "lichen1_normal.dds", "detail001.dds");
+	m_pQuadTreeMesh->AddNormalMap(m_GameDirectory3D->m_textures_path, "lichen1_normal.dds");
+	m_pQuadTreeMesh->AddDetailMap(m_GameDirectory3D->m_textures_path, "detail001.dds");
 	
 	m_pQuadTreeRenderer = new ZShadeSandboxTerrain::QuadTreeRenderer(m_D3DSystem, m_pQuadTreeMesh);
+	
+	//ZShadeSandboxMesh::MeshParameters mp;
+	//mp.vertexType = ZShadeSandboxMesh::EVertexType::VT_NormalTex;
+	//mp.rotationAxisX = false;
+	//mp.rotationAxisY = false;
+	//mp.rotationAxisZ = false;
+	//mp.pos = XMFLOAT3(0, 5, 0);
+	//mp.rot = XMFLOAT3(0, 0, 0);
+	//mp.scale = XMFLOAT3(10, 10, 10);
+	//mp.shader = 0;
+	//mp.useCustomShader = false;
+	//mp.material = MaterialManager::Instance()->GetMaterial("Target");
+	////mp.material->SetMaterialDisplacementMapTexture(m_pQuadTreeMesh->GetHeightMapSRV());
+	//mp.material->bHasDetailMapTexture = false;
+	//mp.material->bEnableLighting = false;
+	//mGroundCursorMesh = new ZShadeSandboxMesh::QuadMesh(m_D3DSystem, mp, false, false, ZShadeSandboxMath::EAxis::Type::Axis_Y);
+
+	ZShadeSandboxMesh::MeshParameters mpSphere;
+	mpSphere.useCustomShader = false;
+	mpSphere.vertexType = ZShadeSandboxMesh::EVertexType::VT_NormalTex;
+	mpSphere.rotationAxisX = false;
+	mpSphere.rotationAxisY = false;
+	mpSphere.rotationAxisZ = false;
+	mpSphere.pos = XMFLOAT3(0, 5, 0);
+	mpSphere.rot = XMFLOAT3(0, 0, 0);
+	mpSphere.scale = XMFLOAT3(1, 1, 1);
+	mpSphere.material = MaterialManager::Instance()->GetMaterial("Red");
+	mpSphere.material->bEnableLighting = false;
+	mpSphere.in2D = false;
+	mpSphere.textureWidth = -1;
+	mpSphere.textureHeight = -1;
+	mpSphere.shader = 0;
+	mPickingSphere = new ZShadeSandboxMesh::SphereMesh(m_D3DSystem, mpSphere, "Models\\sphere.txt");
 }
 //===============================================================================================================================
 void TerrainEnvironment::Shutdown()
@@ -214,6 +275,8 @@ void TerrainEnvironment::Update()
 		(*it)->SetWireframe(bWireframeMode);
 	}
 	
+	//mGroundCursorMesh->SetWireframe(bWireframeMode);
+	
 	m_pQuadTreeRenderer->SetWireframe(bWireframeMode);
 	
 	XMFLOAT3 SpotLightPos = mSpotLight1->Position();
@@ -306,19 +369,6 @@ void TerrainEnvironment::Update()
 //===============================================================================================================================
 void TerrainEnvironment::Render()
 {
-	/*vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
-	for (; it != m_SpawnedMeshContainer.end(); it++)
-	{
-		(*it)->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-		(*it)->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
-	}
-
-	if (mPickingSphere != NULL)
-	{
-		mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-		mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
-	}*/
-
 	//RenderTerrainShadowSSAO();
 	
 	//We now get the position of the camera and then get the height of the triangle that would
@@ -350,51 +400,40 @@ void TerrainEnvironment::Render()
 	
 	if (mPickingRay != NULL)
 	{
-		//ZShadeSandboxMath::XMMath3 rayTarget = ZShadeSandboxMath::XMMath3(mPickingRay->position) + ZShadeSandboxMath::XMMath3(mPickingRay->direction);// *rayLength;
-		//XMFLOAT3 gPos;
-		//gPos.x = rayTarget.x / (m_pQuadTreeMesh->GetQuadTree()->MapSize() * m_pQuadTreeMesh->GetQuadTree()->LeafWidth());
-		//gPos.y = rayTarget.y;
-		//gPos.z = rayTarget.z / (m_pQuadTreeMesh->GetQuadTree()->MapSize() * m_pQuadTreeMesh->GetQuadTree()->LeafWidth());
-
-		//m_pQuadTreeRenderer->UpdateGroundCursor(gPos);
-
 		//if (bLeftMouseDown)
 		{
-			bLeftMouseDown = false;
+			//bLeftMouseDown = false;
 			bool hit = false;
 			XMFLOAT3 hitPoint;
 			ZShadeSandboxMath::Ray ray = *mPickingRay;
 			m_pQuadTreeMesh->Intersects(ray, hit, hitPoint);
 			if (hit)
 			{
-				m_pQuadTreeRenderer->UpdateGroundCursor(hitPoint);
-
+				//XMFLOAT3 transHitPoint;
+				//m_pQuadTreeMesh->TransformPoint(hitPoint, transHitPoint);
+				
+				//m_pQuadTreeRenderer->UpdateGroundCursor(hitPoint);
+				
+				////mGroundCursorMesh->Position() = hitPoint;
+				//// This must not be called every frame because it will kill the frame rate
+				//if (mGroundCursorMesh->Position().x != hitPoint.x
+				//&&	mGroundCursorMesh->Position().y != hitPoint.y
+				//&&	mGroundCursorMesh->Position().z != hitPoint.z)
+				//{
+				//	mGroundCursorMesh->Position() = hitPoint;
+				//	// Need to create an area from the hitPoint to size of the ground cursor
+				//	// and sample the height from the terrain in those points to create a texture containing those points
+				//	// then send this new displacement to the ground cursor
+				//	ID3D11ShaderResourceView* heightAreaSRV = NULL;
+				//	m_pQuadTreeMesh->GenerateHeightQuad(hitPoint, 10, heightAreaSRV);
+				//	if (heightAreaSRV != NULL)
+				//	{
+				//		mGroundCursorMesh->GetMaterial()->SetMaterialDisplacementMapTexture(heightAreaSRV);
+				//	}
+				//}
+				
 				// Create a sphere at the point of intersection
-				if (mPickingSphere == NULL)
-				{
-					ZShadeSandboxMesh::MeshParameters mp;
-					mp.useCustomShader = false;
-					mp.vertexType = ZShadeSandboxMesh::EVertexType::VT_Tex;
-					mp.rotationAxisX = false;
-					mp.rotationAxisY = true;
-					mp.rotationAxisZ = false;
-					mp.pos = hitPoint;
-					mp.rot = XMFLOAT3(0, 0, 0);
-					mp.scale = XMFLOAT3(1, 1, 1);
-					mp.material = MaterialManager::Instance()->GetMaterial("Red");
-					mp.in2D = false;
-					mp.textureWidth = -1;
-					mp.textureHeight = -1;
-					mp.shader = 0;
-					mPickingSphere = new ZShadeSandboxMesh::SphereMesh(2, 10, 10, m_D3DSystem, mp);
-
-					//mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetLightBuffer());
-					//mPickingSphere->SetLightBuffer(ZShadeSandboxLighting::LightManager::Instance()->GetSunLightBuffer());
-				}
-				else
-				{
-					mPickingSphere->Position() = hitPoint;
-				}
+				mPickingSphere->Position() = hitPoint;
 			}
 		}
 	}
@@ -415,14 +454,14 @@ void TerrainEnvironment::Render()
 
 		mSky->SetWireframe(true);
 		
+		//mGroundCursorMesh->SetWireframe(true);
+		
 		m_D3DSystem->TurnOnWireframe();
 	}
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
 	mrp.camera = m_CameraSystem.get();
 	mrp.light = mDirLight1;
-	mrp.tessellate = false;
-	mrp.renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
 	
 	vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
 	for (; it != m_SpawnedMeshContainer.end(); it++)
@@ -442,6 +481,21 @@ void TerrainEnvironment::Render()
 		}
 	}
 	
+	//if (!bWireframeMode && !Quickwire())
+	//	m_D3DSystem->TurnOffCulling();
+	//mrp.tessellate = true;
+	//mrp.renderType = ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList;
+	//mrp.minTessDist = 20.0f;
+	//mrp.maxTessDist = 1000.0f;
+	//mrp.minTess = 1.0f;
+	//mrp.maxTess = 64.0f;
+	//mGroundCursorMesh->Render(mrp);
+	//if (!bWireframeMode && !Quickwire())
+	//	m_D3DSystem->TurnOnCulling();
+	
+	mrp.tessellate = false;
+	mrp.renderType = ZShadeSandboxMesh::ERenderType::eTriangleList;
+
 	//
 	//Render the terrain
 	//
@@ -494,7 +548,9 @@ void TerrainEnvironment::Render()
 	//
 	
 	if (mPickingSphere != NULL)
+	{
 		mPickingSphere->Render(mrp);
+	}
 	
 	//
 	// Render the sphere mesh for the lights in the scene

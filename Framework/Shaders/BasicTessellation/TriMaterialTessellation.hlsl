@@ -69,7 +69,7 @@ cbuffer cbShadingBuffer : register(b4)
 	int		g_UsingTransparency;
 	int		g_UsingShadowMap;
 	int		g_UsingSSAOMap;
-	float	materialpadding;
+	int		g_UsingDisplacementMap;
 	float	g_FarPlanes;
 	int		g_SpecularToggle;
 	int		g_EnableLighting;
@@ -92,8 +92,10 @@ Texture2D g_MaterialDetailMapTexture 			: register(t7);
 Texture2D g_MaterialAlphaMapTexture 			: register(t8);
 Texture2D g_ShadowMap							: register(t9);
 Texture2D g_SSAOMap								: register(t10);
+Texture2D g_DisplacementMap						: register(t11);
 
-SamplerState g_LinearSampler	: register(s0);
+SamplerState g_PointSampler		: register(s0);
+SamplerState g_LinearSampler	: register(s1);
 
 //======================================================================================================
 
@@ -106,6 +108,14 @@ struct VertexInput
 	float3 position		: POSITION;
 	float3 normal		: NORMAL;
 	float2 uv			: TEXCOORD0;
+};
+
+struct VertexInputInstance
+{
+	float3 position				: POSITION;
+	float3 normal				: NORMAL;
+	float2 uv					: TEXCOORD0;
+	float3 instancePosition		: INSTANCEPOS;
 };
 
 struct HullInput
@@ -121,6 +131,36 @@ HullInput TriMaterialTessellationVS(VertexInput input)
 	
 	// Pass vertex position into the hull shader
 	output.position = input.position;
+
+	if (g_UsingDisplacementMap == 1)
+	{
+		output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
+
+	// Pass normal into the hull shader
+	output.normal = input.normal;
+
+	// Pass texture uv into the hull shader
+	output.uv = input.uv;
+	
+	return output;
+}
+
+HullInput TriMaterialTessellationInstanceVS(VertexInputInstance input, uint instanceID : SV_InstanceID)
+{
+	HullInput output;
+	
+	input.position.x += input.instancePosition.x;
+	input.position.y += input.instancePosition.y;
+	input.position.z += input.instancePosition.z;
+	
+	// Pass vertex position into the hull shader
+	output.position = input.position;
+
+	if (g_UsingDisplacementMap == 1)
+	{
+		output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
 
 	// Pass normal into the hull shader
 	output.normal = input.normal;
@@ -182,17 +222,17 @@ PatchConstOutput ConstHS(InputPatch<HullInput, 3> inputPatch, uint patchID : SV_
 	if (g_EnableDistTess == 1)
 	{
 		float3 WorldPosition0 = inputPatch[0].position;
-			float3 WorldPosition1 = inputPatch[1].position;
-			float3 WorldPosition2 = inputPatch[2].position;
+		float3 WorldPosition1 = inputPatch[1].position;
+		float3 WorldPosition2 = inputPatch[2].position;
 
-			// Compute midpoint on edges, and patch center
-			float3 e0 = 0.5f * (WorldPosition0 + WorldPosition1);
-			float3 e1 = 0.5f * (WorldPosition1 + WorldPosition2);
-			float3 e2 = 0.5f * (WorldPosition2 + WorldPosition0);
+		// Compute midpoint on edges, and patch center
+		float3 e0 = 0.5f * (WorldPosition0 + WorldPosition1);
+		float3 e1 = 0.5f * (WorldPosition1 + WorldPosition2);
+		float3 e2 = 0.5f * (WorldPosition2 + WorldPosition0);
 
-			float3  c = (WorldPosition0 + WorldPosition1 + WorldPosition2) / 3;
+		float3  c = (WorldPosition0 + WorldPosition1 + WorldPosition2) / 3;
 
-			HCTessellate(output, e0, e1, e2, c);
+		HCTessellate(output, e0, e1, e2, c);
 	}
 	else
 	{
@@ -250,6 +290,11 @@ PixelInput TriMaterialTessellationDS(PatchConstOutput input, float3 uvw : SV_Dom
 
 	// Find the texture coordinate of the new vertex
 	float2 vTex = uvw.x * inputPatch[0].uv + uvw.y * inputPatch[1].uv + uvw.z * inputPatch[2].uv;
+
+	if (g_UsingDisplacementMap == 1)
+	{
+		vPos.y = g_DisplacementMap.SampleLevel(g_PointSampler, vTex, 0).r;
+	}
 
 	output.positionW = vPos;
 

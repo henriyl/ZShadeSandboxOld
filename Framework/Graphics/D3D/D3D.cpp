@@ -1268,6 +1268,19 @@ void D3D::InitRenderStates()
 
 		m_device11->CreateSamplerState(&sampDesc, &m_pLinear);
 
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.MipLODBias = 0.0f;
+		sampDesc.MaxAnisotropy = 1;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sampDesc.BorderColor[0] = sampDesc.BorderColor[1] = sampDesc.BorderColor[2] = sampDesc.BorderColor[3] = 0;
+		sampDesc.MinLOD = 0;
+		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		m_device11->CreateSamplerState(&sampDesc, &m_pLinearClamp);
+
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;

@@ -42,7 +42,6 @@ bool MaterialTessellationShader::Initialize()
 	
 	ClearInputLayout();
 	SetInputLayoutDesc("MaterialTessellationShader", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex, 3);
-	
 	switch (mType)
 	{
 		case ZShadeSandboxLighting::EMaterialTessellationType::Type::eQuad:
@@ -64,8 +63,24 @@ bool MaterialTessellationShader::Initialize()
 		}
 		break;
 	}
-	
 	AssignVertexShaderLayout("MaterialTessellationShader");
+	
+	// Instancing
+	SetInputLayoutDesc("MaterialTessellationShaderInstance", ZShadeSandboxMesh::VertexLayout::mesh_layout_pos_normal_tex_instance, 4);
+	switch (mType)
+	{
+		case ZShadeSandboxLighting::EMaterialTessellationType::Type::eQuad:
+		{
+			LoadVertexShader("QuadMaterialTessellationInstanceVS");
+		}
+		break;
+		case ZShadeSandboxLighting::EMaterialTessellationType::Type::eTri:
+		{
+			LoadVertexShader("TriMaterialTessellationInstanceVS");
+		}
+		break;
+	}
+	AssignVertexShaderLayout("MaterialTessellationShaderInstance");
 	
 	return true;
 }
@@ -77,6 +92,7 @@ void MaterialTessellationShader::Shutdown()
 //==============================================================================================================================
 bool MaterialTessellationShader::Render11
 (	int indexCount
+,	int instanceCount
 ,	ZShadeSandboxMesh::MeshRenderParameters mrp
 ,	ZShadeSandboxLighting::ShaderMaterial* material
 )
@@ -115,38 +131,84 @@ bool MaterialTessellationShader::Render11
 	
 	ZShadeSandboxLighting::LightManager::Instance()->BuildFinalLightBuffers(m_pLightCB, m_pSunCB);
 	
+	ID3D11Buffer* vs_cbs[1] = { m_pShadingCB };
+	m_pD3DSystem->GetDeviceContext()->VSSetConstantBuffers(4, 1, vs_cbs);
+
 	// Set the tessellation constant buffer into the Hull Shader
 	ID3D11Buffer* hs_cbs[1] = { m_pTessellationCB };
-	m_pD3DSystem->GetDeviceContext()->HSSetConstantBuffers(0, 1, hs_cbs);
+	m_pD3DSystem->GetDeviceContext()->HSSetConstantBuffers(2, 1, hs_cbs);
 	
 	// Set the matrix constant buffer into the Domain Shader
-	ID3D11Buffer* ds_cbs[2] = { m_pShadingCB, m_pDomainCB };
-	m_pD3DSystem->GetDeviceContext()->DSSetConstantBuffers(2, 2, ds_cbs);
+	ID3D11Buffer* ds_cbs[2] = { m_pDomainCB, m_pShadingCB };
+	m_pD3DSystem->GetDeviceContext()->DSSetConstantBuffers(3, 2, ds_cbs);
 	
-	ID3D11Buffer* ps_cbs[3] = { m_pLightCB, m_pSunCB, m_pShadingCB };
-	m_pD3DSystem->GetDeviceContext()->PSSetConstantBuffers(0, 3, ps_cbs);
+	ID3D11Buffer* ps_cbs[5] = { m_pLightCB, m_pSunCB, m_pTessellationCB, m_pDomainCB, m_pShadingCB };
+	m_pD3DSystem->GetDeviceContext()->PSSetConstantBuffers(0, 5, ps_cbs);
 
 	ID3D11ShaderResourceView* ps_srvs[11] = { diffuseArrayTexture, diffuseTexture, ambientTexture, specularTexture, emissiveTexture, normalMapTexture, blendMapTexture, detailMapTexture, alphaMapTexture, shadowMapTexture, ssaoTexture };
-	ID3D11SamplerState* ps_samp[1] = { m_pD3DSystem->Linear() };
+	ID3D11SamplerState* ps_samp[2] = { m_pD3DSystem->Point(), m_pD3DSystem->Linear() };
+
+	ID3D11ShaderResourceView* disp_srvs[1] = { displacementMapTexture };
 
 	if (!m_Wireframe)
 	{
 		// Assign Texture
+		
+		m_pD3DSystem->GetDeviceContext()->VSSetSamplers(0, 2, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->DSSetSamplers(0, 2, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 2, ps_samp);
+		
+		m_pD3DSystem->GetDeviceContext()->VSSetShaderResources(11, 1, disp_srvs);
+		m_pD3DSystem->GetDeviceContext()->DSSetShaderResources(11, 1, disp_srvs);
 		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 11, ps_srvs);
-		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 1, ps_samp);
-
+		
 		switch (mType)
 		{
-			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eQuad: SwitchTo("QuadMaterialTessellationPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL); break;
-			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eTri: SwitchTo("TriMaterialTessellationPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL); break;
+			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eQuad:
+				SwitchTo("QuadMaterialTessellationPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+			break;
+			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eTri:
+				SwitchTo("TriMaterialTessellationPS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+			break;
 		}
 	}
 	else
 	{
 		switch (mType)
 		{
-			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eQuad: SwitchTo("QuadMaterialTessellationWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL); break;
-			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eTri: SwitchTo("TriMaterialTessellationWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL); break;
+			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eQuad:
+				SwitchTo("QuadMaterialTessellationWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+			break;
+			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eTri:
+				SwitchTo("TriMaterialTessellationWireframePS", ZShadeSandboxShader::EShaderTypes::ST_PIXEL);
+			break;
+		}
+	}
+	
+	if (mrp.useInstancing)
+	{
+		SetInputLayout("MaterialTessellationShaderInstance");
+		switch (mType)
+		{
+			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eQuad:
+				SwitchTo("QuadMaterialTessellationInstanceVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+			break;
+			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eTri:
+				SwitchTo("TriMaterialTessellationInstanceVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+			break;
+		}
+	}
+	else
+	{
+		SetInputLayout("MaterialTessellationShader");
+		switch (mType)
+		{
+			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eQuad:
+				SwitchTo("QuadMaterialTessellationVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+			break;
+			case ZShadeSandboxLighting::EMaterialTessellationType::Type::eTri:
+				SwitchTo("TriMaterialTessellationVS", ZShadeSandboxShader::EShaderTypes::ST_VERTEX);
+			break;
 		}
 	}
 	
@@ -154,17 +216,28 @@ bool MaterialTessellationShader::Render11
 	SetHullShader();
 	SetDomainShader();
 	SetPixelShader();
-
-	SetInputLayout("MaterialTessellationShader");
-
+	
 	//Perform Drawing
-	RenderIndex11(indexCount);
+	if (mrp.useInstancing)
+	{
+		RenderIndexInstanced11(indexCount, instanceCount);
+	}
+	else
+	{
+		RenderIndex11(indexCount);
+	}
 
 	// Unbind
 	if (!m_Wireframe)
 	{
 		ps_samp[0] = NULL;
-		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 1, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->VSSetSamplers(0, 2, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->DSSetSamplers(0, 2, ps_samp);
+		m_pD3DSystem->GetDeviceContext()->PSSetSamplers(0, 2, ps_samp);
+		
+		disp_srvs[0] = NULL;
+		m_pD3DSystem->GetDeviceContext()->VSSetShaderResources(11, 1, disp_srvs);
+		m_pD3DSystem->GetDeviceContext()->DSSetShaderResources(11, 1, disp_srvs);
 
 		for (int i = 0; i < 11; i++) ps_srvs[i] = NULL;
 		m_pD3DSystem->GetDeviceContext()->PSSetShaderResources(0, 11, ps_srvs);

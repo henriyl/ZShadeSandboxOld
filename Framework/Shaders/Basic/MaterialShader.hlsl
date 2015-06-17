@@ -48,7 +48,7 @@ cbuffer cbShadingBuffer : register(b2)
 	int		g_UsingTransparency;
 	int		g_UsingShadowMap;
 	int		g_UsingSSAOMap;
-	int		materialpadding;
+	int		g_UsingDisplacementMap;
 	float	g_FarPlane;
 	int		g_SpecularToggle;
 	int		g_EnableLighting;
@@ -63,12 +63,6 @@ cbuffer cbMatrixBuffer : register(b3)
 	matrix g_LightViewMatrix;
     matrix g_LightProjectionMatrix;
 };
-
-cbuffer cbVertexBuffer : register(b4)
-{
-	float3	materialpadding2;
-	int		g_UsingDisplacementMap;
-}
 
 //======================================================================================================
 
@@ -139,6 +133,11 @@ PixelInput MaterialShaderVS(VertexInput input)
 {
 	PixelInput output;
     
+	if (g_UsingDisplacementMap == 1)
+	{
+		input.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
+
     output.position = mul(float4(input.position, 1.0), g_World);
     output.position = mul(output.position, g_View);
     output.position = mul(output.position, g_Proj);
@@ -160,22 +159,22 @@ PixelInput MaterialShaderVS(VertexInput input)
 	
 	output.shadowPos = mul(float4(input.position, 1.0), g_ShadowMatrix);
 
-	if (g_UsingDisplacementMap == 1)
-	{
-		output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
-	}
-	
     return output;
 }
 
 PixelInput MaterialShaderInstanceVS(VertexInputInstance input, uint instanceID : SV_InstanceID)
 {
 	PixelInput output;
-
+	
 	input.position.x += input.instancePosition.x;
 	input.position.y += input.instancePosition.y;
 	input.position.z += input.instancePosition.z;
-
+	
+	if (g_UsingDisplacementMap == 1)
+	{
+		input.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
+	}
+	
 	output.position = mul(float4(input.position, 1.0), g_World);
 	output.position = mul(output.position, g_View);
 	output.position = mul(output.position, g_Proj);
@@ -196,11 +195,6 @@ PixelInput MaterialShaderInstanceVS(VertexInputInstance input, uint instanceID :
 	output.worldPos = mul(float4(input.position, 1.0), g_World);
 
 	output.shadowPos = mul(float4(input.position, 1.0), g_ShadowMatrix);
-
-	if (g_UsingDisplacementMap == 1)
-	{
-		output.position.y = g_DisplacementMap.SampleLevel(g_PointSampler, input.uv, 0).r;
-	}
 
 	return output;
 }

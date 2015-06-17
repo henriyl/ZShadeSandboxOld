@@ -39,8 +39,8 @@ class QuadTreeMesh
 {
 public:
 	
-	// Constructors for loading a Quad Tree
-	QuadTreeMesh(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp);
+	// Constructors for loading a Quad Tree Mesh
+	QuadTreeMesh(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp, GameDirectory3D* gd3d);
 	QuadTreeMesh(D3D* d3d, ZShadeSandboxTerrain::QuadTree* qtree);
 	
 	// Copy Constructor
@@ -49,16 +49,29 @@ public:
 	// Destructor
 	~QuadTreeMesh();
 	
+	void Init();
+	
 	// Returns the height at a given position for a camera or mesh to
 	// collide against the Quad Tree
 	bool GetHeightAtPosition(XMFLOAT3 position, float& height);
 	
 	// Ray tracing to find out if a ray has hit the Mesh
+	// Has optional parameters to get the SRV for height of an area for displacement
 	void Intersects(ZShadeSandboxMath::Ray ray, bool& hit, XMFLOAT3& hitPoint);
+	
+	// Creates a square area of height based on a point and size of square
+	// and returns a texture based on the height of that area.
+	void GenerateHeightQuad(XMFLOAT3 point, int areaSize, ID3D11ShaderResourceView*& heightAreaSRV);
 	
 	// Performs a mesh regeneration of the entire Quad Tree
 	void ReGenMesh(int newTerrainScale);
 	
+	// Decomposes a point after it has been translated to terrain world position
+	void DecomposePoint(XMFLOAT3 pointIn, XMFLOAT3& pointOut);
+
+	// Transforms a point to terrain world position
+	void TransformPoint(XMFLOAT3 pointIn, XMFLOAT3& pointOut);
+
 	//
 	// Material for the Quad Tree Mesh
 	//
@@ -75,9 +88,14 @@ public:
 	void AddSpecularIntensity(float intensity = 0.3f);
 	
 	// Creates the textures used by the terrain
-	void AddMaterialTextures(vector<string> textureNames, string basePath, string blendMapFilename, string normalMapFilename, string detailMapFilename);
+	//void AddMaterialTextures(vector<string> textureNames, string basePath, string blendMapFilename, string normalMapFilename, string detailMapFilename);
 	
-	void AddDiffuseLayerMap(vector<string> textureNames);
+	//void AddDiffuseLayerMap(vector<string> textureNames);
+	
+	void ClearLayerMapNames();
+	void AddDiffuseLayerMapName(string textureName, int position);
+	void CreateDiffuseLayerMap();
+	
 	void AddBlendMap(string basePath, string blendMapFilename);
 	void AddNormalMap(string basePath, string normalMapFilename);
 	void AddDetailMap(string basePath, string detailMapFilename);
@@ -106,8 +124,12 @@ private:
 	// Find highest point in the node at a position
 	bool GetHeightAtPosition(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT3 position, float& height);
 	bool FindNodeHeight(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT3 position, float& height);
-
+	
 	void Intersects(QMeshNode* node, ZShadeSandboxMath::Ray ray, bool& hit, XMFLOAT3& hitPoint);
+	
+	// Creates a square area of height based on a point and size of square
+	// and returns a texture based on the height of that area.
+	void GenerateHeightQuad(QMeshNode* node, XMFLOAT3 point, int areaSize, vector<float>& heightList);
 	
 	// Generates a box for each node in the Quad Tree
 	void CreateNodeBox();
@@ -167,7 +189,7 @@ private:
 
 	// Rebuilds the index buffer for the mesh
 	void ReBuildIndexBuffer(ZShadeSandboxTerrain::QMeshNode*& node);
-
+	
 private:
 
 	//
@@ -184,6 +206,11 @@ private:
 	// The absolute maximum width of the quad tree mesh given a list of vertices (Not used)
 	float m_maxWidth;
 	
+	// The default texture that gets applied when there is no texture
+	string m_DefaultTextureName;
+	
+	vector<string> mLayerTextureNames;
+	
 	// The maximum amount of triangles in the mesh
 	//int m_triangleCount;
 	
@@ -199,7 +226,7 @@ private:
 	// The material that gets applied to the Quad Tree Mesh (Need to make sure this is used)
 	// Create lighting system with material and material contains color and texture
 	ZShadeSandboxLighting::ShaderMaterial* mMaterial;
-
+	
 	// Root mesh node
 	ZShadeSandboxTerrain::QMeshNode* m_MeshNodes;
 };
