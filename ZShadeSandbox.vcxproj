@@ -292,6 +292,7 @@
     <ClCompile Include="Framework\Graphics\Sun\SunRenderer.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\HeightErosion.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\Heightmap.cpp" />
+    <ClCompile Include="Framework\Graphics\Terrain\HeightmapEditorHelper.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\HeightmapTester.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\ProceduralGenerator.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\QNode.cpp" />
@@ -299,6 +300,7 @@
     <ClCompile Include="Framework\Graphics\Terrain\QuadTreeMesh.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\QuadTreeRenderer.cpp" />
     <ClCompile Include="Framework\Graphics\Terrain\SimpleTerrain.cpp" />
+    <ClCompile Include="Framework\Graphics\Terrain\WaterErosion.cpp" />
     <ClCompile Include="Framework\Graphics\Vegitation\Grass\Grass.cpp" />
     <ClCompile Include="Framework\Graphics\Vegitation\Grass\GrassField.cpp" />
     <ClCompile Include="Framework\Graphics\Vegitation\Grass\GrassFieldMesh.cpp" />
@@ -688,6 +690,7 @@
     <ClInclude Include="Framework\Graphics\Terrain\HeightErosion.h" />
     <ClInclude Include="Framework\Graphics\Terrain\Heightmap.h" />
     <ClInclude Include="Framework\Graphics\Terrain\HeightmapData.h" />
+    <ClInclude Include="Framework\Graphics\Terrain\HeightmapEditorHelper.h" />
     <ClInclude Include="Framework\Graphics\Terrain\HeightmapTester.h" />
     <ClInclude Include="Framework\Graphics\Terrain\ProceduralGenerator.h" />
     <ClInclude Include="Framework\Graphics\Terrain\QMeshNode.h" />
@@ -698,6 +701,7 @@
     <ClInclude Include="Framework\Graphics\Terrain\QuadTreeRenderer.h" />
     <ClInclude Include="Framework\Graphics\Terrain\SimpleTerrain.h" />
     <ClInclude Include="Framework\Graphics\Terrain\TerrainParameters.h" />
+    <ClInclude Include="Framework\Graphics\Terrain\WaterErosion.h" />
     <ClInclude Include="Framework\Graphics\Vegitation\Grass\Grass.h" />
     <ClInclude Include="Framework\Graphics\Vegitation\Grass\GrassField.h" />
     <ClInclude Include="Framework\Graphics\Vegitation\Grass\GrassFieldMesh.h" />

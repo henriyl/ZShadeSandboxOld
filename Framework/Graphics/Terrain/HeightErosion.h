@@ -46,8 +46,12 @@ private:
 	
 	void RebuildHeightmap();
 	
+	void UpdateErosion(int xUpdate0, int xUpdate1, int zUpdate0, int zUpdate1);
+	
 	// Get the height from the heightmap
 	float ReadHeight(int x, int z);
+	
+	void UpdateErosionHeight(int x, int z, float height);
 	
 	// Does an interpolation of current height value and previous height value with
 	// the height erosion value

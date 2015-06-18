@@ -16,7 +16,24 @@ struct HeightData
 	float x;
 	float y;
 	float z;
+
+	bool operator < (const HeightData &right) const
+	{
+		return (x < right.x) && (y < right.y) && (z < right.z);
+	}
 	
+	HeightData()
+	{
+		this->x = this->y = this->z = 0;
+	}
+
+	HeightData(float x, float y, float z)
+	{
+		this->x = x;
+		this->y = y;
+		this->z = z;
+	}
+
 	HeightData& operator = (const HeightData& other)
 	{
 		x = other.x;

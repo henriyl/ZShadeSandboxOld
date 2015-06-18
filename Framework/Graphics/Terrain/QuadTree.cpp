@@ -19,6 +19,7 @@ QuadTree::QuadTree(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp, GameDir
 ,	m_RenderPrimitive(tp.g_RenderPrimitive)
 ,   m_seaLevel(tp.g_seaLevel)
 ,	m_GameDirectory3D(gd3d)
+,	mProceduralParameters(tp.g_proceduralParameters)
 {
 	m_EngineOptions = m_d3d->GetEngineOptions();
 	m_terrainZScale = 1;
@@ -116,7 +117,7 @@ void QuadTree::LoadMap()
 {
 	m_useHeight = true;
 	
-	m_heightmap = new ZShadeSandboxTerrain::Heightmap(m_QuadTreeSize, m_QuadTreeSize, m_heightScale, m_seaLevel, 70);
+	m_heightmap = new ZShadeSandboxTerrain::Heightmap(mProceduralParameters, m_QuadTreeSize, m_QuadTreeSize, m_heightScale, m_seaLevel, 70);
 
 	m_QuadTreeSize = m_heightmap->Height();
 }

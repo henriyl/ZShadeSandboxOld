@@ -1,8 +1,12 @@
 #include "TextureManager.h"
 #include "CGlobal.h"
 #include <Windows.h>
+#include <wincodec.h>
+#include <ppl.h>
+#include <ppltasks.h>
 #include "DDSTextureLoader.h"
 #include "WICTextureLoader.h"
+#include "ScreenGrab.h"
 #include "DirectXTex.h"
 #include <Windows.h>
 #include <wrl/client.h>
@@ -10,6 +14,7 @@
 #include "DCRenderTexture.h"
 #include "QuadMesh.h"
 #include "Camera.h"
+#include "ZShadeMessageCenter.h"
 #include "InterfacePointers.h"
 using namespace Microsoft::WRL;
 //===============================================================================================================================
@@ -103,7 +108,7 @@ HRESULT TextureManager::LoadWICTextureFromFile(LPCWSTR tex_filename, ID3D11Shade
 	TexMetadata imageMetadata;
 	ScratchImage* image = new ScratchImage();
 
-	hr = LoadFromWICFile(tex_filename, DDS_FLAGS_NONE, &imageMetadata, *image);
+	hr = LoadFromWICFile(tex_filename, WIC_FLAGS_NONE, &imageMetadata, *image);
 	
 	hr = CreateShaderResourceView(mD3DSystem->GetDevice11(), image->GetImages(), image->GetImageCount(), imageMetadata, srv);
 	
@@ -191,33 +196,10 @@ ID3D11ShaderResourceView* TextureManager::GetTexture(BetterString tex_filename, 
 		ID3D11ShaderResourceView* mTexture;
 
 		BetterString str = tex_filename;
-		string file = str.toString();
 		
 		unique_ptr<wchar_t> name = tex_filename.ToWideStr();
 		
 		mTexture = LoadSRV(name.get(), tt);
-		
-		/*if (!in2D)
-		{
-			//Load the texture
-			char path[MAX_PATH];
-			char buffer[MAX_PATH];
-			sprintf_s(buffer, "Textures\\%s", (char*)file.c_str());
-			CGlobal::GetMediaFile(buffer, path);
-			BetterString str2 = path;
-
-			unique_ptr<wchar_t> name = str2.ToWideStr();
-			
-			mTexture = LoadSRV(d3d->GetDevice11(), name.get(), tt);
-		}
-		else
-		{
-			unique_ptr<wchar_t> name = tex_filename.ToWideStr();
-			
-			mTexture = LoadSRV(d3d->GetDevice11(), name.get(), tt);
-		}*/
-
-		//d3d->GetDeviceContext()->GenerateMips(mTexture);
 
 		m_pTextures.insert( make_pair(tex_filename.toString(), mTexture) );
 
@@ -308,7 +290,6 @@ ID3D11ShaderResourceView* TextureManager::CreateTexture2DArraySRV(std::vector<st
 	UINT size = filenames.size();
 	HRESULT result;
 	
-	//std::vector<ComPtr<ID3D11Texture2D>> srcTex(size);
 	std::vector<ID3D11Texture2D*> srcTex(size);
 	
 	for(UINT i = 0; i < size; ++i)
@@ -366,17 +347,7 @@ ID3D11ShaderResourceView* TextureManager::CreateTexture2DArraySRV(std::vector<st
 		// for each mipmap level...
 		for(UINT mipLevel = 0; mipLevel < texElementDesc.MipLevels; ++mipLevel)
 		{
-			//const uint32_t subResourceIndex = D3D11CalcSubresource(mipLevel, texElement, texElementDesc.MipLevels);
-			//const uint32_t destinationSubresource = D3D11CalcSubresource(mipLevel, texElement, texElementDesc.MipLevels);
-			//context->CopySubresourceRegion(texArray, static_cast<UINT> (destinationSubresource), 0, 0, 0, srcTex[texElement].Get(), subResourceIndex, nullptr);
-			
 			mD3DSystem->GetDeviceContext()->CopySubresourceRegion(texArray, D3D11CalcSubresource(mipLevel, texElement, texElementDesc.MipLevels), 0, 0, 0, srcTex[texElement], mipLevel, nullptr);
-
-			//static_cast<UINT> (destinationSubresource)
-			//D3D11_MAPPED_SUBRESOURCE mappedTex2D;
-			//context->Map(srcTex[texElement].Get(), mipLevel, D3D11_MAP_READ, 0, &mappedTex2D);
-			//context->UpdateSubresource(texArray, D3D11CalcSubresource(mipLevel, texElement, texElementDesc.MipLevels), 0, mappedTex2D.pData, mappedTex2D.RowPitch, mappedTex2D.DepthPitch);
-			//context->Unmap(srcTex[texElement].Get(), mipLevel);
 		}
 	}
 	
@@ -426,7 +397,7 @@ ID3D11ShaderResourceView* TextureManager::CreateRandomTexture1DSRV()
 
     D3D11_SUBRESOURCE_DATA initData;
     initData.pSysMem = randomValues;
-	initData.SysMemPitch = 1024*sizeof(XMFLOAT4);
+	initData.SysMemPitch = 1024 * sizeof(XMFLOAT4);
     initData.SysMemSlicePitch = 0;
 
 	//
@@ -461,4 +432,123 @@ ID3D11ShaderResourceView* TextureManager::CreateRandomTexture1DSRV()
 
 	return randomTexSRV;
 }
+//===============================================================================================================================
+void TextureManager::WriteToFile(BetterString filename, BetterString textureName)
+{
+	// Locate the texture
+	map<string, ID3D11ShaderResourceView*>::iterator iter = m_pTextures.find(textureName.toString());
+	if (iter != m_pTextures.end())
+	{
+		WriteToFile(filename, (*iter).second);
+	}
+}
+//===============================================================================================================================
+void TextureManager::WriteToFile(BetterString filename, ID3D11ShaderResourceView* textureSRV)
+{
+	string fileExt = CGlobal::GetFileExt(filename);
+	
+	if (fileExt == "dds")
+	{
+		unique_ptr<wchar_t> name = filename.ToWideStr();
+		WriteDDSToFile(name.get(), textureSRV);
+	}
+	else if (fileExt == "tga")
+	{
+		unique_ptr<wchar_t> name = filename.ToWideStr();
+		WriteTGAToFile(name.get(), textureSRV);
+	}
+	else if (fileExt == "png")
+	{
+		unique_ptr<wchar_t> name = filename.ToWideStr();
+		WritePNGToFile(name.get(), textureSRV);
+	}
+}
+//===============================================================================================================================
+void TextureManager::WriteDDSToFile(LPCWSTR filename, ID3D11ShaderResourceView* textureSRV)
+{
+	ID3D11Texture2D *textureInterface = 0;
+	ID3D11Resource *textureResource;
+	textureSRV->GetResource(&textureResource);
+	textureResource->QueryInterface<ID3D11Texture2D>(&textureInterface);
+	
+	HRESULT result;
+	result = SaveDDSTextureToFile(mD3DSystem->GetDeviceContext(), textureInterface, filename);
+	
+	if (FAILED(result))
+	{
+		ScratchImage image;
+		result = CaptureTexture(mD3DSystem->GetDevice11(), mD3DSystem->GetDeviceContext(), textureInterface, image);
+		
+		if (SUCCEEDED(result))
+		{
+			result = SaveToDDSFile(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DDS_FLAGS_NONE, filename);
+			
+			if (FAILED(result))
+			{
+				ZShadeMessageCenter::MsgBoxError(NULL, "Failed to save DDS texture !!");
+			}
+		}
+	}
+	
+	SAFE_RELEASE(textureInterface);
+	SAFE_RELEASE(textureResource);
+}
 //=========================================================================================================================
+void TextureManager::WriteTGAToFile(LPCWSTR filename, ID3D11ShaderResourceView* textureSRV)
+{
+	// https://directxtex.codeplex.com/wikipage?title=CaptureTexture
+	
+    ID3D11Texture2D *textureInterface = 0;
+	ID3D11Resource *textureResource;
+	textureSRV->GetResource(&textureResource);
+	textureResource->QueryInterface<ID3D11Texture2D>(&textureInterface);
+	
+	HRESULT result;
+	//ScratchImage image;
+	ScratchImage image;
+	result = CaptureTexture(mD3DSystem->GetDevice11(), mD3DSystem->GetDeviceContext(), textureInterface, image);
+	
+	if (SUCCEEDED(result))
+	{
+		result = SaveToTGAFile(*image.GetImages(), filename);
+		
+		if (FAILED(result))
+		{
+			ZShadeMessageCenter::MsgBoxError(NULL, "Failed to save TGA texture !!");
+		}
+	}
+	
+	SAFE_RELEASE(textureInterface);
+	SAFE_RELEASE(textureResource);
+}
+//===============================================================================================================================
+void TextureManager::WritePNGToFile(LPCWSTR filename, ID3D11ShaderResourceView* textureSRV)
+{
+    ID3D11Texture2D *textureInterface = 0;
+	ID3D11Resource *textureResource;
+	textureSRV->GetResource(&textureResource);
+	textureResource->QueryInterface<ID3D11Texture2D>(&textureInterface);
+	
+	HRESULT result;
+	result = SaveWICTextureToFile(mD3DSystem->GetDeviceContext(), textureInterface, GUID_ContainerFormatPng, filename);
+	
+	if (FAILED(result))
+	{
+		ScratchImage image;
+		result = CaptureTexture(mD3DSystem->GetDevice11(), mD3DSystem->GetDeviceContext(), textureInterface, image);
+		
+		if (SUCCEEDED(result))
+		{
+			result = SaveToWICFile(image.GetImages(), image.GetImageCount(), WIC_FLAGS_NONE, GUID_ContainerFormatPng, filename);
+			
+			if (FAILED(result))
+			{
+				ZShadeMessageCenter::MsgBoxError(NULL, "Failed to save PNG texture !!");
+			}
+		}
+	}
+	
+	SAFE_RELEASE(textureInterface);
+	SAFE_RELEASE(textureResource);
+}
+//===============================================================================================================================

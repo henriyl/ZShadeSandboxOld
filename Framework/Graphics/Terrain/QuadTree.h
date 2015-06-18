@@ -200,6 +200,8 @@ private:
 	// Lets the quad tree know where sea level is to load a flat Quad Tree at water level
 	float m_seaLevel;
 	
+	ZShadeSandboxTerrain::ProceduralParameters mProceduralParameters;
+
 	// The Shader Resource View for the base height map
 	ID3D11ShaderResourceView* mHeightMapSRV;
 	

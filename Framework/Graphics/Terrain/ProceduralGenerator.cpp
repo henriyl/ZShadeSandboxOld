@@ -4,18 +4,8 @@
 using ZShadeSandboxTerrain::ProceduralGenerator;
 //===============================================================================================================================
 //===============================================================================================================================
-ProceduralGenerator::ProceduralGenerator(float terrainSize, float seaLevel, float maxHeight)
-:	fSeaLevel(seaLevel)
-,	fTerrainSize(terrainSize)
-,	fMaxHeight(maxHeight)
-{
-}
-//===============================================================================================================================
-ProceduralGenerator::ProceduralGenerator(float terrainSize, float seaLevel, float maxHeight, vector<ZShadeSandboxTerrain::HeightData> heightMapInput)
-:	mHeightmapInput(heightMapInput)
-,	fSeaLevel(seaLevel)
-,	fTerrainSize(terrainSize)
-,	fMaxHeight(maxHeight)
+ProceduralGenerator::ProceduralGenerator(ZShadeSandboxTerrain::ProceduralParameters pp)
+:	mProceduralParameters(pp)
 {
 }
 //===============================================================================================================================
@@ -28,17 +18,17 @@ void ProceduralGenerator::BuildRandomHeightmap()
 	if (mProceduralHeightmap.size() > 0)
 		mProceduralHeightmap.clear();
 	
-	XMFLOAT2 point(fSeaLevel, fMaxHeight);
+	XMFLOAT2 point(mProceduralParameters.seaLevel, mProceduralParameters.maxHeight);
 	
 	int index = 0;
 	
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
-	
 	srand(0);
+
+	mProceduralHeightmap.resize(mProceduralParameters.terrainSize * mProceduralParameters.terrainSize);
 	
-	for (int z = 0; z < fTerrainSize; z++)
+	for (int z = 0; z < mProceduralParameters.terrainSize; z++)
 	{
-		for (int x = 0; x < fTerrainSize; x++)
+		for (int x = 0; x < mProceduralParameters.terrainSize; x++)
 		{
 			ZShadeSandboxTerrain::HeightData hd;
 			
@@ -58,13 +48,13 @@ void ProceduralGenerator::BuildPerlinNoiseHeightmap()
 	
 	int index = 0;
 	
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
-	
 	srand(0);
 
-	for (int z = 0; z < fTerrainSize; z++)
+	mProceduralHeightmap.resize(mProceduralParameters.terrainSize * mProceduralParameters.terrainSize);
+
+	for (int z = 0; z < mProceduralParameters.terrainSize; z++)
 	{
-		for (int x = 0; x < fTerrainSize; x++)
+		for (int x = 0; x < mProceduralParameters.terrainSize; x++)
 		{
 			ZShadeSandboxTerrain::HeightData hd;
 			
@@ -84,11 +74,11 @@ void ProceduralGenerator::BuildFieldNoiseHeightmap()
 	
 	int index = 0;
 	
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
-	
-	for (int z = 0; z < fTerrainSize; z++)
+	mProceduralHeightmap.resize(mProceduralParameters.terrainSize * mProceduralParameters.terrainSize);
+
+	for (int z = 0; z < mProceduralParameters.terrainSize; z++)
 	{
-		for (int x = 0; x < fTerrainSize; x++)
+		for (int x = 0; x < mProceduralParameters.terrainSize; x++)
 		{
 			ZShadeSandboxTerrain::HeightData hd;
 			
@@ -115,25 +105,25 @@ void ProceduralGenerator::BuildDiamondSquare()
 
 	int index = 0;
 
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
+	int featureSize = (mProceduralParameters.diamondSquareFeatureSize / 2);
 
-	int featureSize = fTerrainSize / 2;
+	mProceduralHeightmap.resize(mProceduralParameters.terrainSize * mProceduralParameters.terrainSize);
 
-	for (int z = 0; z < fTerrainSize; z += featureSize)
+	for (int z = 0; z < mProceduralParameters.terrainSize; z += featureSize)
 	{
-		for (int x = 0; x < fTerrainSize; x += featureSize)
+		for (int x = 0; x < mProceduralParameters.terrainSize; x += featureSize)
 		{
 			ZShadeSandboxTerrain::HeightData hd;
 
 			hd.x = x;
-			hd.y = ZShadeSandboxMath::ZMath::RandF<float>(-1, 1);
+			hd.y = ZShadeSandboxMath::ZMath::RandF<float>(mProceduralParameters.seaLevel, mProceduralParameters.maxHeight);
 			hd.z = z;
 
 			mProceduralHeightmap[index++] = hd;
 		}
 	}
 
-	float scale = 1.0f;
+	float scale = mProceduralParameters.diamondSquareScale;
 
 	while (featureSize > 1)
 	{
@@ -143,9 +133,9 @@ void ProceduralGenerator::BuildDiamondSquare()
 		// Perform the Square step
 		//
 
-		for (int z = halfStep; z < fTerrainSize + halfStep; z += featureSize)
+		for (int z = halfStep; z < mProceduralParameters.terrainSize + halfStep; z += featureSize)
 		{
-			for (int x = halfStep; x < fTerrainSize + halfStep; x += featureSize)
+			for (int x = halfStep; x < mProceduralParameters.terrainSize + halfStep; x += featureSize)
 			{
 				int hs = featureSize / 2;
 
@@ -158,9 +148,9 @@ void ProceduralGenerator::BuildDiamondSquare()
 				float c = ReadProceduralHeight(x - hs, z + hs);
 				float d = ReadProceduralHeight(x + hs, z + hs);
 
-				float height = ((a + b + c + d) / 4) + (ZShadeSandboxMath::ZMath::RandF<float>(-1, 1) * scale);
+				float height = ((a + b + c + d) / 4) + (ZShadeSandboxMath::ZMath::RandF<float>(mProceduralParameters.seaLevel, mProceduralParameters.maxHeight) * scale);
 
-				mProceduralHeightmap[(z * fTerrainSize) + x].y = height;
+				mProceduralHeightmap[(z * mProceduralParameters.terrainSize) + x].y = height;
 			}
 		}
 
@@ -168,9 +158,9 @@ void ProceduralGenerator::BuildDiamondSquare()
 		// Perform the Diamond step
 		//
 
-		for (int z = 0; z < fTerrainSize; z += featureSize)
+		for (int z = 0; z < mProceduralParameters.terrainSize; z += featureSize)
 		{
-			for (int x = 0; x < fTerrainSize; x += featureSize)
+			for (int x = 0; x < mProceduralParameters.terrainSize; x += featureSize)
 			{
 				int hs = featureSize / 2;
 
@@ -183,9 +173,9 @@ void ProceduralGenerator::BuildDiamondSquare()
 				float c = ReadProceduralHeight((x + halfStep), z - hs);
 				float d = ReadProceduralHeight((x + halfStep), z + hs);
 
-				float height = ((a + b + c + d) / 4) + (ZShadeSandboxMath::ZMath::RandF<float>(0, 100) * scale);
+				float height = ((a + b + c + d) / 4) + (ZShadeSandboxMath::ZMath::RandF<float>(mProceduralParameters.seaLevel, mProceduralParameters.maxHeight) * scale);
 
-				mProceduralHeightmap[(z * fTerrainSize) + (x + halfStep)].y = height;
+				mProceduralHeightmap[(z * mProceduralParameters.terrainSize) + (x + halfStep)].y = height;
 
 				//   c
 				// a x b
@@ -196,9 +186,9 @@ void ProceduralGenerator::BuildDiamondSquare()
 				c = ReadProceduralHeight(x, (z + halfStep) - hs);
 				d = ReadProceduralHeight(x, (z + halfStep) + hs);
 
-				height = ((a + b + c + d) / 4) + (ZShadeSandboxMath::ZMath::RandF<float>(0, 100) * scale);
+				height = ((a + b + c + d) / 4) + (ZShadeSandboxMath::ZMath::RandF<float>(mProceduralParameters.seaLevel, mProceduralParameters.maxHeight) * scale);
 
-				mProceduralHeightmap[((z + halfStep) * fTerrainSize) + x].y = height;
+				mProceduralHeightmap[((z + halfStep) * mProceduralParameters.terrainSize) + x].y = height;
 			}
 		}
 
@@ -207,34 +197,27 @@ void ProceduralGenerator::BuildDiamondSquare()
 	}
 }
 //===============================================================================================================================
-void ProceduralGenerator::AddRandomHeightmap()
+void ProceduralGenerator::AddRandomHeightmap(vector<ZShadeSandboxTerrain::HeightData> heightmapInput)
 {
-	XMFLOAT2 point(fSeaLevel, fMaxHeight);
+	if (mProceduralHeightmap.size() > 0)
+		mProceduralHeightmap.clear();
+
+	XMFLOAT2 point(mProceduralParameters.seaLevel, mProceduralParameters.maxHeight);
 
 	int index = 0;
 
 	srand(0);
 
-	for (int z = 0; z < fTerrainSize; z++)
+	mProceduralHeightmap.resize(mProceduralParameters.terrainSize * mProceduralParameters.terrainSize);
+
+	for (int z = 0; z < mProceduralParameters.terrainSize; z++)
 	{
-		for (int x = 0; x < fTerrainSize; x++)
-		{
-			mHeightmapInput[index++].y += ZShadeSandboxMath::ZMath::RandF<float>(point.x, point.y) * 0.01f;
-		}
-	}
-
-	index = 0;
-
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
-
-	for (int z = 0; z < fTerrainSize; z++)
-	{
-		for (int x = 0; x < fTerrainSize; x++)
+		for (int x = 0; x < mProceduralParameters.terrainSize; x++)
 		{
 			ZShadeSandboxTerrain::HeightData hd;
 
 			hd.x = x;
-			hd.y = mHeightmapInput[(z * fTerrainSize) + x].y;
+			hd.y = heightmapInput[(z * mProceduralParameters.terrainSize) + x].y + ZShadeSandboxMath::ZMath::RandF<float>(point.x, point.y) * 0.01f;
 			hd.z = z;
 
 			mProceduralHeightmap[index++] = hd;
@@ -242,32 +225,25 @@ void ProceduralGenerator::AddRandomHeightmap()
 	}
 }
 //===============================================================================================================================
-void ProceduralGenerator::AddPerlinNoiseHeightmap()
+void ProceduralGenerator::AddPerlinNoiseHeightmap(vector<ZShadeSandboxTerrain::HeightData> heightmapInput)
 {
+	if (mProceduralHeightmap.size() > 0)
+		mProceduralHeightmap.clear();
+
 	int index = 0;
 
 	srand(0);
 
-	for (int z = 0; z < fTerrainSize; z++)
+	mProceduralHeightmap.resize(mProceduralParameters.terrainSize * mProceduralParameters.terrainSize);
+
+	for (int z = 0; z < mProceduralParameters.terrainSize; z++)
 	{
-		for (int x = 0; x < fTerrainSize; x++)
-		{
-			mHeightmapInput[index++].y += PerlinValue(x, z, 1000) * 5.0f;
-		}
-	}
-
-	index = 0;
-
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
-
-	for (int z = 0; z < fTerrainSize; z++)
-	{
-		for (int x = 0; x < fTerrainSize; x++)
+		for (int x = 0; x < mProceduralParameters.terrainSize; x++)
 		{
 			ZShadeSandboxTerrain::HeightData hd;
 
 			hd.x = x;
-			hd.y = mHeightmapInput[(z * fTerrainSize) + x].y;
+			hd.y = heightmapInput[(z * mProceduralParameters.terrainSize) + x].y + PerlinValue(x, z, 1000) * 5.0f;
 			hd.z = z;
 
 			mProceduralHeightmap[index++] = hd;
@@ -275,30 +251,25 @@ void ProceduralGenerator::AddPerlinNoiseHeightmap()
 	}
 }
 //===============================================================================================================================
-void ProceduralGenerator::AddFieldNoiseHeightmap()
+void ProceduralGenerator::AddFieldNoiseHeightmap(vector<ZShadeSandboxTerrain::HeightData> heightmapInput)
 {
+	if (mProceduralHeightmap.size() > 0)
+		mProceduralHeightmap.clear();
+
 	int index = 0;
 
-	for (int z = 0; z < fTerrainSize; z++)
+	srand(0);
+
+	mProceduralHeightmap.resize(mProceduralParameters.terrainSize * mProceduralParameters.terrainSize);
+
+	for (int z = 0; z < mProceduralParameters.terrainSize; z++)
 	{
-		for (int x = 0; x < fTerrainSize; x++)
-		{
-			mHeightmapInput[index++].y += (float)sin(x);
-		}
-	}
-
-	index = 0;
-
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
-
-	for (int z = 0; z < fTerrainSize; z++)
-	{
-		for (int x = 0; x < fTerrainSize; x++)
+		for (int x = 0; x < mProceduralParameters.terrainSize; x++)
 		{
 			ZShadeSandboxTerrain::HeightData hd;
 
 			hd.x = x;
-			hd.y = mHeightmapInput[(z * fTerrainSize) + x].y;
+			hd.y = heightmapInput[(z * mProceduralParameters.terrainSize) + x].y + (float)sin(x);
 			hd.z = z;
 
 			mProceduralHeightmap[index++] = hd;
@@ -306,146 +277,16 @@ void ProceduralGenerator::AddFieldNoiseHeightmap()
 	}
 }
 //===============================================================================================================================
-void ProceduralGenerator::AddCustumNoiseHeightmap()
+void ProceduralGenerator::AddCustumNoiseHeightmap(vector<ZShadeSandboxTerrain::HeightData> heightmapInput)
 {
-
-}
-//===============================================================================================================================
-void ProceduralGenerator::Smooth(int smoothingPassCount)
-{
-	if (smoothingPassCount > 0)
-	{
-		for (int i = 0; i < smoothingPassCount; i++)
-		{
-			Smooth();
-		}
-	}
-}
-//===============================================================================================================================
-void ProceduralGenerator::Smooth()
-{
-	int index = 0;
-
-	vector<HeightData> tempHeightmap;
-
-	tempHeightmap.resize(fTerrainSize * fTerrainSize);
-
-	for (int z = 0; z < fTerrainSize; z++)
-	{
-		for (int x = 0; x < fTerrainSize; x++)
-		{
-			float averageHeight = 0;
-			float count = 0;
-
-			for (int m = x - 1; m <= x + 1; m++)
-			{
-				for (int n = z - 1; n <= z + 1; n++)
-				{
-					if (m >= 0 && m < fTerrainSize && n >= 0 && n < fTerrainSize)
-					{
-						averageHeight += ReadProceduralHeight(n, m);
-						count += 1;
-					}
-				}
-			}
-
-			ZShadeSandboxTerrain::HeightData hd;
-
-			hd.x = x;
-			hd.y = averageHeight / count;
-			hd.z = z;
-
-			tempHeightmap[index++] = hd;
-		}
-	}
-
-	if (mProceduralHeightmap.size() > 0) mProceduralHeightmap.clear();
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
 	
-	index = 0;
-
-	for (int z = 0; z < fTerrainSize; z++)
-	{
-		for (int x = 0; x < fTerrainSize; x++)
-		{
-			ZShadeSandboxTerrain::HeightData hd;
-
-			hd.x = x;
-			hd.y = tempHeightmap[(z * fTerrainSize) + x].y;
-			hd.z = z;
-
-			mProceduralHeightmap[index++] = hd;
-		}
-	}
-}
-//===============================================================================================================================
-void ProceduralGenerator::Normalize(float normalizeFactor)
-{
-	int index = 0;
-
-	for (int z = 0; z < fTerrainSize; z++)
-	{
-		for (int x = 0; x < fTerrainSize; x++)
-		{
-			mProceduralHeightmap[index++].y /= normalizeFactor;
-		}
-	}
-}
-//===============================================================================================================================
-void ProceduralGenerator::ErodeHeightmapInput(float erosionValue)
-{
-	HeightErosion he(mHeightmapInput, fTerrainSize, erosionValue);
-	
-	int index = 0;
-
-	// Get the resulting erosion map
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
-	
-	for (int z = 0; z < fTerrainSize; z++)
-	{
-		for (int x = 0; x < fTerrainSize; x++)
-		{
-			ZShadeSandboxTerrain::HeightData hd;
-			
-			hd.x = x;
-			hd.y = he.ReadErosionHeight(x, z);
-			hd.z = z;
-			
-			mProceduralHeightmap[index++] = hd;
-		}
-	}
-}
-//===============================================================================================================================
-void ProceduralGenerator::ErodeProceduralMap(float erosionValue)
-{
-	HeightErosion he(mProceduralHeightmap, fTerrainSize, erosionValue);
-	
-	// Get the resulting erosion map
-	int index = 0;
-	
-	if (mProceduralHeightmap.size() > 0) mProceduralHeightmap.clear();
-	mProceduralHeightmap.resize(fTerrainSize * fTerrainSize);
-	
-	for (int z = 0; z < fTerrainSize; z++)
-	{
-		for (int x = 0; x < fTerrainSize; x++)
-		{
-			ZShadeSandboxTerrain::HeightData hd;
-			
-			hd.x = x;
-			hd.y = he.ReadErosionHeight(x, z);
-			hd.z = z;
-			
-			mProceduralHeightmap[index++] = hd;
-		}
-	}
 }
 //===============================================================================================================================
 float ProceduralGenerator::ReadProceduralHeight(int x, int z)
 {
-	if (x < fTerrainSize && z < fTerrainSize && x >= 0 && z >= 0)
+	if (x < mProceduralParameters.terrainSize && z < mProceduralParameters.terrainSize && x >= 0 && z >= 0)
 	{
-		return mProceduralHeightmap[(z * fTerrainSize) + x].y;
+		return mProceduralHeightmap[(z * mProceduralParameters.terrainSize) + x].y;
 	}
 
 	return 0;
@@ -454,6 +295,11 @@ float ProceduralGenerator::ReadProceduralHeight(int x, int z)
 float ProceduralGenerator::ReadProceduralHeight(int index)
 {
 	return mProceduralHeightmap[index].y;
+}
+//===============================================================================================================================
+void ProceduralGenerator::UpdateProceduralHeight(int x, int z, float height)
+{
+	mProceduralHeightmap[(z * mProceduralParameters.terrainSize) + x].y = height;
 }
 //===============================================================================================================================
 float ProceduralGenerator::PerlinValue(int x, int y, int random)

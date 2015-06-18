@@ -32,6 +32,8 @@ struct TerrainParameters
 	bool		g_makeFlat;
 	int 		g_terrScale;
 	float 		g_seaLevel;
+
+	ZShadeSandboxTerrain::ProceduralParameters g_proceduralParameters;
 	
 	ZShadeSandboxMesh::ERenderType::Type g_RenderPrimitive;
 	

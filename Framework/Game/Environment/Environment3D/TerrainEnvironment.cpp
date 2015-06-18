@@ -77,6 +77,7 @@ void TerrainEnvironment::Init()
 		}
 	}
 	
+	fMapSize = 256;
 	fMinDist = 20.0f;
 	fMaxDist = fMapSize / 2;
 	fHeightScale = 1.0f;
@@ -94,6 +95,35 @@ void TerrainEnvironment::Init()
 	tp.g_terrScale = fTerrSize;
 	tp.g_makeFlat = false;
 	tp.g_procedural = true;
+	tp.g_proceduralParameters.erosionValue = 0.2f;
+	tp.g_proceduralParameters.normalizeFactor = 2.0f;
+	tp.g_proceduralParameters.smoothingPassCount = 1.0f;
+	tp.g_proceduralParameters.seaLevel = fSeaLevel;
+	tp.g_proceduralParameters.maxHeight = 100;
+	tp.g_proceduralParameters.terrainSize = fMapSize;
+	tp.g_proceduralParameters.diamondSquareFeatureSize = fMapSize;
+	tp.g_proceduralParameters.diamondSquareScale = 2;
+	tp.g_proceduralParameters.proceduralType = ZShadeSandboxTerrain::EProceduralType::Type::eDiamondSquare;
+	tp.g_proceduralParameters.useErosion = true;
+	tp.g_proceduralParameters.useSmoothing = true;
+	tp.g_proceduralParameters.normalize = false;
+	tp.g_proceduralParameters.erosionType = ZShadeSandboxTerrain::EErosionType::Type::eWater;
+	tp.g_proceduralParameters.waterErosionParameters.terrainSize = fMapSize;
+	tp.g_proceduralParameters.waterErosionParameters.seaLevel = fSeaLevel;
+	tp.g_proceduralParameters.waterErosionParameters.waterSourceHeight = 90;
+	tp.g_proceduralParameters.waterErosionParameters.thermalPowerMultiplier = 1.0f;
+	tp.g_proceduralParameters.waterErosionParameters.deltaT = 0.005f;
+	tp.g_proceduralParameters.waterErosionParameters.pipeLength = 1.0f;
+	tp.g_proceduralParameters.waterErosionParameters.pipeCrossectionArea = 20.0f;
+	tp.g_proceduralParameters.waterErosionParameters.graviationalAcceleration = 9.7f;
+	tp.g_proceduralParameters.waterErosionParameters.sedimentCapacityConstant = 1.0f;
+	tp.g_proceduralParameters.waterErosionParameters.dissolvingConstant = 0.5f;
+	tp.g_proceduralParameters.waterErosionParameters.depositionConstant = 1.0f;
+	tp.g_proceduralParameters.waterErosionParameters.minimumComputedSurfaceTilt = 0.1f;
+	tp.g_proceduralParameters.waterErosionParameters.talusAngle = 0.5f;
+	tp.g_proceduralParameters.waterErosionParameters.erosionDuration = 0.5f;
+	tp.g_proceduralParameters.waterErosionParameters.applyThermalWeathering = false;
+	tp.g_proceduralParameters.waterErosionParameters.applyEvaporation = false;
 	
 	m_pQuadTreeMesh = new ZShadeSandboxTerrain::QuadTreeMesh(m_D3DSystem, tp, m_GameDirectory3D);
 	

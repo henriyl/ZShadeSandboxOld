@@ -16,18 +16,74 @@
 //
 
 #include "HeightErosion.h"
+#include "WaterErosion.h"
 
 //===============================================================================================================================
 //===============================================================================================================================
 namespace ZShadeSandboxTerrain {
+namespace EProceduralType
+{
+	enum Type
+	{
+		eRandom,
+		ePerlinNoise,
+		eFieldNoise,
+		eDiamondSquare,
+		eNone
+	};
+}
+
+namespace EErosionType
+{
+	enum Type
+	{
+		eHeight,
+		eWater,
+		eNone
+	};
+}
+
+struct ProceduralParameters
+{
+	int terrainSize;
+	float seaLevel;
+	float maxHeight;
+	float erosionValue;
+	int smoothingPassCount;
+	float normalizeFactor;
+	int diamondSquareFeatureSize;
+	int diamondSquareScale;
+	EProceduralType::Type proceduralType;
+	EErosionType::Type erosionType;
+	bool useErosion;
+	bool useSmoothing;
+	bool normalize;
+
+	WaterErosionParameters waterErosionParameters;
+	
+	ProceduralParameters()
+	{
+		terrainSize = 256;
+		seaLevel = 0;
+		maxHeight = 1024;
+		erosionValue = 0.3f;
+		smoothingPassCount = 1.0f;
+		normalizeFactor = 1.0f;
+		diamondSquareFeatureSize = 16;
+		diamondSquareScale = 1;
+		proceduralType = EProceduralType::Type::eNone;
+		erosionType = EErosionType::Type::eNone;
+		useErosion = false;
+		useSmoothing = false;
+		normalize = false;
+	}
+};
+
 class ProceduralGenerator
 {
 public:
 	
-	// Can put an existing heightmap in a erode it or procedurally create one from a flat plane
-	
-	ProceduralGenerator(float terrainSize, float seaLevel, float maxHeight);
-	ProceduralGenerator(float terrainSize, float seaLevel, float maxHeight, vector<HeightData> heightMapInput);
+	ProceduralGenerator(ProceduralParameters pp);
 	~ProceduralGenerator();
 	
 	void BuildRandomHeightmap();
@@ -37,43 +93,28 @@ public:
 	void BuildDiamondSquare();
 
 	// These are added to an existing heightmap input
-	void AddRandomHeightmap();
-	void AddPerlinNoiseHeightmap();
-	void AddFieldNoiseHeightmap();
-	void AddCustumNoiseHeightmap();
+	void AddRandomHeightmap(vector<HeightData> heightmapInput);
+	void AddPerlinNoiseHeightmap(vector<HeightData> heightmapInput);
+	void AddFieldNoiseHeightmap(vector<HeightData> heightmapInput);
+	void AddCustumNoiseHeightmap(vector<HeightData> heightmapInput);
 
-	// Perform a simple smooth of the map so it is not choppy
-	void Smooth(int smoothingPassCount);
-	void Smooth();
-
-	void Normalize(float normalizeFactor);
-
-	// Perform height erosion in four directions by using a linear interpolation from an erosion value
-	// erosionValue if between 0 and 1 inclusive
-	void ErodeHeightmapInput(float erosionValue);
-	void ErodeProceduralMap(float erosionValue);
-	
 	// Returns the generated procedural map
 	vector<HeightData> GetProceduralMap() { return mProceduralHeightmap; }
 	
 	float ReadProceduralHeight(int x, int z);
 	float ReadProceduralHeight(int index);
-
+	void UpdateProceduralHeight(int x, int z, float height);
+	
 private:
 	
 	float PerlinValue(int x, int y, int random);
 	
-	
 private:
-	
-	vector<HeightData> mHeightmapInput;
 	
 	// The resulting height map after it has been affected procedurally
 	vector<HeightData> mProceduralHeightmap;
 	
-	float fSeaLevel;
-	float fMaxHeight;// = 70
-	float fTerrainSize;
+	ProceduralParameters mProceduralParameters;
 };
 }
 //===============================================================================================================================
