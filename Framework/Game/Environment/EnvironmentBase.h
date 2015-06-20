@@ -57,7 +57,7 @@ public:
 	GameDirectory2D* GetGD2D() { return m_GameDirectory2D; }
 	GameDirectory3D* GetGD3D() { return m_GameDirectory3D; }
 	XMFLOAT3 GetCameraPosition() { return m_CameraSystem->Position(); }
-	Camera* GetCamera() { return m_CameraSystem.get(); }
+	Camera* GetCamera() { return m_CameraSystem; }
 	MenuSystem*& GetMenuSystem() { return m_MenuSystem; }
 	HUDSystem*& GetHUDSystem() { return m_HUDSystem; }
 	Keyboard* GetKeyboard() { return keyboard; }
@@ -84,7 +84,7 @@ protected:
 	Keyboard* keyboard;
 	Mouse* mouse;
 	D3D* m_D3DSystem;
-	unique_ptr<Camera> m_CameraSystem;
+	Camera* m_CameraSystem;
 	EngineOptions* m_EngineOptions;
 	//TextureShader* m_TextureShader;
 	//TransparentShader* m_TransparentShader;

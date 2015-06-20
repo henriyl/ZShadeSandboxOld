@@ -38,11 +38,11 @@ void HeightmapEditorHelper::SaveToFile(const char* filename)
 	
 	float height;
 	
-	for (int z = 0; z < mHeightmap->Height(); z++)
+	for (int z = 0; z < mHeightmap->HeightmapSize(); z++)
 	{
-		for (int x = 0; x < mHeightmap->Width(); x++)
+		for (int x = 0; x < mHeightmap->HeightmapSize(); x++)
 		{
-			height = mHeightmap->GetHeight(x, z);
+			height = mHeightmap->ReadHeight(x, z);
 			
 			height *= 255;
 			
@@ -87,31 +87,31 @@ void HeightmapEditorHelper::UpdateBrush(XMFLOAT3 point)
 //===============================================================================================================================
 void HeightmapEditorHelper::AddToHeightmapUpdateList(XMFLOAT3 point)
 {
-	if (point.x >= 0 && point.x < mHeightmap->Width() && point.z >= 0 && point.z < mHeightmap->Height())
+	if (point.x >= 0 && point.x < mHeightmap->HeightmapSize() && point.z >= 0 && point.z < mHeightmap->HeightmapSize())
 	{
 		// Since this is a set it does not allow duplicates
 		heightmapUpdateList.insert(HeightData(point.x, point.y, point.z));
 	}
 	
-	if (point.x + 1 >= 0 && point.x + 1 < mHeightmap->Width() && point.z >= 0 && point.z < mHeightmap->Height())
+	if (point.x + 1 >= 0 && point.x + 1 < mHeightmap->HeightmapSize() && point.z >= 0 && point.z < mHeightmap->HeightmapSize())
 	{
 		// Since this is a set it does not allow duplicates
 		heightmapUpdateList.insert(HeightData(point.x + 1, point.y, point.z));
 	}
 	
-	if (point.x - 1 >= 0 && point.x - 1 < mHeightmap->Width() && point.z >= 0 && point.z < mHeightmap->Height())
+	if (point.x - 1 >= 0 && point.x - 1 < mHeightmap->HeightmapSize() && point.z >= 0 && point.z < mHeightmap->HeightmapSize())
 	{
 		// Since this is a set it does not allow duplicates
 		heightmapUpdateList.insert(HeightData(point.x - 1, point.y, point.z));
 	}
 	
-	if (point.x >= 0 && point.x < mHeightmap->Width() && point.z + 1 >= 0 && point.z + 1 < mHeightmap->Height())
+	if (point.x >= 0 && point.x < mHeightmap->HeightmapSize() && point.z + 1 >= 0 && point.z + 1 < mHeightmap->HeightmapSize())
 	{
 		// Since this is a set it does not allow duplicates
 		heightmapUpdateList.insert(HeightData(point.x, point.y, point.z + 1));
 	}
 	
-	if (point.x >= 0 && point.x < mHeightmap->Width() && point.z - 1 >= 0 && point.z - 1 < mHeightmap->Height())
+	if (point.x >= 0 && point.x < mHeightmap->HeightmapSize() && point.z - 1 >= 0 && point.z - 1 < mHeightmap->HeightmapSize())
 	{
 		// Since this is a set it does not allow duplicates
 		heightmapUpdateList.insert(HeightData(point.x, point.y, point.z - 1));
@@ -135,8 +135,8 @@ void HeightmapEditorHelper::UpdateHeightmapAfterMove()
 //===============================================================================================================================
 void HeightmapEditorHelper::MoveVertices(XMFLOAT3 point, float height)
 {
-	int x = (int)(point.x * mHeightmap->Width());
-	int z = (int)(point.z * mHeightmap->Height());
+	int x = (int)(point.x * mHeightmap->HeightmapSize());
+	int z = (int)(point.z * mHeightmap->HeightmapSize());
 	
 	float dist;
 	float h;
@@ -179,8 +179,8 @@ void HeightmapEditorHelper::Flatten(XMFLOAT3 point)
 {
 	float heightValue = fFlatHeight / fMaxHeight;
 	
-	int x = (int)(point.x * mHeightmap->Width());
-	int z = (int)(point.z * mHeightmap->Height());
+	int x = (int)(point.x * mHeightmap->HeightmapSize());
+	int z = (int)(point.z * mHeightmap->HeightmapSize());
 	
 	float dist;
 	
@@ -208,8 +208,8 @@ void HeightmapEditorHelper::Flatten(XMFLOAT3 point)
 //===============================================================================================================================
 void HeightmapEditorHelper::Smooth(XMFLOAT3 point)
 {
-	int x = (int)(point.x * mHeightmap->Width());
-	int z = (int)(point.z * mHeightmap->Height());
+	int x = (int)(point.x * mHeightmap->HeightmapSize());
+	int z = (int)(point.z * mHeightmap->HeightmapSize());
 	
 	float dist;
 	float h;
@@ -232,9 +232,9 @@ void HeightmapEditorHelper::Smooth(XMFLOAT3 point)
 				{
 					for (int n = v - 1; n <= v + 1; n++)
 					{
-						if (m >= 0 && m < mHeightmap->Width() && n >= 0 && n < mHeightmap->Width())
+						if (m >= 0 && m < mHeightmap->HeightmapSize() && n >= 0 && n < mHeightmap->HeightmapSize())
 						{
-							averageHeight += mHeightmap->GetHeight(n, m);
+							averageHeight += mHeightmap->ReadHeight(n, m);
 							count += 1;
 						}
 					}

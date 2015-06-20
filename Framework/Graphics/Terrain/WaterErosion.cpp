@@ -2,35 +2,33 @@
 using ZShadeSandboxTerrain::WaterErosion;
 //===============================================================================================================================
 //===============================================================================================================================
-WaterErosion::WaterErosion(vector<ZShadeSandboxTerrain::HeightData> heightMapInput, ZShadeSandboxTerrain::WaterErosionParameters wep)
+WaterErosion::WaterErosion(ZShadeSandboxTerrain::HeightmapContainer heightMapInput, ZShadeSandboxTerrain::WaterErosionParameters wep, bool useThermalWeathering)
 :	mWaterErosionParameters(wep)
 {
-	mErosionMap.resize(mWaterErosionParameters.terrainSize * mWaterErosionParameters.terrainSize);
-	mHeightMapInput.resize(mWaterErosionParameters.terrainSize * mWaterErosionParameters.terrainSize);
-
-	for (int z = 0; z < mWaterErosionParameters.terrainSize; z++)
-	{
-		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
-		{
-			UpdateHeightMapInput(x, z, heightMapInput[(z * mWaterErosionParameters.terrainSize) + x].y);
-		}
-	}
+	mErosionMap.HeightmapSize() = mWaterErosionParameters.terrainSize;
+	mErosionMap.SeaLevel() = mWaterErosionParameters.seaLevel;
+	mErosionMap.Init();
 	
-	mWaterMap.resize(mWaterErosionParameters.terrainSize * mWaterErosionParameters.terrainSize);
-
-	for (int z = 0; z < mWaterErosionParameters.terrainSize; z++)
-	{
-		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
-		{
-			UpdateWaterMap(x, z, mWaterErosionParameters.seaLevel);
-		}
-	}
+	mHeightMapInput.HeightmapSize() = mWaterErosionParameters.terrainSize;
+	mHeightMapInput.SeaLevel() = mWaterErosionParameters.seaLevel;
+	mHeightMapInput.Init();
+	mHeightMapInput.CopyHeight(heightMapInput);
 	
-	mSedimentationMap.resize(mWaterErosionParameters.terrainSize * mWaterErosionParameters.terrainSize);
+	mWaterMap.HeightmapSize() = mWaterErosionParameters.terrainSize;
+	mWaterMap.SeaLevel() = mWaterErosionParameters.seaLevel;
+	mWaterMap.Init();
+	
+	mSedimentationMap.HeightmapSize() = mWaterErosionParameters.terrainSize;
+	mSedimentationMap.SeaLevel() = mWaterErosionParameters.seaLevel;
+	mSedimentationMap.Init();
+	
 	mOutflowFluxMap.resize(mWaterErosionParameters.terrainSize * mWaterErosionParameters.terrainSize);
 	mVelocityVectorMap.resize(mWaterErosionParameters.terrainSize * mWaterErosionParameters.terrainSize);
 	
-	Erode();
+	if (useThermalWeathering)
+		ThermalWeathering();
+	else
+		Erode();
 }
 //===============================================================================================================================
 WaterErosion::~WaterErosion()
@@ -39,22 +37,37 @@ WaterErosion::~WaterErosion()
 //===============================================================================================================================
 void WaterErosion::Erode()
 {
+	switch (mWaterErosionParameters.erosionType)
+	{
+		case ZShadeSandboxTerrain::EWaterErosion::Type::eNormal:
+		{
+			NormalErosion();
+		}
+		break;
+		case ZShadeSandboxTerrain::EWaterErosion::Type::eThermal:
+		{
+			ThermalErosion();
+		}
+		break;
+	}
+}
+//===============================================================================================================================
+void WaterErosion::ThermalErosion()
+{
 	for (int z = 0; z < mWaterErosionParameters.terrainSize; z++)
 	{
 		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
 		{
-			UpdateWaterMap(x, z, 0);
 			UpdateOutflowFluxMap(x, z, OutflowValues(0, 0, 0, 0));
-			UpdateSedimentationMap(x, z, 0);
 		}
 	}
 	
-	int waterAmount = mWaterErosionParameters.waterSourceHeight;
+	mWaterErosionParameters.waterSourceHeight *= 0.05f;
+	
+	mWaterErosionParameters.erosionDuration = (1.0 + mWaterErosionParameters.erosionDuration) * 0.7f;
 
 	for (float time = mWaterErosionParameters.erosionDuration; time > 0; time -= mWaterErosionParameters.deltaT)
 	{
-		mWaterErosionParameters.waterSourceHeight = 0.05f * waterAmount;
-
 		SetWaterSource();
 
 		BuildVelocityVectorMap();
@@ -78,23 +91,100 @@ void WaterErosion::Erode()
 		mWaterErosionParameters.deltaT = 1 / (1.5 * maxLength);
 		mWaterErosionParameters.deltaT = min(mWaterErosionParameters.deltaT, 0.05);
 	}
-
-	//SetWaterSource();
 	
-	//if (mWaterErosionParameters.applyEvaporation)
-	//{
-	//	ApplyEvaporation();
-	//}
-
-	//ApplyErosion();
+	// Get the final erosion map from the affected height map
+	mErosionMap.CopyHeight(mHeightMapInput);
 }
 //===============================================================================================================================
-void WaterErosion::ThermalWeather()
+void WaterErosion::ThermalWeathering()
 {
-	if (mWaterErosionParameters.applyThermalWeathering)
+	mWaterErosionParameters.deltaT = 0.1f;
+	
+	for (float time = mWaterErosionParameters.erosionDuration; time > 0; time -= mWaterErosionParameters.deltaT)
 	{
 		ApplyThermalWeathering();
 	}
+	
+	// Get the final erosion map from the affected height map
+	mErosionMap.CopyHeight(mHeightMapInput);
+}
+//===============================================================================================================================
+void WaterErosion::NormalErosion()
+{
+	for (int round = 0; round < mWaterErosionParameters.normalErosionRounds * mWaterErosionParameters.terrainSize; round++)
+	{
+		float x = ZShadeSandboxMath::ZMath::RandF<float>(0, mWaterErosionParameters.terrainSize - 1);
+		float z = ZShadeSandboxMath::ZMath::RandF<float>(0, mWaterErosionParameters.terrainSize - 1);
+		
+		int currentIndex = (z * mWaterErosionParameters.terrainSize) + x;
+		
+		int currentCarriedSediment = 0;
+		
+		// Do not check any spots under water
+		if (mHeightMapInput.ReadHeight(currentIndex) <= mWaterErosionParameters.seaLevel)
+		{
+			continue;
+		}
+		
+		// Advance until water level is reached
+		while (mHeightMapInput.ReadHeight(currentIndex) > mWaterErosionParameters.seaLevel)
+		{
+			int lowestNeighborX = x;
+			int lowestNeighborZ = z;
+			
+			int lowestNeighborHeight = mHeightMapInput.ReadHeight(currentIndex);
+			
+			// Try to look at 5 random points in the neighborhood (to add a little randomness into the flow)
+			for (int i = 0; i < 5; i++)
+			{
+				int currentNeighborX = x + ZShadeSandboxMath::ZMath::RandF<float>(-1, 1);
+				int currentNeighborZ = z + ZShadeSandboxMath::ZMath::RandF<float>(-1, 1);
+				
+				// Ignore the neighbor if it is outside the map
+				if (currentNeighborX < 0 || currentNeighborX == mWaterErosionParameters.terrainSize || lowestNeighborZ < 0 || currentNeighborZ == mWaterErosionParameters.terrainSize)
+				{
+					continue;
+				}
+
+				if (mHeightMapInput.ReadHeight(currentNeighborX + mWaterErosionParameters.terrainSize * currentNeighborZ) < lowestNeighborHeight)
+				{
+					lowestNeighborX = currentNeighborX;
+					lowestNeighborZ = currentNeighborZ;
+					lowestNeighborHeight = mHeightMapInput.ReadHeight(currentNeighborX + mWaterErosionParameters.terrainSize * currentNeighborZ);
+				}
+			}
+			
+			// If no lower neighbour was found, try to lift the tile with the suspended sediment.
+			if (lowestNeighborX == x && lowestNeighborZ == z)
+			{
+				// If we are out of sediment, terminate the flow.
+				if(currentCarriedSediment <= mWaterErosionParameters.seaLevel) break;
+				
+				mHeightMapInput.UpdateHeight(currentIndex, mHeightMapInput.ReadHeight(currentIndex) + mWaterErosionParameters.normalErosionFactor);
+				
+				// Consume the suspended sediment at twice the erosion rate (to prevent infinite cycles of erosion and sedimentation).
+				currentCarriedSediment -= 2;
+			}
+			// A lower neighbour was found, lower the current tile and move the cursor to that neighbour.
+			else
+			{
+				mHeightMapInput.UpdateHeight(currentIndex, mHeightMapInput.ReadHeight(currentIndex) - mWaterErosionParameters.normalErosionFactor);
+				
+				if(mWaterErosionParameters.enableNormalErosionSedimentation)
+				{
+					currentCarriedSediment += 1;
+				}
+				
+				x = lowestNeighborX;
+				z = lowestNeighborZ;
+				
+				currentIndex = (z * mWaterErosionParameters.terrainSize) + x;
+			}
+		}
+	}
+	
+	// Get the final erosion map from the affected height map
+	mErosionMap.CopyHeight(mHeightMapInput);
 }
 //===============================================================================================================================
 void WaterErosion::SetWaterSource()
@@ -103,7 +193,7 @@ void WaterErosion::SetWaterSource()
 	{
 		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
 		{
-			UpdateWaterMap(x, z, ReadWaterHeight(x, z) + (mWaterErosionParameters.waterSourceHeight * mWaterErosionParameters.deltaT));
+			mWaterMap.UpdateHeight(x, z, mWaterMap.ReadHeight(x, z) + (mWaterErosionParameters.waterSourceHeight * mWaterErosionParameters.deltaT));
 		}
 	}
 }
@@ -114,30 +204,15 @@ void WaterErosion::ApplyEvaporation()
 	{
 		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
 		{
-			UpdateWaterMap(x, z, ReadWaterHeight(x, z) * 0.985f);
+			mWaterMap.UpdateHeight(x, z, mWaterMap.ReadHeight(x, z) * 0.985f);
 		}
 	}
 }
 //===============================================================================================================================
 void WaterErosion::BuildVelocityVectorMap()
 {
-	vector<HeightData> waterMapCopy;
-	
-	waterMapCopy.resize(mWaterErosionParameters.terrainSize * mWaterErosionParameters.terrainSize);
-	
-	for (int z = 0; z < mWaterErosionParameters.terrainSize; z++)
-	{
-		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
-		{
-			ZShadeSandboxTerrain::HeightData hd;
-			
-			hd.x = x;
-			hd.y = ReadWaterHeight(x, z);
-			hd.z = z;
-			
-			waterMapCopy[(z * mWaterErosionParameters.terrainSize) + x] = hd;
-		}
-	}
+	ZShadeSandboxTerrain::HeightmapContainer waterMapCopy(mWaterErosionParameters.terrainSize, mWaterErosionParameters.seaLevel);
+	waterMapCopy.CopyHeight(mWaterMap);
 	
 	float currentHeight;
 	int currentIndex;
@@ -147,35 +222,36 @@ void WaterErosion::BuildVelocityVectorMap()
 		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
 		{
 			currentIndex = (z * mWaterErosionParameters.terrainSize) + x;
-			currentHeight = ReadHeightMapInput(x, z);
+			
+			currentHeight = mHeightMapInput.ReadHeight(currentIndex);
 			
 			// Calculate outflow values for individual directions.
 			OutflowValues ov;
 			
 			if (x > 0)
 			{
-				float heightDifference = currentHeight + waterMapCopy[currentIndex].y - mHeightMapInput[currentIndex - 1].y - waterMapCopy[currentIndex - 1].y;
+				float heightDifference = currentHeight + waterMapCopy.ReadHeight(currentIndex) - mHeightMapInput.ReadHeight(currentIndex - 1) - waterMapCopy.ReadHeight(currentIndex - 1);
 				float flowValue = FlowValue(ReadOutflowFluxMap(x, z).left, heightDifference);
 				ov.left = max(0, flowValue);
 			}
 			
 			if (x + 1 < mWaterErosionParameters.terrainSize)
 			{
-				float heightDifference = currentHeight + waterMapCopy[currentIndex].y - mHeightMapInput[currentIndex + 1].y - waterMapCopy[currentIndex + 1].y;
+				float heightDifference = currentHeight + waterMapCopy.ReadHeight(currentIndex) - mHeightMapInput.ReadHeight(currentIndex + 1) - waterMapCopy.ReadHeight(currentIndex + 1);
 				float flowValue = FlowValue(ReadOutflowFluxMap(x, z).right, heightDifference);
 				ov.right = max(0, flowValue);
 			}
 
 			if (z > 0)
 			{
-				float heightDifference = currentHeight + waterMapCopy[currentIndex].y - mHeightMapInput[currentIndex - mWaterErosionParameters.terrainSize].y - waterMapCopy[currentIndex - mWaterErosionParameters.terrainSize].y;
+				float heightDifference = currentHeight + waterMapCopy.ReadHeight(currentIndex) - mHeightMapInput.ReadHeight(currentIndex - mWaterErosionParameters.terrainSize) - waterMapCopy.ReadHeight(currentIndex - mWaterErosionParameters.terrainSize);
 				float flowValue = FlowValue(ReadOutflowFluxMap(x, z).top, heightDifference);
 				ov.top = max(0, flowValue);
 			}
 
 			if (z + 1 < mWaterErosionParameters.terrainSize)
 			{
-				float heightDifference = currentHeight + waterMapCopy[currentIndex].y - mHeightMapInput[currentIndex + mWaterErosionParameters.terrainSize].y - waterMapCopy[currentIndex + mWaterErosionParameters.terrainSize].y;
+				float heightDifference = currentHeight + waterMapCopy.ReadHeight(currentIndex) - mHeightMapInput.ReadHeight(currentIndex + mWaterErosionParameters.terrainSize) - waterMapCopy.ReadHeight(currentIndex + mWaterErosionParameters.terrainSize);
 				float flowValue = FlowValue(ReadOutflowFluxMap(x, z).bottom, heightDifference);
 				ov.bottom = max(0, flowValue);
 			}
@@ -186,9 +262,9 @@ void WaterErosion::BuildVelocityVectorMap()
 			OutflowValues outflow = ReadOutflowFluxMap(x, z);
 			float sumOutflow = outflow.left + outflow.right + outflow.top + outflow.bottom;
 			
-			if (sumOutflow > ReadWaterHeight(x, z))
+			if (sumOutflow > mWaterMap.ReadHeight(x, z))
 			{
-				float factor = min(1, ReadWaterHeight(x, z) * mWaterErosionParameters.pipeLength * mWaterErosionParameters.pipeLength / (sumOutflow * mWaterErosionParameters.deltaT));
+				float factor = min(1, mWaterMap.ReadHeight(currentIndex) * mWaterErosionParameters.pipeLength * mWaterErosionParameters.pipeLength / (sumOutflow * mWaterErosionParameters.deltaT));
 				
 				outflow.left *= factor;
 				outflow.right *= factor;
@@ -233,12 +309,12 @@ void WaterErosion::BuildVelocityVectorMap()
 				sumInflow += mOutflowFluxMap[currentIndex + mWaterErosionParameters.terrainSize].top;
 			}
 			
-			float oldWaterLevel = waterMapCopy[currentIndex].y;
-			float newWaterLevel = waterMapCopy[currentIndex].y + (mWaterErosionParameters.deltaT * (sumInflow - sumOutflow)) / SQR(mWaterErosionParameters.pipeLength);
+			float oldWaterLevel = waterMapCopy.ReadHeight(currentIndex);
+			float newWaterLevel = oldWaterLevel + (mWaterErosionParameters.deltaT * (sumInflow - sumOutflow)) / SQR(mWaterErosionParameters.pipeLength);
 			
-			UpdateWaterMap(x, z, max(0, newWaterLevel));
+			mWaterMap.UpdateHeight(currentIndex, max(0, newWaterLevel));
 			
-			float waterAverage = (oldWaterLevel + ReadWaterHeight(x, z)) / 2;
+			float waterAverage = (oldWaterLevel + mWaterMap.ReadHeight(currentIndex)) / 2;
 			
 			// The velocity field must be updated
 			VelocityVector vvField;
@@ -295,16 +371,14 @@ void WaterErosion::BuildVelocityVectorMap()
 		}
 	}
 	
-	if (waterMapCopy.size() > 0)
-		waterMapCopy.clear();
+	waterMapCopy.Clear();
 }
 //===============================================================================================================================
 void WaterErosion::ApplyErosion()
 {
-	vector<HeightData> sedimentToMoveMap;
-
-	sedimentToMoveMap.resize(mWaterErosionParameters.terrainSize * mWaterErosionParameters.terrainSize);
-
+	ZShadeSandboxTerrain::HeightmapContainer sedimentToMoveMap(mWaterErosionParameters.terrainSize, mWaterErosionParameters.seaLevel);
+	sedimentToMoveMap.Init();
+	
 	int currentIndex;
 
 	for (int z = 0; z < mWaterErosionParameters.terrainSize; z++)
@@ -313,9 +387,7 @@ void WaterErosion::ApplyErosion()
 		{
 			currentIndex = (z * mWaterErosionParameters.terrainSize) + x;
 
-			sedimentToMoveMap[currentIndex].x = x;
-			sedimentToMoveMap[currentIndex].y = 0;
-			sedimentToMoveMap[currentIndex].z = z;
+			sedimentToMoveMap.UpdateHeight(currentIndex, 0);
 
 			VelocityVector currentVelocityVector = ReadVelocityVectorMap(x, z);
 
@@ -344,7 +416,7 @@ void WaterErosion::ApplyErosion()
 			if (baseCoordinateX < mWaterErosionParameters.terrainSize && x >= -coordinateOffsetX && baseCoordinateY < mWaterErosionParameters.terrainSize && z >= -coordinateOffsetY)
 			{
 				float currentWeight = (1 - coordinatePartX) * (1 - coordinatePartY);
-				heightSum += mHeightMapInput[baseCoordinateX + mWaterErosionParameters.terrainSize * baseCoordinateY].y * currentWeight;
+				heightSum += mHeightMapInput.ReadHeight(baseCoordinateX + mWaterErosionParameters.terrainSize * baseCoordinateY) * currentWeight;
 				heightWeightSum += currentWeight;
 			}
 
@@ -352,7 +424,7 @@ void WaterErosion::ApplyErosion()
 			if (baseCoordinateX + 1 < mWaterErosionParameters.terrainSize && x + 1 >= -coordinateOffsetX && baseCoordinateY < mWaterErosionParameters.terrainSize && z >= -coordinateOffsetY)
 			{
 				float currentWeight = coordinatePartX * (1 - coordinatePartY);
-				heightSum += mHeightMapInput[baseCoordinateX + 1 + mWaterErosionParameters.terrainSize * baseCoordinateY].y * currentWeight;
+				heightSum += mHeightMapInput.ReadHeight(baseCoordinateX + 1 + mWaterErosionParameters.terrainSize * baseCoordinateY) * currentWeight;
 				heightWeightSum += currentWeight;
 			}
 
@@ -360,7 +432,7 @@ void WaterErosion::ApplyErosion()
 			if (baseCoordinateX < mWaterErosionParameters.terrainSize && x >= -coordinateOffsetX && baseCoordinateY + 1 < mWaterErosionParameters.terrainSize && z + 1 >= -coordinateOffsetY)
 			{
 				float currentWeight = (1 - coordinatePartX) * coordinatePartY;
-				heightSum += mHeightMapInput[baseCoordinateX + mWaterErosionParameters.terrainSize * (baseCoordinateY + 1)].y * currentWeight;
+				heightSum += mHeightMapInput.ReadHeight(baseCoordinateX + mWaterErosionParameters.terrainSize * (baseCoordinateY + 1)) * currentWeight;
 				heightWeightSum += currentWeight;
 			}
 
@@ -368,11 +440,11 @@ void WaterErosion::ApplyErosion()
 			if (baseCoordinateX + 1 < mWaterErosionParameters.terrainSize && x + 1 >= -coordinateOffsetX && baseCoordinateY + 1 < mWaterErosionParameters.terrainSize && z + 1 >= -coordinateOffsetY)
 			{
 				float currentWeight = coordinatePartX * coordinatePartY;
-				heightSum += mHeightMapInput[baseCoordinateX + 1 + mWaterErosionParameters.terrainSize * (baseCoordinateY + 1)].y * currentWeight;
+				heightSum += mHeightMapInput.ReadHeight(baseCoordinateX + 1 + mWaterErosionParameters.terrainSize * (baseCoordinateY + 1)) * currentWeight;
 				heightWeightSum += currentWeight;
 			}
 
-			float targetPointHeightDiff = heightSum / heightWeightSum - ReadErosionHeight(x, z);
+			float targetPointHeightDiff = heightSum / heightWeightSum - mHeightMapInput.ReadHeight(currentIndex);
 
 			float velocityVectorLength = sqrt(SQR(ReadVelocityVectorMap(x, z).x) + SQR(ReadVelocityVectorMap(x, z).y));
 
@@ -399,15 +471,15 @@ void WaterErosion::ApplyErosion()
 				return;
 			}
 
-			if (ReadSedimentationHeight(x, z) == 0 && sedimentCapacity <= 0)
+			if (mSedimentationMap.ReadHeight(currentIndex) == 0 && sedimentCapacity <= 0)
 			{
-				sedimentToMoveMap[currentIndex].y = 0;
+				sedimentToMoveMap.UpdateHeight(currentIndex, 0);
 				continue;
 			}
 
-			float originalHeight = ReadHeightMapInput(x, z);
+			float originalHeight = mHeightMapInput.ReadHeight(currentIndex);
 
-			if (mSedimentationMap[(z * mWaterErosionParameters.terrainSize) + x].y < 0)
+			if (mSedimentationMap.ReadHeight(currentIndex) < 0)
 			{
 				ZShadeMessageCenter::MsgBoxError(NULL, "Erosion error: Negative sediment before update.");
 				return;
@@ -415,25 +487,28 @@ void WaterErosion::ApplyErosion()
 
 			float sedimentChange;
 
-			if (sedimentCapacity > ReadSedimentationHeight(x, z))
+			if (sedimentCapacity > mSedimentationMap.ReadHeight(currentIndex))
 			{
 				// The water can carry more sediment - some sediment will be picked up
-				sedimentChange = mWaterErosionParameters.dissolvingConstant * mWaterErosionParameters.deltaT * (sedimentCapacity - ReadSedimentationHeight(x, z));
+				sedimentChange = mWaterErosionParameters.dissolvingConstant * mWaterErosionParameters.deltaT * (sedimentCapacity - mSedimentationMap.ReadHeight(currentIndex));
 
 				if (sedimentChange > 1 || sedimentChange != sedimentChange)
 				{
 					ZShadeMessageCenter::MsgBoxError(NULL, "Erosion error: Excessive negative sediment change.");
 					return;
 				}
-
-				mHeightMapInput[currentIndex].y -= sedimentChange;
-				mWaterMap[currentIndex].y += sedimentChange;
-				sedimentToMove = ReadSedimentationHeight(x, z) + sedimentChange;
+				
+				float currHeightMapHeight = mHeightMapInput.ReadHeight(currentIndex);
+				float currWaterMapHeight = mWaterMap.ReadHeight(currentIndex);
+				
+				mHeightMapInput.UpdateHeight(currentIndex, currHeightMapHeight - sedimentChange);
+				mWaterMap.UpdateHeight(currentIndex, currWaterMapHeight + sedimentChange);
+				sedimentToMove = mSedimentationMap.ReadHeight(currentIndex) + sedimentChange;
 			}
-			else if (sedimentCapacity < ReadSedimentationHeight(x, z))
+			else if (sedimentCapacity < mSedimentationMap.ReadHeight(currentIndex))
 			{
 				// The water is over saturated with sediment - some sediment will be deposited
-				sedimentChange = mWaterErosionParameters.depositionConstant * mWaterErosionParameters.deltaT * (ReadSedimentationHeight(x, z) - sedimentCapacity);
+				sedimentChange = mWaterErosionParameters.depositionConstant * mWaterErosionParameters.deltaT * (mSedimentationMap.ReadHeight(currentIndex) - sedimentCapacity);
 
 				if (sedimentChange > 1 || sedimentChange != sedimentChange)
 				{
@@ -441,15 +516,18 @@ void WaterErosion::ApplyErosion()
 					return;
 				}
 
-				mHeightMapInput[currentIndex].y += sedimentChange;
-				mWaterMap[currentIndex].y -= sedimentChange;
-
-				if (ReadWaterHeight(x, z) < 0)
+				float currHeightMapHeight = mHeightMapInput.ReadHeight(currentIndex);
+				float currWaterMapHeight = mWaterMap.ReadHeight(currentIndex);
+				
+				mHeightMapInput.UpdateHeight(currentIndex, currHeightMapHeight + sedimentChange);
+				mWaterMap.UpdateHeight(currentIndex, currWaterMapHeight - sedimentChange);
+				
+				if (mWaterMap.ReadHeight(currentIndex) < 0)
 				{
-					UpdateWaterMap(x, z, 0);
+					mWaterMap.UpdateHeight(currentIndex, 0);
 				}
 
-				sedimentToMove = ReadSedimentationHeight(x, z) - sedimentChange;
+				sedimentToMove = mSedimentationMap.ReadHeight(currentIndex) - sedimentChange;
 			}
 
 			if (sedimentToMove < 0)
@@ -458,7 +536,7 @@ void WaterErosion::ApplyErosion()
 				return;
 			}
 
-			sedimentToMoveMap[currentIndex].y = sedimentToMove;
+			sedimentToMoveMap.UpdateHeight(currentIndex, sedimentToMove);
 		}
 	}
 
@@ -471,7 +549,7 @@ void WaterErosion::ApplyErosion()
 			VelocityVector currentVelocityVector = ReadVelocityVectorMap(x, z);
 
 			// Move the sediment according to the velocity field map
-			if (sedimentToMoveMap[currentIndex].y == 0) continue;
+			if (sedimentToMoveMap.ReadHeight(currentIndex) == 0) continue;
 
 			// we are doing a step backwards in time, so inverse vector has to be used
 			currentVelocityVector.x *= -1;
@@ -487,7 +565,6 @@ void WaterErosion::ApplyErosion()
 
 			if (coordinatePartX > 1 || coordinatePartY > 1 || coordinatePartX < 0 || coordinatePartY < 0)
 			{
-				//ZShadeMessageCenter::MsgBoxError(NULL, "E");
 			}
 
 			//
@@ -501,7 +578,7 @@ void WaterErosion::ApplyErosion()
 			if (baseCoordinateX < mWaterErosionParameters.terrainSize && x >= -coordinateOffsetX && baseCoordinateY < mWaterErosionParameters.terrainSize && z >= -coordinateOffsetY)
 			{
 				float currentWeight = (1 - coordinatePartX) * (1 - coordinatePartY);
-				sedimentSum += sedimentToMoveMap[baseCoordinateX + mWaterErosionParameters.terrainSize * baseCoordinateY].y * currentWeight;
+				sedimentSum += sedimentToMoveMap.ReadHeight(baseCoordinateX + mWaterErosionParameters.terrainSize * baseCoordinateY) * currentWeight;
 				sedimentWeightSum += currentWeight;
 			}
 
@@ -509,7 +586,7 @@ void WaterErosion::ApplyErosion()
 			if (baseCoordinateX + 1 < mWaterErosionParameters.terrainSize && x + 1 >= -coordinateOffsetX && baseCoordinateY < mWaterErosionParameters.terrainSize && z >= -coordinateOffsetY)
 			{
 				float currentWeight = coordinatePartX * (1 - coordinatePartY);
-				sedimentSum += sedimentToMoveMap[baseCoordinateX + 1 + mWaterErosionParameters.terrainSize * baseCoordinateY].y * currentWeight;
+				sedimentSum += sedimentToMoveMap.ReadHeight(baseCoordinateX + 1 + mWaterErosionParameters.terrainSize * baseCoordinateY) * currentWeight;
 				sedimentWeightSum += currentWeight;
 			}
 
@@ -517,7 +594,7 @@ void WaterErosion::ApplyErosion()
 			if (baseCoordinateX < mWaterErosionParameters.terrainSize && x >= -coordinateOffsetX && baseCoordinateY + 1 < mWaterErosionParameters.terrainSize && z + 1 >= -coordinateOffsetY)
 			{
 				float currentWeight = (1 - coordinatePartX) * coordinatePartY;
-				sedimentSum += sedimentToMoveMap[baseCoordinateX + mWaterErosionParameters.terrainSize * (baseCoordinateY + 1)].y * currentWeight;
+				sedimentSum += sedimentToMoveMap.ReadHeight(baseCoordinateX + mWaterErosionParameters.terrainSize * (baseCoordinateY + 1)) * currentWeight;
 				sedimentWeightSum += currentWeight;
 			}
 
@@ -525,7 +602,7 @@ void WaterErosion::ApplyErosion()
 			if (baseCoordinateX + 1 < mWaterErosionParameters.terrainSize && x + 1 >= -coordinateOffsetX && baseCoordinateY + 1 < mWaterErosionParameters.terrainSize && z + 1 >= -coordinateOffsetY)
 			{
 				float currentWeight = coordinatePartX * coordinatePartY;
-				sedimentSum += sedimentToMoveMap[baseCoordinateX + 1 + mWaterErosionParameters.terrainSize * (baseCoordinateY + 1)].y * currentWeight;
+				sedimentSum += sedimentToMoveMap.ReadHeight(baseCoordinateX + 1 + mWaterErosionParameters.terrainSize * (baseCoordinateY + 1)) * currentWeight;
 				sedimentWeightSum += currentWeight;
 			}
 
@@ -535,52 +612,27 @@ void WaterErosion::ApplyErosion()
 				return;
 			}
 
-			UpdateSedimentationMap(x, z, sedimentWeightSum > 0 ? sedimentSum / sedimentWeightSum : 0);
+			mSedimentationMap.UpdateHeight(currentIndex, sedimentWeightSum > 0 ? sedimentSum / sedimentWeightSum : 0);
 		}
 	}
-
-	//
-	// Add Sedimentation to erosion map
-	//
-
-	for (int z = 0; z < mWaterErosionParameters.terrainSize; z++)
-	{
-		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
-		{
-			UpdateErosionMap(x, z, ReadSedimentationHeight(x, z));
-		}
-	}
-
-	if (sedimentToMoveMap.size() > 0)
-		sedimentToMoveMap.clear();
+	
+	sedimentToMoveMap.Clear();
 }
 //===============================================================================================================================
 void WaterErosion::ApplyThermalWeathering()
 {
 	float currentIndex;
-
-	vector<HeightData> heightMapCopy;
-
-	heightMapCopy.resize(mWaterErosionParameters.terrainSize * mWaterErosionParameters.terrainSize);
-
-	for (int z = 0; z < mWaterErosionParameters.terrainSize; z++)
-	{
-		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
-		{
-			float currentHeight = ReadHeightMapInput(x, z);
-			heightMapCopy[(z * mWaterErosionParameters.terrainSize) + x].x = x;
-			heightMapCopy[(z * mWaterErosionParameters.terrainSize) + x].y = currentHeight;
-			heightMapCopy[(z * mWaterErosionParameters.terrainSize) + x].z = z;
-		}
-	}
-
+	
+	ZShadeSandboxTerrain::HeightmapContainer heightMapCopy(mWaterErosionParameters.terrainSize, mWaterErosionParameters.seaLevel);
+	heightMapCopy.CopyHeight(mHeightMapInput);
+	
 	for (int z = 0; z < mWaterErosionParameters.terrainSize; z++)
 	{
 		for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
 		{
 			currentIndex = (z * mWaterErosionParameters.terrainSize) + x;
 
-			float currentHeight = ReadHeightMapInput(x, z);
+			float currentHeight = mHeightMapInput.ReadHeight(currentIndex);
 
 			double heightDiffTopLeft = 0;
 			double heightDiffTop = 0;
@@ -595,40 +647,40 @@ void WaterErosion::ApplyThermalWeathering()
 			{
 				if (x > 0)
 				{
-					heightDiffTopLeft = currentHeight - heightMapCopy[currentIndex - mWaterErosionParameters.terrainSize - 1].y;
+					heightDiffTopLeft = currentHeight - heightMapCopy.ReadHeight(currentIndex - mWaterErosionParameters.terrainSize - 1);
 				}
 
-				heightDiffTop = currentHeight - heightMapCopy[currentIndex - mWaterErosionParameters.terrainSize].y;
+				heightDiffTop = currentHeight - heightMapCopy.ReadHeight(currentIndex - mWaterErosionParameters.terrainSize);
 
 				if (x < mWaterErosionParameters.terrainSize - 1)
 				{
-					heightDiffTopRight = currentHeight - heightMapCopy[currentIndex - mWaterErosionParameters.terrainSize + 1].y;
+					heightDiffTopRight = currentHeight - heightMapCopy.ReadHeight(currentIndex - mWaterErosionParameters.terrainSize + 1);
 				}
 			}
 
 			if (x < mWaterErosionParameters.terrainSize - 1)
 			{
-				heightDiffRight = currentHeight - heightMapCopy[currentIndex + 1].y;
+				heightDiffRight = currentHeight - heightMapCopy.ReadHeight(currentIndex + 1);
 			}
 
 			if (z < mWaterErosionParameters.terrainSize - 1)
 			{
 				if (x > 0)
 				{
-					heightDiffBottomLeft = currentHeight - heightMapCopy[currentIndex + mWaterErosionParameters.terrainSize - 1].y;
+					heightDiffBottomLeft = currentHeight - heightMapCopy.ReadHeight(currentIndex + mWaterErosionParameters.terrainSize - 1);
 				}
 
-				heightDiffBottom = currentHeight - heightMapCopy[currentIndex + mWaterErosionParameters.terrainSize].y;
+				heightDiffBottom = currentHeight - heightMapCopy.ReadHeight(currentIndex + mWaterErosionParameters.terrainSize);
 
 				if (x < mWaterErosionParameters.terrainSize - 1)
 				{
-					heightDiffBottomRight = currentHeight - heightMapCopy[currentIndex + mWaterErosionParameters.terrainSize + 1].y;
+					heightDiffBottomRight = currentHeight - heightMapCopy.ReadHeight(currentIndex + mWaterErosionParameters.terrainSize + 1);
 				}
 			}
 
 			if (x > 0)
 			{
-				heightDiffLeft = currentHeight - heightMapCopy[currentIndex - 1].y;
+				heightDiffLeft = currentHeight - heightMapCopy.ReadHeight(currentIndex - 1);
 			}
 
 			double maxHeightDiff = 0;
@@ -674,30 +726,30 @@ void WaterErosion::ApplyThermalWeathering()
 			if (heightDiffLeft >= mWaterErosionParameters.talusAngle)
 				totalTransportableAmount += heightDiffLeft;
 
-			mHeightMapInput[currentIndex].y -= amountToTransport;
+			mHeightMapInput.UpdateHeight(currentIndex, mHeightMapInput.ReadHeight(currentIndex) - amountToTransport);
 
 			if (z > 0)
 			{
 				if (x > 0)
 				{
 					if (heightDiffTopLeft >= mWaterErosionParameters.talusAngle)
-						mHeightMapInput[currentIndex - mWaterErosionParameters.terrainSize - 1].y += amountToTransport * heightDiffTopLeft / totalTransportableAmount;
+						mHeightMapInput.UpdateHeight(currentIndex - mWaterErosionParameters.terrainSize - 1, mHeightMapInput.ReadHeight(currentIndex - mWaterErosionParameters.terrainSize - 1) + amountToTransport * heightDiffTopLeft / totalTransportableAmount);
 				}
 
 				if (heightDiffTop >= mWaterErosionParameters.talusAngle)
-					mHeightMapInput[currentIndex - mWaterErosionParameters.terrainSize].y += amountToTransport * heightDiffTop / totalTransportableAmount;
+					mHeightMapInput.UpdateHeight(currentIndex - mWaterErosionParameters.terrainSize, mHeightMapInput.ReadHeight(currentIndex - mWaterErosionParameters.terrainSize) + amountToTransport * heightDiffTop / totalTransportableAmount);
 
 				if (x < mWaterErosionParameters.terrainSize - 1)
 				{
 					if (heightDiffTopRight >= mWaterErosionParameters.talusAngle)
-						mHeightMapInput[currentIndex - mWaterErosionParameters.terrainSize + 1].y += amountToTransport * heightDiffTopRight / totalTransportableAmount;
+						mHeightMapInput.UpdateHeight(currentIndex - mWaterErosionParameters.terrainSize + 1, mHeightMapInput.ReadHeight(currentIndex - mWaterErosionParameters.terrainSize + 1) + amountToTransport * heightDiffTopRight / totalTransportableAmount);
 				}
 			}
 
 			if (x < mWaterErosionParameters.terrainSize - 1)
 			{
 				if (heightDiffRight >= mWaterErosionParameters.talusAngle)
-					mHeightMapInput[currentIndex + 1].y += amountToTransport * heightDiffRight / totalTransportableAmount;
+					mHeightMapInput.UpdateHeight(currentIndex + 1, mHeightMapInput.ReadHeight(currentIndex + 1) + amountToTransport * heightDiffRight / totalTransportableAmount);
 			}
 
 			if (z < mWaterErosionParameters.terrainSize - 1)
@@ -705,86 +757,33 @@ void WaterErosion::ApplyThermalWeathering()
 				if (x > 0)
 				{
 					if (heightDiffBottomLeft >= mWaterErosionParameters.talusAngle)
-						mHeightMapInput[currentIndex + mWaterErosionParameters.terrainSize - 1].y += amountToTransport * heightDiffBottomLeft / totalTransportableAmount;
+						mHeightMapInput.UpdateHeight(currentIndex + mWaterErosionParameters.terrainSize - 1, mHeightMapInput.ReadHeight(currentIndex + mWaterErosionParameters.terrainSize - 1) + amountToTransport * heightDiffBottomLeft / totalTransportableAmount);
 				}
 
 				if (heightDiffBottom >= mWaterErosionParameters.talusAngle)
-					mHeightMapInput[currentIndex + mWaterErosionParameters.terrainSize].y += amountToTransport * heightDiffBottom / totalTransportableAmount;
+					mHeightMapInput.UpdateHeight(currentIndex + mWaterErosionParameters.terrainSize, mHeightMapInput.ReadHeight(currentIndex + mWaterErosionParameters.terrainSize) + amountToTransport * heightDiffBottom / totalTransportableAmount);
 
 				if (x < mWaterErosionParameters.terrainSize - 1)
 				{
 					if (heightDiffBottomRight >= mWaterErosionParameters.talusAngle)
-						mHeightMapInput[currentIndex + mWaterErosionParameters.terrainSize + 1].y += amountToTransport * heightDiffBottomRight / totalTransportableAmount;
+						mHeightMapInput.UpdateHeight(currentIndex + mWaterErosionParameters.terrainSize + 1, mHeightMapInput.ReadHeight(currentIndex + mWaterErosionParameters.terrainSize + 1) + amountToTransport * heightDiffBottomRight / totalTransportableAmount);
 				}
 			}
 
 			if (x > 0)
 			{
 				if (heightDiffLeft >= mWaterErosionParameters.talusAngle)
-					mHeightMapInput[currentIndex - 1].y += amountToTransport * heightDiffLeft / totalTransportableAmount;
+					mHeightMapInput.UpdateHeight(currentIndex - 1, mHeightMapInput.ReadHeight(currentIndex - 1) + amountToTransport * heightDiffLeft / totalTransportableAmount);
 			}
 		}
 	}
 
-	////
-	//// Add Thermal map to height map
-	////
-
-	//for (int z = 0; z < mWaterErosionParameters.terrainSize; z++)
-	//{
-	//	for (int x = 0; x < mWaterErosionParameters.terrainSize; x++)
-	//	{
-	//		UpdateHeightMapInput(x, z, thermalMap[(z * mWaterErosionParameters.terrainSize) + x].y);
-	//	}
-	//}
-
-	if (heightMapCopy.size() > 0)
-		heightMapCopy.clear();
+	heightMapCopy.Clear();
 }
 //===============================================================================================================================
 float WaterErosion::FlowValue(float direction, float heightDifference)
 {
 	return direction + mWaterErosionParameters.deltaT * mWaterErosionParameters.pipeCrossectionArea * (mWaterErosionParameters.graviationalAcceleration * heightDifference) / mWaterErosionParameters.pipeLength;
-}
-//===============================================================================================================================
-float WaterErosion::ReadWaterHeight(int x, int z)
-{
-	if (x < mWaterErosionParameters.terrainSize && z < mWaterErosionParameters.terrainSize && x >= 0 && z >= 0)
-	{
-		return mWaterMap[(z * mWaterErosionParameters.terrainSize) + x].y;
-	}
-	
-	return 0;
-}
-//===============================================================================================================================
-float WaterErosion::ReadSedimentationHeight(int x, int z)
-{
-	if (x < mWaterErosionParameters.terrainSize && z < mWaterErosionParameters.terrainSize && x >= 0 && z >= 0)
-	{
-		return mSedimentationMap[(z * mWaterErosionParameters.terrainSize) + x].y;
-	}
-	
-	return 0;
-}
-//===============================================================================================================================
-float WaterErosion::ReadErosionHeight(int x, int z)
-{
-	if (x < mWaterErosionParameters.terrainSize && z < mWaterErosionParameters.terrainSize && x >= 0 && z >= 0)
-	{
-		return mErosionMap[(z * mWaterErosionParameters.terrainSize) + x].y;
-	}
-	
-	return 0;
-}
-//===============================================================================================================================
-float WaterErosion::ReadHeightMapInput(int x, int z)
-{
-	if (x < mWaterErosionParameters.terrainSize && z < mWaterErosionParameters.terrainSize && x >= 0 && z >= 0)
-	{
-		return mHeightMapInput[(z * mWaterErosionParameters.terrainSize) + x].y;
-	}
-
-	return 0;
 }
 //===============================================================================================================================
 ZShadeSandboxTerrain::OutflowValues WaterErosion::ReadOutflowFluxMap(int x, int z)
@@ -809,26 +808,6 @@ ZShadeSandboxTerrain::VelocityVector WaterErosion::ReadVelocityVectorMap(int x, 
 	VelocityVector vv;
 	vv.x = vv.y = 0;
 	return vv;
-}
-//===============================================================================================================================
-void WaterErosion::UpdateWaterMap(int x, int z, float value)
-{
-	mWaterMap[(z * mWaterErosionParameters.terrainSize) + x].y = value;
-}
-//===============================================================================================================================
-void WaterErosion::UpdateSedimentationMap(int x, int z, float value)
-{
-	mSedimentationMap[(z * mWaterErosionParameters.terrainSize) + x].y = value;
-}
-//===============================================================================================================================
-void WaterErosion::UpdateErosionMap(int x, int z, float value)
-{
-	mErosionMap[(z * mWaterErosionParameters.terrainSize) + x].y = value;
-}
-//===============================================================================================================================
-void WaterErosion::UpdateHeightMapInput(int x, int z, float value)
-{
-	mHeightMapInput[(z * mWaterErosionParameters.terrainSize) + x].y = value;
 }
 //===============================================================================================================================
 void WaterErosion::UpdateOutflowFluxMap(int x, int z, ZShadeSandboxTerrain::OutflowValues value)

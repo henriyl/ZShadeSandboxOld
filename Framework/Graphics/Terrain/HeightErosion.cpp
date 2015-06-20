@@ -3,30 +3,18 @@
 using ZShadeSandboxTerrain::HeightErosion;
 //===============================================================================================================================
 //===============================================================================================================================
-HeightErosion::HeightErosion(vector<ZShadeSandboxTerrain::HeightData> heightMapInput, int terrainSize, float erosionValue)
-:	mTerrainSize(terrainSize)
-,	mErosionValue(erosionValue)
+HeightErosion::HeightErosion(ZShadeSandboxTerrain::HeightmapContainer heightMapInput, int terrainSize, float erosionValue)
+:	iTerrainSize(terrainSize)
+,	fErosionValue(erosionValue)
 {
-	int index = 0;
+	mErosionMap.HeightmapSize() = iTerrainSize;
+	mErosionMap.SeaLevel() = 0;
+	mErosionMap.Init();
 	
-	mHeightMap.resize(mTerrainSize * mTerrainSize);
+	mHeightMap.HeightmapSize() = iTerrainSize;
+	mHeightMap.SeaLevel() = 0;
+	mHeightMap.CopyHeight(heightMapInput);
 	
-	for (int z = 0; z < mTerrainSize; z++)
-	{
-		for (int x = 0; x < mTerrainSize; x++)
-		{
-			ZShadeSandboxTerrain::HeightData hd;
-			
-			hd.x = x;
-			hd.y = heightMapInput[(z * mTerrainSize) + x].y;
-			hd.z = z;
-			
-			mHeightMap[index++] = hd;
-		}
-	}
-	
-	mErosionMap.resize(mTerrainSize * mTerrainSize);
-
 	Erode();
 }
 //===============================================================================================================================
@@ -51,142 +39,6 @@ void HeightErosion::Erode()
 		again from bottom to top using columns instead of rows. And your terrain will be "eroded" by whatever percentage you used for
 		the ErosionValue.
 	*/
-	
-	/*int index = 0;
-	float currHeight;
-	float prevHeight;
-	float erosion;
-	
-	//if (mErosionMap.size() > 0) mErosionMap.clear();
-	//mErosionMap.resize(mTerrainSize * mTerrainSize);
-
-	// Process the values from east to west
-	for (int z = 0; z < mTerrainSize; z++)
-	{
-		for (int x = 0; x < mTerrainSize; x++)
-		{
-			currHeight = ReadHeight(x, z);
-			prevHeight = ReadHeight(x - 1, z);
-			
-			// Could be that the next or prev was not on the map
-			if (currHeight == 0) currHeight = ReadHeight(x, z);
-			if (prevHeight == 0) prevHeight = ReadHeight(x, z);
-			
-			erosion = CalculateErosionValue(currHeight, prevHeight);
-			
-			//ZShadeSandboxTerrain::HeightData hd;
-			
-			//hd.x = x;
-			//hd.y = erosion;
-			//hd.z = z;
-			
-			//mErosionMap[index++] = hd;
-			
-			UpdateErosionHeight(x, z, erosion);
-		}
-	}
-	
-	// Rebuild the heightmap from the erosion map that was generated on the prev pass
-	RebuildHeightmap();
-
-	//index = 0;
-	
-	// Process the values from west to east
-	for (int z = 0; z < mTerrainSize; z++)
-	{
-		//for (int x = mTerrainSize - 1; x >= 0; x--)
-		for (int x = 0; x < mTerrainSize; x++)
-		{
-			currHeight = ReadHeight(x, z);
-			prevHeight = ReadHeight(x + 1, z);
-			
-			// Could be that the next or prev was not on the map
-			if (currHeight == 0) currHeight = ReadHeight(x, z);
-			if (prevHeight == 0) prevHeight = ReadHeight(x, z);
-			
-			erosion = CalculateErosionValue(currHeight, prevHeight);
-			
-			//ZShadeSandboxTerrain::HeightData hd;
-			
-			//hd.x = x;
-			//hd.y = erosion;
-			//hd.z = z;
-			
-			//mErosionMap[index++] = hd;
-			
-			UpdateErosionHeight(x, z, erosion);
-		}
-	}
-	
-	// Rebuild the heightmap from the erosion map that was generated on the prev pass
-	RebuildHeightmap();
-
-	//index = 0;
-	
-	// Process the values from north to south
-	//for (int x = 0; x < mTerrainSize; x++)
-	//{
-	//	for (int z = 0; z < mTerrainSize; z++)
-	//	{
-	for (int z = 0; z < mTerrainSize; z++)
-	{
-		for (int x = 0; x < mTerrainSize; x++)
-		{
-			currHeight = ReadHeight(x, z - 1);
-			prevHeight = ReadHeight(x, z);
-			
-			// Could be that the next or prev was not on the map
-			if (currHeight == 0) currHeight = ReadHeight(x, z);
-			if (prevHeight == 0) prevHeight = ReadHeight(x, z);
-			
-			erosion = CalculateErosionValue(currHeight, prevHeight);
-			
-			//ZShadeSandboxTerrain::HeightData hd;
-			
-			//hd.x = x;
-			//hd.y = erosion;
-			//hd.z = z;
-			
-			//mErosionMap[index++] = hd;
-			
-			UpdateErosionHeight(x, z, erosion);
-		}
-	}
-	
-	// Rebuild the heightmap from the erosion map that was generated on the prev pass
-	RebuildHeightmap();
-
-	//index = 0;
-	
-	// Process the values from south to north
-	//for (int x = 0; x < mTerrainSize; x++)
-	//{
-	//	for (int z = mTerrainSize - 1; z >= 0; z--)
-	//	{
-	for (int z = 0; z < mTerrainSize; z++)
-	{
-		for (int x = 0; x < mTerrainSize; x++)
-		{
-			currHeight = ReadHeight(x, z);
-			prevHeight = ReadHeight(x, z + 1);
-			
-			// Could be that the next or prev was not on the map
-			if (currHeight == 0) currHeight = ReadHeight(x, z);
-			if (prevHeight == 0) prevHeight = ReadHeight(x, z);
-			
-			erosion = CalculateErosionValue(currHeight, prevHeight);
-			
-			//ZShadeSandboxTerrain::HeightData hd;
-			
-			//hd.x = x;
-			//hd.y = erosion;
-			//hd.z = z;
-			
-			//mErosionMap[index++] = hd;
-			
-			UpdateErosionHeight(x, z, erosion);
-		}
-	}*/
 	
 	// Process the values from east to west
 	UpdateErosion(-1, 0, 0, 0);
@@ -219,62 +71,37 @@ void HeightErosion::UpdateErosion(int xUpdate0, int xUpdate1, int zUpdate0, int 
 	float prevHeight;
 	float erosion;
 	
-	for (int z = 0; z < mTerrainSize; z++)
+	for (int z = 0; z < iTerrainSize; z++)
 	{
-		for (int x = 0; x < mTerrainSize; x++)
+		for (int x = 0; x < iTerrainSize; x++)
 		{
-			currHeight = ReadHeight(x + xUpdate0, z + zUpdate0);
-			prevHeight = ReadHeight(x + xUpdate1, z + zUpdate1);
+			currHeight = mHeightMap.ReadHeight(x + xUpdate0, z + zUpdate0);
+			prevHeight = mHeightMap.ReadHeight(x + xUpdate1, z + zUpdate1);
 			
 			// Could be that the next or prev was not on the map
-			if (currHeight == 0) currHeight = ReadHeight(x, z);
-			if (prevHeight == 0) prevHeight = ReadHeight(x, z);
+			if (currHeight == 0) currHeight = mHeightMap.ReadHeight(x, z);
+			if (prevHeight == 0) prevHeight = mHeightMap.ReadHeight(x, z);
 			
 			erosion = CalculateErosionValue(currHeight, prevHeight);
 			
-			UpdateErosionHeight(x, z, erosion);
+			mErosionMap.UpdateHeight(x, z, erosion);
 		}
 	}
 }
 //===============================================================================================================================
 void HeightErosion::RebuildHeightmap()
 {
-	for (int z = 0; z < mTerrainSize; z++)
+	for (int z = 0; z < iTerrainSize; z++)
 	{
-		for (int x = 0; x < mTerrainSize; x++)
+		for (int x = 0; x < iTerrainSize; x++)
 		{
-			mHeightMap[(z * mTerrainSize) + x].y = mErosionMap[(z * mTerrainSize) + x].y;
+			mHeightMap.UpdateHeight(x, z, mErosionMap.ReadHeight(x, z));
 		}
 	}
 }
 //===============================================================================================================================
-float HeightErosion::ReadErosionHeight(int x, int z)
-{
-	if (x < mTerrainSize && z < mTerrainSize && x >= 0 && z >= 0)
-	{
-		return mErosionMap[(z * mTerrainSize) + x].y;
-	}
-	
-	return 0;
-}
-//===============================================================================================================================
-float HeightErosion::ReadHeight(int x, int z)
-{
-	if (x < mTerrainSize && z < mTerrainSize && x >= 0 && z >= 0)
-	{
-		return mHeightMap[(z * mTerrainSize) + x].y;
-	}
-	
-	return 0;
-}
-//===============================================================================================================================
-void HeightErosion::UpdateErosionHeight(int x, int z, float height)
-{
-	mErosionMap[(z * mTerrainSize) + x].y = height;
-}
-//===============================================================================================================================
 float HeightErosion::CalculateErosionValue(float currHeight, float prevHeight)
 {
-	return mErosionValue * prevHeight + (1 - mErosionValue) * currHeight;
+	return fErosionValue * prevHeight + (1 - fErosionValue) * currHeight;
 }
 //===============================================================================================================================

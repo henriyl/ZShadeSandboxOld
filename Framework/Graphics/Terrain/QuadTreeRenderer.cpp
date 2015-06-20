@@ -434,10 +434,8 @@ void QuadTreeRenderer::Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCa
 	if (node == 0) return;
 	
 	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
-	//bool result = pCamera->ViewingFrustum()->ContainsCube(node->center, (node->fWidth / 2.0f));
+	bool result = pCamera->ViewingFrustum()->ContainsCube(node->center, (node->fWidth / 2.0f));
 	
-	bool result = false;
-
 	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
 	if (!result)
 		result = pCamera->ViewingFrustum()->ContainsAABB(node->boundary.vMin, node->boundary.vMax);

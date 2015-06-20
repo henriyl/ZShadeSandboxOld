@@ -32,6 +32,7 @@ using namespace std;
 #include "Heightmap.h"
 #include "BetterString.h"
 #include "TerrainParameters.h"
+#include "TerrainPointCollider.h"
 #include "Ray.h"
 //==============================================================================================================================
 namespace ZShadeSandboxTerrain {
@@ -55,6 +56,10 @@ public:
 	// collide against the Quad Tree
 	bool GetHeightAtPosition(XMFLOAT3 position, float& height);
 	
+	// This function is replacing GetHeightAtPosition
+	bool CameraColliding(float unitsPerMeter, float gravity, Camera*& camera);
+	bool Colliding(XMFLOAT3 position, vector<XMFLOAT3>& internalVertices, vector<UINT>& internalIndices);
+
 	// Ray tracing to find out if a ray has hit the Mesh
 	// Has optional parameters to get the SRV for height of an area for displacement
 	void Intersects(ZShadeSandboxMath::Ray ray, bool& hit, XMFLOAT3& hitPoint);
@@ -102,6 +107,7 @@ public:
 	
 public:
 	
+	bool IsLoaded() const										{ return m_meshLoaded; }
 	bool Tessellate() const										{ return m_QuadTree->Tessellate(); }
 	int GetRenderPrimitive() const 								{ return m_QuadTree->GetRenderPrimitive(); }
 	int TriangleCount() const									{ return m_QuadTree->TriangleCount(); }
@@ -119,12 +125,23 @@ public:
 	// Update tessellation of the mesh
 	bool& Tessellate()											{ return m_QuadTree->Tessellate(); }
 	
+	vector<Triangle> InternalTriangles()						{ return mInternalTriangles; }
+
+	vector<XMFLOAT3> VertexList()								{ return vertexList; }
+	vector<UINT> IndexList()									{ return indexList; }
+
 private:
 	
+	void LatheCollisionMesh();
+
 	// Find highest point in the node at a position
 	bool GetHeightAtPosition(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT3 position, float& height);
 	bool FindNodeHeight(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT3 position, float& height);
 	
+	bool CameraColliding(float unitsPerMeter, float gravity, Camera*& camera, ZShadeSandboxTerrain::QMeshNode* node);
+	bool Colliding(XMFLOAT3 position, vector<XMFLOAT3>& internalVertices, vector<UINT>& internalIndices, ZShadeSandboxTerrain::QMeshNode* node);
+	bool FindInternalTriangles(XMFLOAT3 position, vector<XMFLOAT3>& internalVertices, vector<UINT>& internalIndices, ZShadeSandboxTerrain::QMeshNode* node);
+
 	void Intersects(QMeshNode* node, ZShadeSandboxMath::Ray ray, bool& hit, XMFLOAT3& hitPoint);
 	
 	// Creates a square area of height based on a point and size of square
@@ -169,6 +186,9 @@ private:
 	
 	// Creates the index buffer for the mesh
 	void BuildIndexBuffer(ZShadeSandboxTerrain::QMeshNode*& node);
+	
+	// Create triangles internal to each node in the Quad Tree
+	void LatheInternalTriangles(ZShadeSandboxTerrain::QMeshNode*& node);
 	
 	//
 	// Regenerate the mesh
@@ -217,6 +237,8 @@ private:
 	// Did the camera touch the mesh ??
 	bool m_cameraCollided;
 	
+	bool m_meshLoaded;
+	
 	// Data container for the mesh
 	ZShadeSandboxTerrain::QuadTree* m_QuadTree;
 
@@ -227,6 +249,11 @@ private:
 	// Create lighting system with material and material contains color and texture
 	ZShadeSandboxLighting::ShaderMaterial* mMaterial;
 	
+	vector<Triangle> mInternalTriangles;
+
+	vector<XMFLOAT3>	vertexList;
+	vector<UINT>		indexList;
+
 	// Root mesh node
 	ZShadeSandboxTerrain::QMeshNode* m_MeshNodes;
 };

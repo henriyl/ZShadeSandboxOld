@@ -17,7 +17,7 @@ BTT::BTT(int recursionLimit)
 {
 }
 //==================================================================================================================================
-BTT::BTT(TVertex v[3], int recursionLimit, bool split, bool splitOnce)
+BTT::BTT(ZShadeSandboxMath::XMMath3 v[3], int recursionLimit, bool split, bool splitOnce)
 :   mTriangles(0)
 ,   mNumVertices(0)
 ,   mRecursionLimit(recursionLimit)
@@ -28,7 +28,7 @@ BTT::BTT(TVertex v[3], int recursionLimit, bool split, bool splitOnce)
 	AddRoot(tri, split, splitOnce);
 }
 //==================================================================================================================================
-BTT::BTT(TVertex v1, TVertex v2, TVertex v3, int recursionLimit, bool split, bool splitOnce)
+BTT::BTT(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3, int recursionLimit, bool split, bool splitOnce)
 :   mTriangles(0)
 ,   mNumVertices(0)
 ,   mRecursionLimit(recursionLimit)
@@ -50,7 +50,7 @@ BTT::BTT(float x1, float y1, float z1, float x2, float y2, float z2, float x3, f
 	AddRoot(tri, split, splitOnce);
 }
 //==================================================================================================================================
-BTT::BTT(TVertex v[3], UINT ind[3], int recursionLimit, bool split, bool splitOnce)
+BTT::BTT(ZShadeSandboxMath::XMMath3 v[3], UINT ind[3], int recursionLimit, bool split, bool splitOnce)
 :   mTriangles(0)
 ,   mNumVertices(0)
 ,   mRecursionLimit(recursionLimit)
@@ -61,7 +61,7 @@ BTT::BTT(TVertex v[3], UINT ind[3], int recursionLimit, bool split, bool splitOn
 	AddRoot(tri, split, splitOnce);
 }
 //==================================================================================================================================
-BTT::BTT(TVertex v1, TVertex v2, TVertex v3, UINT ind1, UINT ind2, UINT ind3, int recursionLimit, bool split, bool splitOnce)
+BTT::BTT(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3, UINT ind1, UINT ind2, UINT ind3, int recursionLimit, bool split, bool splitOnce)
 :   mTriangles(0)
 ,   mNumVertices(0)
 ,   mRecursionLimit(recursionLimit)

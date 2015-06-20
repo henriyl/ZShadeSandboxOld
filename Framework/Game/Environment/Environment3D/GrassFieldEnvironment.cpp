@@ -16,12 +16,12 @@ GrassFieldEnvironment::GrassFieldEnvironment(LPCSTR base_window_name, LPCSTR ren
 	int size = 512;
 
 	//Create some terrain for the grass to sit on
-	m_pTerrain = new SimpleTerrain( m_D3DSystem, size, true );
+	//m_pTerrain = new SimpleTerrain( m_D3DSystem, size, true );
 	m_pMaterialShader = new MaterialShader(m_D3DSystem);
 
 	m_pGrassField = new GrassField(m_D3DSystem);
 	//Initialize the grass with a field size of 20480
-	m_pGrassField->Initialize( 20480, size, m_pTerrain->GetHeightmap() );
+	//m_pGrassField->Initialize( 20480, size, m_pTerrain->GetHeightmap() );
 
 	//D3DX11CreateShaderResourceViewFromFile(mD3DSystem->GetDevice11(), "Textures\\darkgrass.bmp", 0, 0, &tex, 0);
 }
@@ -64,7 +64,7 @@ void GrassFieldEnvironment::Render()
 		m_D3DSystem->TurnOnWireframe();
 	}
 
-	m_pGrassField->Render(m_CameraSystem.get());
+	m_pGrassField->Render(m_CameraSystem);
 	
 	XMFLOAT3 Vertex = XMFLOAT3(0.0, 0.0f, 0.0f);
 	XMFLOAT3 rot = XMFLOAT3(0.0, 0.0f, 0.0f);
@@ -87,7 +87,7 @@ void GrassFieldEnvironment::Render()
 	world = XMMatrixMultiply( world, translate );
 
 
-	m_pTerrain->RenderBuffers();
+	//m_pTerrain->RenderBuffers();
 	//m_pTextureShader->SetWorld( world );
 	//m_pTextureShader->SetView( mCamera->View() );
 	//m_pTextureShader->SetProj( mCamera->Proj() );

@@ -14,9 +14,9 @@ using namespace DirectX;
 using namespace DirectX::PackedVector;
 
 #include <Windows.h>
+#include <ctime>
+#include <cstdlib>
 #include "CGlobal.h"
-//#include <DirectXMath.h>
-//using namespace DirectX;
 #include "LinePrimitive.h"
 #include "TrianglePrimitive.h"
 #include "SpherePrimitive.h"
@@ -83,6 +83,18 @@ bool operator ||(const log_xor_helper &xor, const RIGHT &right) {
 class ZMath
 {
 public:
+	
+	static bool IsPowerOf2(int x)
+	{
+		return x > 0 && (x << 1 == (x | (x - 1)) + 1);
+	}
+	
+	// Grabs a random seed value based on current time
+	static void RandomSeed()
+	{
+		unsigned rseed = unsigned(time(NULL));
+		srand(rseed);
+	}
 	
 	static float lerp(float a, float b, float t=0.05f)
 	{

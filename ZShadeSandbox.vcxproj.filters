@@ -782,24 +782,6 @@
     <ClCompile Include="Framework\Game\Environment\Environment3D\VolumeEnvironment.cpp">
       <Filter>Framework\Game\Environment\Environment3D</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Graphics\Terrain\Heightmap.cpp">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Graphics\Terrain\HeightmapTester.cpp">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Graphics\Terrain\QuadTree.cpp">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Graphics\Terrain\QuadTreeMesh.cpp">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Graphics\Terrain\SimpleTerrain.cpp">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Graphics\Terrain\QuadTreeRenderer.cpp">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClCompile>
     <ClCompile Include="Framework\Game\Environment\Environment3D\TessellationEnvironment.cpp">
       <Filter>Framework\Game\Environment\Environment3D</Filter>
     </ClCompile>
@@ -817,9 +799,6 @@
     </ClCompile>
     <ClCompile Include="Framework\General\QuickHull\VertexList.cpp">
       <Filter>Framework\General\QuickHull</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Graphics\Terrain\QNode.cpp">
-      <Filter>Framework\Graphics\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Graphics\Sky\SkyPlane.cpp">
       <Filter>Framework\Graphics\Sky</Filter>
@@ -1286,14 +1265,38 @@
     <ClCompile Include="Framework\Graphics\Terrain\HeightErosion.cpp">
       <Filter>Framework\Graphics\Terrain</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Graphics\Terrain\ProceduralGenerator.cpp">
+    <ClCompile Include="Framework\Graphics\Terrain\Heightmap.cpp">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Terrain\HeightmapContainer.cpp">
       <Filter>Framework\Graphics\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Graphics\Terrain\HeightmapEditorHelper.cpp">
       <Filter>Framework\Graphics\Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="Framework\Graphics\Terrain\ProceduralAdditionHelper.cpp">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Terrain\ProceduralGenerator.cpp">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Terrain\QuadTree.cpp">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Terrain\QuadTreeMesh.cpp">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Terrain\QuadTreeRenderer.cpp">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
     <ClCompile Include="Framework\Graphics\Terrain\WaterErosion.cpp">
       <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Graphics\Terrain\TerrainPointCollider.cpp">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\General\Collision\PointColliderController.cpp">
+      <Filter>Framework\General\Collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1947,36 +1950,6 @@
     <ClInclude Include="Framework\General\QuickHull\HalfEdge.h">
       <Filter>Framework\General\QuickHull</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\Heightmap.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\HeightmapTester.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\QNode.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\QNodeType.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\QuadTree.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\QuadTreeMesh.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\SimpleTerrain.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\TerrainParameters.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\QMeshNode.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\QuadTreeRenderer.h">
-      <Filter>Framework\Graphics\Terrain</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Game\Environment\Environment3D\TessellationEnvironment.h">
       <Filter>Framework\Game\Environment\Environment3D</Filter>
     </ClInclude>
@@ -2463,17 +2436,56 @@
     <ClInclude Include="Framework\Graphics\Terrain\HeightErosion.h">
       <Filter>Framework\Graphics\Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\HeightmapData.h">
+    <ClInclude Include="Framework\Graphics\Terrain\Heightmap.h">
       <Filter>Framework\Graphics\Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Graphics\Terrain\ProceduralGenerator.h">
+    <ClInclude Include="Framework\Graphics\Terrain\HeightmapContainer.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\HeightmapData.h">
       <Filter>Framework\Graphics\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Graphics\Terrain\HeightmapEditorHelper.h">
       <Filter>Framework\Graphics\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\ProceduralAdditionHelper.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\ProceduralGenerator.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\ProceduralParameters.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\QMeshNode.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\QNode.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\QNodeType.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\QuadTree.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\QuadTreeMesh.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\QuadTreeRenderer.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\TerrainParameters.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
     <ClInclude Include="Framework\Graphics\Terrain\WaterErosion.h">
       <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Graphics\Terrain\TerrainPointCollider.h">
+      <Filter>Framework\Graphics\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\General\Collision\PointColliderController.h">
+      <Filter>Framework\General\Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

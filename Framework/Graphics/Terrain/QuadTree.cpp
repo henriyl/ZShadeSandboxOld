@@ -1,13 +1,13 @@
 #include "QuadTree.h"
 #include "Convert.h"
 #include "TextureManager.h"
+#include "ZMath.h"
 using ZShadeSandboxTerrain::QuadTree;
 //==============================================================================================================================
 QuadTree::QuadTree(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp, GameDirectory3D* gd3d)
 :   m_d3d(d3d)
 ,   m_heightmapName(tp.g_heightmapName)
 ,	m_procedural(tp.g_procedural)
-//,	m_mapExt(tp.g_extension)
 ,	m_makeFlat(tp.g_makeFlat)
 ,	m_heightScale(tp.g_heightScale)
 ,	m_cellSpacing(tp.g_cellSpacing)
@@ -20,10 +20,16 @@ QuadTree::QuadTree(D3D* d3d, ZShadeSandboxTerrain::TerrainParameters tp, GameDir
 ,   m_seaLevel(tp.g_seaLevel)
 ,	m_GameDirectory3D(gd3d)
 ,	mProceduralParameters(tp.g_proceduralParameters)
+,	m_loaded(false)
 {
 	m_EngineOptions = m_d3d->GetEngineOptions();
 	m_terrainZScale = 1;
-	LoadQuadTree();
+	m_TotalLeavesInRow = 0;
+	
+	if (ZShadeSandboxMath::ZMath::IsPowerOf2(m_QuadTreeSize))
+	{
+		LoadQuadTree();
+	}
 }
 //==============================================================================================================================
 QuadTree::QuadTree(const QuadTree& qtree)
@@ -63,6 +69,8 @@ void QuadTree::LoadQuadTree()
 
 	// Print the bounding box coord to a file
 	Print();
+	
+	m_loaded = true;
 }
 //==============================================================================================================================
 void QuadTree::BuildHeight()
@@ -78,7 +86,7 @@ void QuadTree::BuildHeight()
 		{
 			if (m_useHeight)
 			{
-				height = GetHeight(x, z);
+				height = ReadHeight(x, z);
 			}
 			
 			//Build the heightmap vector
@@ -94,13 +102,13 @@ void QuadTree::BuildHeight()
 	m_triangleCount = vertexCount / 3;
 }
 //==============================================================================================================================
-void QuadTree::UpdateHeightValues(float heightScale, float zScale)
-{
-	//m_heightmap->UpdateHeightValues(heightScale, zScale);
-
-	m_heightScale = heightScale;
-	m_terrainZScale = zScale;
-}
+//void QuadTree::UpdateHeightValues(float heightScale, float zScale)
+//{
+//	//m_heightmap->UpdateHeightValues(heightScale, zScale);
+//
+//	m_heightScale = heightScale;
+//	m_terrainZScale = zScale;
+//}
 //==============================================================================================================================
 void QuadTree::LoadMap(string heightmap)
 {
@@ -108,21 +116,23 @@ void QuadTree::LoadMap(string heightmap)
 	
 	string heightmapName = m_GameDirectory3D->m_heightmaps_path + "\\" + heightmap;
 	
-	m_heightmap = new ZShadeSandboxTerrain::Heightmap(heightmapName, m_QuadTreeSize, m_QuadTreeSize, m_heightScale, m_seaLevel, 70);
+	//m_heightmap = new ZShadeSandboxTerrain::Heightmap(heightmapName, m_QuadTreeSize, m_QuadTreeSize, m_heightScale, m_seaLevel, 70);
 	
-	m_QuadTreeSize = m_heightmap->Height();
+	m_heightmap = new ZShadeSandboxTerrain::Heightmap(heightmapName, mProceduralParameters, m_heightScale);
+	
+	m_QuadTreeSize = m_heightmap->HeightmapSize();
 }
 //==============================================================================================================================
 void QuadTree::LoadMap()
 {
 	m_useHeight = true;
 	
-	m_heightmap = new ZShadeSandboxTerrain::Heightmap(mProceduralParameters, m_QuadTreeSize, m_QuadTreeSize, m_heightScale, m_seaLevel, 70);
+	m_heightmap = new ZShadeSandboxTerrain::Heightmap(mProceduralParameters, m_heightScale);
 
-	m_QuadTreeSize = m_heightmap->Height();
+	m_QuadTreeSize = m_heightmap->HeightmapSize();
 }
 //==============================================================================================================================
-bool QuadTree::InHeightmap(float x, float z)
+/*bool QuadTree::InHeightmap(float x, float z)
 {
 	if (m_useHeight)
 	{
@@ -141,23 +151,11 @@ float QuadTree::GetHeight(float x, float z)
 {
 	if (InHeightmap(x, z))
 	{
-		/*if (m_mapExt == EHeightExtension::eRaw)
-		{
-			int index = (z * m_QuadTreeSize) + x;
-			float h = m_heightmap->SampleHeight(index);
-			return h;
-		}
-		else
-		{
-			float h = m_heightmap->SampleHeight(x, z);
-			return h;
-		}*/
-		
 		return m_heightmap->SampleHeight(x, z);
 	}
 
 	return 0;
-}
+}*/
 //==============================================================================================================================
 int QuadTree::GetNodeCount()
 {
@@ -175,6 +173,7 @@ void QuadTree::InitializeTree()
 {
 	m_totalTreeID = 0;
 	m_totalLeaves = (m_QuadTreeSize / (m_leafWidth - 1)) * (m_QuadTreeSize / (m_leafWidth - 1));
+	m_TotalLeavesInRow = m_totalLeaves / 2;
 	m_nodeCount = numberOfNodes(m_totalLeaves, m_leafWidth - 1);
 }
 //==============================================================================================================================
@@ -541,8 +540,8 @@ XMFLOAT2 QuadTree::MinMaxY(XMFLOAT3 topLeft, XMFLOAT3 bottomRight)
 	{
 		for (int z = (int)topLeft.z; z < bottomRight.z; z++)
 		{
-			fmin = min(fmin, m_heightmap->SampleHeight((z * MapSize()) + x));
-			fmax = max(fmax, m_heightmap->SampleHeight((z * MapSize()) + x));
+			fmin = min(fmin, m_heightmap->GetHeightmap().ReadHeight((z * MapSize()) + x));
+			fmax = max(fmax, m_heightmap->GetHeightmap().ReadHeight((z * MapSize()) + x));
 		}
 	}
 	

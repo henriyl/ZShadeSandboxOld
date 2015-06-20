@@ -12,13 +12,13 @@ Triangle::Triangle(const Triangle& tri)
 	deep_copy(tri);
 }
 //==================================================================================================================================
-Triangle::Triangle(TVertex v[3])
+Triangle::Triangle(ZShadeSandboxMath::XMMath3 v[3])
 :   bUseIndices(false)
 {
 	copy_vertices(v);
 }
 //==================================================================================================================================
-Triangle::Triangle(TVertex v1, TVertex v2, TVertex v3)
+Triangle::Triangle(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3)
 :   bUseIndices(false)
 {
 	copy_vertices(v1, v2, v3);
@@ -30,14 +30,14 @@ Triangle::Triangle(float x1, float y1, float z1, float x2, float y2, float z2, f
 	copy_vertices(x1, y1, z1, x2, y2, z2, x3, y3, z3);
 }
 //==================================================================================================================================
-Triangle::Triangle(TVertex v[3], UINT ind[3])
+Triangle::Triangle(ZShadeSandboxMath::XMMath3 v[3], UINT ind[3])
 :   bUseIndices(true)
 {
 	copy_vertices(v);
 	copy_indices(ind);
 }
 //==================================================================================================================================
-Triangle::Triangle(TVertex v1, TVertex v2, TVertex v3, UINT ind1, UINT ind2, UINT ind3)
+Triangle::Triangle(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3, UINT ind1, UINT ind2, UINT ind3)
 :   bUseIndices(true)
 {
 	copy_vertices(v1, v2, v3);
@@ -62,14 +62,14 @@ void Triangle::deep_copy(const Triangle& tri)
 	mIndices[2] = tri.Indices()[2];
 }
 //==================================================================================================================================
-void Triangle::copy_vertices(TVertex v[3])
+void Triangle::copy_vertices(ZShadeSandboxMath::XMMath3 v[3])
 {
 	mVertex[0] = v[0];
 	mVertex[1] = v[1];
 	mVertex[2] = v[2];
 }
 //==================================================================================================================================
-void Triangle::copy_vertices(TVertex v1, TVertex v2, TVertex v3)
+void Triangle::copy_vertices(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3)
 {
 	mVertex[0] = v1;
 	mVertex[1] = v2;
@@ -78,9 +78,9 @@ void Triangle::copy_vertices(TVertex v1, TVertex v2, TVertex v3)
 //==================================================================================================================================
 void Triangle::copy_vertices(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3)
 {
-	mVertex[0] = TVertex(x1, y1, z1);
-	mVertex[1] = TVertex(x2, y2, z2);
-	mVertex[2] = TVertex(x3, y3, z3);
+	mVertex[0] = ZShadeSandboxMath::XMMath3(x1, y1, z1);
+	mVertex[1] = ZShadeSandboxMath::XMMath3(x2, y2, z2);
+	mVertex[2] = ZShadeSandboxMath::XMMath3(x3, y3, z3);
 }
 //==================================================================================================================================
 void Triangle::copy_indices(UINT ind[3])
@@ -99,9 +99,9 @@ void Triangle::copy_indices(UINT ind1, UINT ind2, UINT ind3)
 //==================================================================================================================================
 vector<Triangle*> Triangle::split4()
 {
-	TVertex A = mVertex[0];
-	TVertex B = mVertex[1];
-	TVertex C = mVertex[2];
+	ZShadeSandboxMath::XMMath3 A = mVertex[0];
+	ZShadeSandboxMath::XMMath3 B = mVertex[1];
+	ZShadeSandboxMath::XMMath3 C = mVertex[2];
 	
 	UINT ind1 = mIndices[0];
 	UINT ind2 = mIndices[1];
@@ -121,7 +121,7 @@ vector<Triangle*> Triangle::split4()
 	// Create the midpoints of each vertex
 	//
 	
-	TVertex mA, mB, mC;
+	ZShadeSandboxMath::XMMath3 mA, mB, mC;
 	
 	// Middle of side AB
 	mA.x = 0.5f * (A.x + B.x);
@@ -188,9 +188,9 @@ vector<Triangle*> Triangle::split4()
 //==================================================================================================================================
 vector<Triangle*> Triangle::split2()
 {
-	TVertex A = mVertex[0];
-	TVertex B = mVertex[1];
-	TVertex C = mVertex[2];
+	ZShadeSandboxMath::XMMath3 A = mVertex[0];
+	ZShadeSandboxMath::XMMath3 B = mVertex[1];
+	ZShadeSandboxMath::XMMath3 C = mVertex[2];
 	
 	UINT ind1 = mIndices[0];
 	UINT ind2 = mIndices[1];
@@ -210,7 +210,7 @@ vector<Triangle*> Triangle::split2()
 	// Create the midpoint of the vertex
 	//
 	
-	TVertex mC;
+	ZShadeSandboxMath::XMMath3 mC;
 	
 	// Middle of side AC
 	mC.x = 0.5f * (A.x + C.x);
@@ -261,9 +261,9 @@ vector<Triangle*> Triangle::split2()
 //==================================================================================================================================
 void Triangle::FindCentroid()
 {
-	TVertex A = mVertex[0];
-	TVertex B = mVertex[1];
-	TVertex C = mVertex[2];
+	ZShadeSandboxMath::XMMath3 A = mVertex[0];
+	ZShadeSandboxMath::XMMath3 B = mVertex[1];
+	ZShadeSandboxMath::XMMath3 C = mVertex[2];
 	
 	// first construct the midpoints of each side.
 	// Next, connect each midpoint to its opposite vertex, thus creating the medians of the triangle.
@@ -283,7 +283,7 @@ void Triangle::FindCentroid()
 	// Create the midpoints of each vertex
 	//
 	
-	TVertex mA, mB, mC;
+	ZShadeSandboxMath::XMMath3 mA, mB, mC;
 	
 	// Middle of side AB
 	mA.x = 0.5f * (A.x + B.x);
@@ -325,10 +325,10 @@ void Triangle::FindCentroid()
 //==================================================================================================================================
 /*IntersectInfo Triangle::TwoLinesIntersect(TLine line1, TLine line2)
 {
-	TVertex a = line1.v1;
-	TVertex b = line1.v2;
-	TVertex c = line2.v1;
-	TVertex d = line2.v2;
+	ZShadeSandboxMath::XMMath3 a = line1.v1;
+	ZShadeSandboxMath::XMMath3 b = line1.v2;
+	ZShadeSandboxMath::XMMath3 c = line2.v1;
+	ZShadeSandboxMath::XMMath3 d = line2.v2;
 	
 	// The dot product
 	float den = ((d.y - c.y) * (b.x - a.x) - (d.x - c.x) * (b.y - a.y));
@@ -356,19 +356,19 @@ void Triangle::FindCentroid()
 	return IntersectInfo::eCollides;
 }
 */
-double Dot(const TVertex& a,const TVertex& b)
+double Dot(const ZShadeSandboxMath::XMMath3& a,const ZShadeSandboxMath::XMMath3& b)
 {
 	return (a.x * b.x) + (a.y * b.y);
 }
-double PerpDot(const TVertex& a,const TVertex& b)
+double PerpDot(const ZShadeSandboxMath::XMMath3& a,const ZShadeSandboxMath::XMMath3& b)
 {
 	return (a.y * b.x) - (a.x * b.y);
 }
-bool LineCollision(const TVertex& A1, const TVertex& A2,
-                   const TVertex& B1, const TVertex& B2,
-                   TVertex& out)
+bool LineCollision(const ZShadeSandboxMath::XMMath3& A1, const ZShadeSandboxMath::XMMath3& A2,
+                   const ZShadeSandboxMath::XMMath3& B1, const ZShadeSandboxMath::XMMath3& B2,
+                   ZShadeSandboxMath::XMMath3& out)
 {
-    TVertex a, b, c;
+    ZShadeSandboxMath::XMMath3 a, b, c;
 	
 	a.x = A2.x - A1.x;
 	a.y = A2.y - A1.y;
@@ -417,24 +417,24 @@ bool LineCollision(const TVertex& A1, const TVertex& A2,
     return true;
 }
 //==================================================================================================================================
-bool Triangle::ThreeLinesIntersect(TLine line1, TLine line2, TLine line3, TVertex& center)
+bool Triangle::ThreeLinesIntersect(TLine line1, TLine line2, TLine line3, ZShadeSandboxMath::XMMath3& center)
 {
 	// Check first two lines
-	TVertex point1;
+	ZShadeSandboxMath::XMMath3 point1;
 	if (!LineCollision(line1.v1, line1.v2, line2.v1, line2.v2, point1))
 	{
 		return false;
 	}
 	
 	// Check last two lines
-	TVertex point2;
+	ZShadeSandboxMath::XMMath3 point2;
 	if (!LineCollision(line2.v1, line2.v2, line3.v1, line3.v2, point2))
 	{
 		return false;
 	}
 	
 	// Check first and last lines
-	TVertex point3;
+	ZShadeSandboxMath::XMMath3 point3;
 	if (!LineCollision(line1.v1, line1.v2, line3.v1, line3.v2, point3))
 	{
 		return false;
@@ -485,9 +485,9 @@ void Swap(UINT& i1, UINT& i2)
 	i1 ^= i2;
 }
 //==================================================================================================================================
-void Swap(TVertex& v1, TVertex& v2)
+void Swap(ZShadeSandboxMath::XMMath3& v1, ZShadeSandboxMath::XMMath3& v2)
 {
-	TVertex temp = v1;
+	ZShadeSandboxMath::XMMath3 temp = v1;
 	v1 = v2;
 	v2 = temp;
 }
@@ -554,25 +554,5 @@ void Triangle::SetClockwise()
 			}
 		}
 	}
-}
-//==================================================================================================================================
-TVertex::TVertex()
-:   x(0), y(0), z(0)
-{
-}
-//==================================================================================================================================
-TVertex::TVertex(const TVertex& v)
-:   x(v.x), y(v.y), z(v.z)
-{
-}
-//==================================================================================================================================
-TVertex::TVertex(float x, float y, float z)
-:   x(x), y(y), z(z)
-{
-}
-//==================================================================================================================================
-bool TVertex::operator == (const TVertex& o)
-{
-	return ((x == o.x) && (y == o.y) && (z == o.z));
 }
 //==================================================================================================================================

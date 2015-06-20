@@ -117,12 +117,12 @@ bool Environment3D::Init(bool init_lua)
 	
 	m_Timer.Initialize();
 	
-	m_CameraSystem.reset(new Camera(m_EngineOptions));
-	m_CameraSystem->SetLens(PI / 4, (float)m_EngineOptions->m_screenWidth/(float)m_EngineOptions->m_screenHeight,
-		m_EngineOptions->fNearPlane, m_EngineOptions->fFarPlane);
+	m_CameraSystem = new Camera(m_EngineOptions);
+	float aspect = (float)m_EngineOptions->m_screenWidth / (float)m_EngineOptions->m_screenHeight;
+	m_CameraSystem->SetLens(PI / 4, aspect, m_EngineOptions->fNearPlane, m_EngineOptions->fFarPlane);
 	m_CameraSystem->SetPosition(0.0f, 0.0f, -10.0f);
 	m_CameraSystem->SetWorld(XMMatrixIdentity());
-
+	
 	float xPos = 0.0f;
 	float yPos = 10.0f;
 	
@@ -755,7 +755,7 @@ void Environment3D::RenderMaster()
 		}
 		m_D3DSystem->GBufferEnd();
 
-		ZShadeSandboxLighting::DeferredShaderManager::Instance()->Render(m_CameraSystem.get(), bWireframeMode);
+		ZShadeSandboxLighting::DeferredShaderManager::Instance()->Render(m_CameraSystem, bWireframeMode);
 		
 		RenderSky(false, false);
 
@@ -827,20 +827,20 @@ void Environment3D::RenderSky(bool reflections, bool deferred)
 
 	if (reflections)
 	{
-		mSky->RenderWithReflection(m_D3DSystem, m_CameraSystem.get(), fSeaLevel, deferred);
+		mSky->RenderWithReflection(m_D3DSystem, m_CameraSystem, fSeaLevel, deferred);
 		
 		if (bToggleSkyPlane)
 		{
-			mSkyPlane->RenderWithReflection(m_D3DSystem, m_CameraSystem.get(), fSeaLevel);
+			mSkyPlane->RenderWithReflection(m_D3DSystem, m_CameraSystem, fSeaLevel);
 		}
 	}
 	else// Normal Sky
 	{
-		mSky->Render(m_D3DSystem, m_CameraSystem.get(), deferred);
+		mSky->Render(m_D3DSystem, m_CameraSystem, deferred);
 		
 		if (bToggleSkyPlane)
 		{
-			mSkyPlane->Render(m_D3DSystem, m_CameraSystem.get(), fSeaLevel);
+			mSkyPlane->Render(m_D3DSystem, m_CameraSystem, fSeaLevel);
 		}
 	}
 

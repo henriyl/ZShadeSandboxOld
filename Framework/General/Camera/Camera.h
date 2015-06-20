@@ -24,6 +24,8 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
+#include "Triangle.h"
+
 //==================================================================================================================================
 //==================================================================================================================================
 
@@ -95,13 +97,14 @@ class Camera
 	// For 2D
 	XMFLOAT3 mCamMapPosition;
 	
+	bool mMoved;
+
 	bool mRenderReflectionView;
+	bool mTerrainCollisionOn;
 	
 	// Third Person camera attributes
 	bool mThirdPerson;
 	Arm mArm;
-	//XMFLOAT3 mThirdPersonTargetPosition;
-	//float mTargetDist;
 	
 	float mMoveStrafe;
 	float mMoveWalk;
@@ -151,6 +154,10 @@ class Camera
 	
 	void BuildFrustumConeSphere();
 
+	//vector<Triangle*> mColliderTriangles;
+	vector<XMFLOAT3> vertexList;
+	vector<UINT> indexList;
+
 public:
 	
 	Camera(EngineOptions* eo);
@@ -161,6 +168,10 @@ public:
 	void BuildCameraConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer, XMMATRIX world, bool reflection);
 	void BuildCameraConstantBuffer(D3D* d3d, ID3D11Buffer*& buffer, ZShadeSandboxLighting::Light* light, XMMATRIX world, bool reflection);
 	
+	void SetVertexList(vector<XMFLOAT3> vl) { vertexList = vl; }
+	void SetIndexList(vector<UINT> il) { indexList = il; }
+
+	//void SetColliderTriangles(vector<Triangle*> triangles) { mColliderTriangles = triangles; }
 
 	Frustum* ViewingFrustum() { return m_ViewingFrustum; }
 	ZShadeSandboxMath::SpherePrimitive Sphere() { return m_Sphere; }
@@ -203,6 +214,14 @@ public:
 	XMFLOAT3 Forward();
 	XMFLOAT3 Up();
 
+	XMVECTOR VDirection();
+	XMVECTOR VPosition();
+	XMVECTOR VMapPosition();
+	XMVECTOR VTarget();
+	XMVECTOR VRight();
+	XMVECTOR VForward();
+	XMVECTOR VUp();
+
 	void SetWorld(XMMATRIX m)			{ mWorld = m; }
 	void SetView(XMMATRIX m)			{ mView = m; }
 	void SetProj(XMMATRIX m)			{ mProj = m; }
@@ -232,10 +251,12 @@ public:
 	void AttachTarget(Arm a);
 	bool& ThirdPerson() 						{ return mThirdPerson; }
 	bool ThirdPerson() const					{ return mThirdPerson; }
-	//XMFLOAT3& ThirdPersonTargetPosition() 		{ return mThirdPersonTargetPosition; }
-	//XMFLOAT3 ThirdPersonTargetPosition() const 	{ return mThirdPersonTargetPosition; }
-	//float& TargetDist()							{ return mTargetDist; }
-	//float TargetDist() const					{ return mTargetDist; }
+	
+	void TerrainCollisionUpdateBegin();
+	void TerrainCollisionUpdateEnd();
+	
+	bool& TerrainCollisionOn() 					{ return mTerrainCollisionOn; }
+	bool TerrainCollisionOn() const				{ return mTerrainCollisionOn; }
 	
 	float FovY()			{ return mFovY; }
 	float AspectRatio()		{ return mAspect; }

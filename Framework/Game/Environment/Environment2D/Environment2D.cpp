@@ -56,7 +56,7 @@ bool Environment2D::Init(LPCSTR base_window_name, LPCSTR render_window_name, boo
 	ZShadeSandboxShader::Shaders::Build(m_D3DSystem);
 
 	//Initialize the Camera
-	m_CameraSystem.reset(new Camera(m_EngineOptions));
+	m_CameraSystem = new Camera(m_EngineOptions);
 	if (!m_CameraSystem) return false;
 	m_CameraSystem->SetPosition(0.0f, 0.0f, -15.0f);
 	ZShadeSandboxMath::XMMatrix world(XMMatrixIdentity());
@@ -407,11 +407,11 @@ bool Environment2D::RenderMaster()
 		{
 			m_D3DSystem->TurnOffZBuffer();
 			{
-				m_MenuSystem->Render(m_CameraSystem.get());
+				m_MenuSystem->Render(m_CameraSystem);
 
 				if (m_MenuEditorSystem != NULL)
 				{
-					m_MenuEditorSystem->Render(m_CameraSystem.get());
+					m_MenuEditorSystem->Render(m_CameraSystem);
 				}
 			}
 			m_D3DSystem->TurnOnZBuffer();
@@ -446,7 +446,7 @@ bool Environment2D::RenderMaster()
 					}
 					else// Just render the game
 					{
-						world->Render(m_CameraSystem.get());
+						world->Render(m_CameraSystem);
 					}
 				}
 				else if (m_EngineOptions->m_GameType2D == PLATFORMER)
@@ -462,9 +462,9 @@ bool Environment2D::RenderMaster()
 					}
 
 					if (m_Background != NULL)
-						m_Background->Render(m_CameraSystem.get(), mapWidth, 0);
+						m_Background->Render(m_CameraSystem, mapWidth, 0);
 
-					world->Render(m_CameraSystem.get());
+					world->Render(m_CameraSystem);
 
 					//if (m_EngineOptions->m_inEditor)
 					//	m_MapEditorSystem2D->RenderStampSprites(m_CameraSystem.get());

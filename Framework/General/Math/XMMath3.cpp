@@ -436,6 +436,56 @@ ZShadeSandboxMath::XMMath3& ZShadeSandboxMath::XMMath3::operator = (const ZShade
 	return *this;
 }
 //==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::Equals(const ZShadeSandboxMath::XMMath3& val)
+{
+	return (x == val.x && y == val.y && z == val.z);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::LessThanEquals(const ZShadeSandboxMath::XMMath3& val)
+{
+	return (x <= val.x && y <= val.y && z <= val.z);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::GreaterThanEquals(const ZShadeSandboxMath::XMMath3& val)
+{
+	return (x >= val.x && y >= val.y && z >= val.z);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::LessThan(const ZShadeSandboxMath::XMMath3& val)
+{
+	return (x < val.x && y < val.y && z < val.z);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::GreaterThan(const ZShadeSandboxMath::XMMath3& val)
+{
+	return (x > val.x && y > val.y && z > val.z);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator <= (const ZShadeSandboxMath::XMMath3& val)
+{
+	return LessThanEquals(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator >= (const ZShadeSandboxMath::XMMath3& val)
+{
+	return GreaterThanEquals(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator < (const ZShadeSandboxMath::XMMath3& val)
+{
+	return LessThan(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator > (const ZShadeSandboxMath::XMMath3& val)
+{
+	return GreaterThan(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator == (const ZShadeSandboxMath::XMMath3& val)
+{
+	return Equals(val);
+}
+//==============================================================================================================================
 void ZShadeSandboxMath::XMMath3::Add(const float& val)
 {
 	x += val;
@@ -516,5 +566,55 @@ ZShadeSandboxMath::XMMath3& ZShadeSandboxMath::XMMath3::operator = (const float&
 {
 	Assign(val);
 	return *this;
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::Equals(const float& val)
+{
+	return (x == val && y == val && z == val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::LessThanEquals(const float& val)
+{
+	return (x <= val && y <= val && z <= val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::GreaterThanEquals(const float& val)
+{
+	return (x >= val && y >= val && z >= val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::LessThan(const float& val)
+{
+	return (x < val && y < val && z < val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::GreaterThan(const float& val)
+{
+	return (x > val && y > val && z > val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator <= (const float& val)
+{
+	return LessThanEquals(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator >= (const float& val)
+{
+	return GreaterThanEquals(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator < (const float& val)
+{
+	return LessThan(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator > (const float& val)
+{
+	return GreaterThan(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath3::operator == (const float& val)
+{
+	return Equals(val);
 }
 //==============================================================================================================================

@@ -5,6 +5,7 @@
 #include "LightShadingBuffers.h"
 #include "MaterialManager.h"
 #include "ProjectedCamera.h"
+#include "PointColliderController.h"
 
 //===============================================================================================================================
 //===============================================================================================================================
@@ -31,6 +32,8 @@ void TerrainEnvironment::Init()
 	bEnableTessellation = true;
 	bEnableReflections = false;
 	bEnableRefractions = false;
+
+	bTerrainTrianglesAdded = false;
 
 	m_CameraSystem->SetPosition(0.0f, 100.0f, 100.0f);
 	
@@ -77,7 +80,7 @@ void TerrainEnvironment::Init()
 		}
 	}
 	
-	fMapSize = 256;
+	fMapSize = 128;
 	fMinDist = 20.0f;
 	fMaxDist = fMapSize / 2;
 	fHeightScale = 1.0f;
@@ -102,16 +105,18 @@ void TerrainEnvironment::Init()
 	tp.g_proceduralParameters.maxHeight = 100;
 	tp.g_proceduralParameters.terrainSize = fMapSize;
 	tp.g_proceduralParameters.diamondSquareFeatureSize = fMapSize;
-	tp.g_proceduralParameters.diamondSquareScale = 2;
+	tp.g_proceduralParameters.diamondSquareScale = 1;
 	tp.g_proceduralParameters.proceduralType = ZShadeSandboxTerrain::EProceduralType::Type::eDiamondSquare;
+	tp.g_proceduralParameters.diamondSquareType = ZShadeSandboxTerrain::EDiamondSquareType::Type::eBicubic;
 	tp.g_proceduralParameters.useErosion = true;
 	tp.g_proceduralParameters.useSmoothing = true;
 	tp.g_proceduralParameters.normalize = false;
+	tp.g_proceduralParameters.useThermalWeathering = false;
 	tp.g_proceduralParameters.erosionType = ZShadeSandboxTerrain::EErosionType::Type::eWater;
 	tp.g_proceduralParameters.waterErosionParameters.terrainSize = fMapSize;
 	tp.g_proceduralParameters.waterErosionParameters.seaLevel = fSeaLevel;
-	tp.g_proceduralParameters.waterErosionParameters.waterSourceHeight = 90;
-	tp.g_proceduralParameters.waterErosionParameters.thermalPowerMultiplier = 1.0f;
+	tp.g_proceduralParameters.waterErosionParameters.waterSourceHeight = 1;
+	tp.g_proceduralParameters.waterErosionParameters.thermalPowerMultiplier = 15.0f;
 	tp.g_proceduralParameters.waterErosionParameters.deltaT = 0.005f;
 	tp.g_proceduralParameters.waterErosionParameters.pipeLength = 1.0f;
 	tp.g_proceduralParameters.waterErosionParameters.pipeCrossectionArea = 20.0f;
@@ -121,9 +126,11 @@ void TerrainEnvironment::Init()
 	tp.g_proceduralParameters.waterErosionParameters.depositionConstant = 1.0f;
 	tp.g_proceduralParameters.waterErosionParameters.minimumComputedSurfaceTilt = 0.1f;
 	tp.g_proceduralParameters.waterErosionParameters.talusAngle = 0.5f;
-	tp.g_proceduralParameters.waterErosionParameters.erosionDuration = 0.5f;
-	tp.g_proceduralParameters.waterErosionParameters.applyThermalWeathering = false;
-	tp.g_proceduralParameters.waterErosionParameters.applyEvaporation = false;
+	tp.g_proceduralParameters.waterErosionParameters.erosionDuration = 3;
+	tp.g_proceduralParameters.waterErosionParameters.erosionType = ZShadeSandboxTerrain::EWaterErosion::Type::eThermal;
+	tp.g_proceduralParameters.waterErosionParameters.normalErosionRounds = 2;
+	tp.g_proceduralParameters.waterErosionParameters.normalErosionFactor = 50;
+	tp.g_proceduralParameters.waterErosionParameters.enableNormalErosionSedimentation = true;
 	
 	m_pQuadTreeMesh = new ZShadeSandboxTerrain::QuadTreeMesh(m_D3DSystem, tp, m_GameDirectory3D);
 	
@@ -421,11 +428,86 @@ void TerrainEnvironment::Render()
 		}
 	}
 	
+	//if (bClipCameraToTerrain)
+	//{
+	//	//	// The camera has collided with the terrain
+	//	m_CameraSystem->TerrainCollisionOn() = true;
+
+	//	if (!bTerrainTrianglesAdded)
+	//	{
+	//		m_CameraSystem->SetVertexList(m_pQuadTreeMesh->VertexList());
+	//		m_CameraSystem->SetIndexList(m_pQuadTreeMesh->IndexList());
+
+	//		bTerrainTrianglesAdded = true;
+	//	}
+	//}
+	//else
+	//{
+	//	m_CameraSystem->TerrainCollisionOn() = false;
+	//	bTerrainTrianglesAdded = false;
+	//}
+
+	//if (bClipCameraToTerrain)
+	//{
+	//	// The camera has collided with the terrain
+	//	m_CameraSystem->TerrainCollisionOn() = true;
+
+	//	vector<Triangle*> tris;
+	//	if (m_pQuadTreeMesh->Colliding(m_CameraSystem->Position(), tris))
+	//	{
+	//		//m_CameraSystem->SetColliderTriangles(tris);
+	//		
+	//		/*ZShadeSandboxPhysics::PointColliderController collider;
+	//		XMFLOAT3 intersectionPoint;
+
+	//		bool colliding = collider.Colliding(
+	//			100.0f,
+	//			-1.0f,
+	//			m_CameraSystem->Position(),
+	//			m_CameraSystem->MoveStrafe(),
+	//			ZShadeSandboxMath::XMMath3(m_CameraSystem->Right()),
+	//			m_CameraSystem->MoveWalk(),
+	//			ZShadeSandboxMath::XMMath3(m_CameraSystem->Forward()),
+	//			tris,
+	//			intersectionPoint
+	//		);
+
+	//		m_CameraSystem->SetPosition(intersectionPoint);*/
+
+	//		ZShadeSandboxTerrain::TerrainPointCollider mTerrainPointCollider;
+	//		XMFLOAT3 intersectionPoint;
+
+	//		float unitsPerMeter = 100.0f;
+	//		float gravity = -2.0f;
+	//		mTerrainPointCollider.CameraColliding(unitsPerMeter, gravity, m_CameraSystem, tris, intersectionPoint);
+
+	//		m_CameraSystem->SetPosition(intersectionPoint);
+	//	}
+
+	//	//if (!bTerrainTrianglesAdded)
+	//	//{
+	//	//	m_CameraSystem->SetColliderTriangles(m_pQuadTreeMesh->InternalTriangles());
+	//	//	bTerrainTrianglesAdded = true;
+	//	//}
+	//}
+	//else
+	//{
+	//	m_CameraSystem->TerrainCollisionOn() = false;
+	//	bTerrainTrianglesAdded = false;
+	//}
+
+	/*if (bClipCameraToTerrain)
+	{
+		float unitsPerMeter = 50.0f;
+		float gravity = -0.1f;
+		m_pQuadTreeMesh->CameraColliding(unitsPerMeter, gravity, m_CameraSystem);
+	}
+	else
+	{
+		m_CameraSystem->TerrainCollisionOn() = false;
+	}*/
+	
 	// Mouse Picking Terrain Collision Test
-	//POINT p;
-	//GetCursorPos(&p);
-	//ScreenToClient(m_BaseWindow->GetHwnd(), &p);
-	//mPickingRay = m_CameraSystem->PickingRay(p.x, p.y, m_pQuadTreeRenderer->GetWorld());
 	mPickingRay = m_CameraSystem->PickingRay(mLastMousePos.x, mLastMousePos.y, m_pQuadTreeRenderer->GetWorld());
 	
 	if (mPickingRay != NULL)
@@ -439,29 +521,6 @@ void TerrainEnvironment::Render()
 			m_pQuadTreeMesh->Intersects(ray, hit, hitPoint);
 			if (hit)
 			{
-				//XMFLOAT3 transHitPoint;
-				//m_pQuadTreeMesh->TransformPoint(hitPoint, transHitPoint);
-				
-				//m_pQuadTreeRenderer->UpdateGroundCursor(hitPoint);
-				
-				////mGroundCursorMesh->Position() = hitPoint;
-				//// This must not be called every frame because it will kill the frame rate
-				//if (mGroundCursorMesh->Position().x != hitPoint.x
-				//&&	mGroundCursorMesh->Position().y != hitPoint.y
-				//&&	mGroundCursorMesh->Position().z != hitPoint.z)
-				//{
-				//	mGroundCursorMesh->Position() = hitPoint;
-				//	// Need to create an area from the hitPoint to size of the ground cursor
-				//	// and sample the height from the terrain in those points to create a texture containing those points
-				//	// then send this new displacement to the ground cursor
-				//	ID3D11ShaderResourceView* heightAreaSRV = NULL;
-				//	m_pQuadTreeMesh->GenerateHeightQuad(hitPoint, 10, heightAreaSRV);
-				//	if (heightAreaSRV != NULL)
-				//	{
-				//		mGroundCursorMesh->GetMaterial()->SetMaterialDisplacementMapTexture(heightAreaSRV);
-				//	}
-				//}
-				
 				// Create a sphere at the point of intersection
 				mPickingSphere->Position() = hitPoint;
 			}
@@ -490,7 +549,7 @@ void TerrainEnvironment::Render()
 	}
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	
 	vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
@@ -571,7 +630,7 @@ void TerrainEnvironment::Render()
 	m_pQuadTreeMesh->HeightScale() = fHeightScale;
 	m_pQuadTreeMesh->TerrainZScale() = fTerrSize;
 	
-	m_pQuadTreeRenderer->Render(m_CameraSystem.get(), mDirLight1, tsc);
+	m_pQuadTreeRenderer->Render(m_CameraSystem, mDirLight1, tsc);
 	
 	//
 	// Render the picking sphere
@@ -587,7 +646,7 @@ void TerrainEnvironment::Render()
 	//
 	
 	ZShadeSandboxLighting::LightRenderParameters lrp;
-	lrp.camera = m_CameraSystem.get();
+	lrp.camera = m_CameraSystem;
 	lrp.clipplane = XMFLOAT4(0, 0, 0, 0);
 	lrp.reflect = false;
 	lrp.renderDeferred = false;
@@ -652,13 +711,13 @@ void TerrainEnvironment::RenderTerrainShadowSSAO()
 	m_pQuadTreeMesh->TerrainZScale() = fTerrSize;
 
 	// Render the shadow map for the terrain
-	m_pQuadTreeRenderer->RenderShadowMap(m_CameraSystem.get(), mDirLight1->Perspective(), tsc);
+	m_pQuadTreeRenderer->RenderShadowMap(m_CameraSystem, mDirLight1->Perspective(), tsc);
 	
 	m_D3DSystem->SetBackBufferRenderTarget();
 	// Pop RT and reset to the normal view
 	m_D3DSystem->ResetViewport();
 	
-	m_pQuadTreeRenderer->RenderSSAO(m_CameraSystem.get(), mDirLight1->Perspective(), tsc);
+	m_pQuadTreeRenderer->RenderSSAO(m_CameraSystem, mDirLight1->Perspective(), tsc);
 
 	m_D3DSystem->SetBackBufferRenderTarget();
 	// Pop RT and reset to the normal view

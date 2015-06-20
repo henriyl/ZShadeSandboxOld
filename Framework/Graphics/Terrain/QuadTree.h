@@ -62,37 +62,39 @@ public:
 	// Returns the amount of nodes in the Quad Tree
 	int GetNodeCount();
 	
-	// Returns the height in a safe way
-	float GetHeight(float x, float z);
-	bool InHeightmap(float x, float z);
-	
-	void UpdateHeightValues(float heightScale, float zScale);
-
 public:
 	
-	bool& Tessellate()				{ return m_tessellate; }
-	bool Tessellate() const			{ return m_tessellate; }
-	int TriangleCount()const		{ return m_triangleCount; }
-	int TotalLeaves() const 		{ return m_totalLeaves; }
-	int LeafWidth() const			{ return m_leafWidth; }
-	int MapSize() const				{ return m_QuadTreeSize; }
-	int& TerrainScale()				{ return m_terrScale; }
-	int TerrainScale() const		{ return m_terrScale; }
-	bool UsingHeight() const		{ return m_useHeight; }
-	float GetCellSpacing()const		{ return m_cellSpacing; }
-	bool IsProcedural() const		{ return m_procedural; }
-	float SeaLevel() const			{ return m_seaLevel; }
-	GameDirectory3D* GetGD3D()		{ return m_GameDirectory3D; }
+	bool IsLoaded() const						{ return m_loaded; }
+	bool& Tessellate()							{ return m_tessellate; }
+	bool Tessellate() const						{ return m_tessellate; }
+	int TriangleCount()const					{ return m_triangleCount; }
+	int TotalLeaves() const 					{ return m_totalLeaves; }
+	int TotalLeavesInRow() const				{ return m_TotalLeavesInRow; }
+	int LeafWidth() const						{ return m_leafWidth; }
+	int MapSize() const							{ return m_QuadTreeSize; }
+	int& TerrainScale()							{ return m_terrScale; }
+	int TerrainScale() const					{ return m_terrScale; }
+	bool UsingHeight() const					{ return m_useHeight; }
+	float GetCellSpacing()const					{ return m_cellSpacing; }
+	bool IsProcedural() const					{ return m_procedural; }
+	float SeaLevel() const						{ return m_seaLevel; }
+	GameDirectory3D* GetGD3D()					{ return m_GameDirectory3D; }
 	
 	EHeightExtension::Type GetMapExt()const		{ return m_mapExt; }
 	ZShadeSandboxTerrain::QNode* GetNodes()		{ return m_nodes; }
-	vector<float> GetHeightmapVec() 			{ return heightmap_vec; }
-	int SampleHeight(int index) 				{ return m_heightmap->SampleHeight(index); }
-	int SampleHeight(int x, int z) 				{ return m_heightmap->SampleHeight(x, z); }
-	int SampleHeightVec(int x, int z)			{ return heightmap_vec[(z * m_QuadTreeSize) + x]; }
 	ID3D11ShaderResourceView* GetHeightMapSRV()	{ return mHeightMapSRV; }
 	
 	ZShadeSandboxMesh::ERenderType::Type GetRenderPrimitive() const { return m_RenderPrimitive; }
+	
+	// Returns the height in a safe way
+	float ReadX(int index) 						{ return m_heightmap->ReadX(index); }
+	float ReadX(int x, int z) 					{ return m_heightmap->ReadX(x, z); }
+	float ReadZ(int index) 						{ return m_heightmap->ReadZ(index); }
+	float ReadZ(int x, int z) 					{ return m_heightmap->ReadZ(x, z); }
+	float ReadHeight(int index) 				{ return m_heightmap->ReadHeight(index); }
+	float ReadHeight(int x, int z) 				{ return m_heightmap->ReadHeight(x, z); }
+	bool InHeightmap(int x, int z)				{ return m_heightmap->InBounds(x, z); }
+	bool InHeightmap(int index)					{ return m_heightmap->InBounds(index); }
 	
 private:
 	
@@ -138,6 +140,9 @@ private:
 	
 	// The total amount of leaves in the Quad Tree
 	int m_totalLeaves;
+	
+	// The total amount of leaves in one row in the Quad Tree
+	int m_TotalLeavesInRow;
 	
 	// Size of a leaf, must to be one more then it should be
 	int m_leafWidth;
@@ -199,6 +204,8 @@ private:
 	
 	// Lets the quad tree know where sea level is to load a flat Quad Tree at water level
 	float m_seaLevel;
+	
+	bool m_loaded;
 	
 	ZShadeSandboxTerrain::ProceduralParameters mProceduralParameters;
 

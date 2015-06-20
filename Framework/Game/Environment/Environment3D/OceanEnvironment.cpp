@@ -211,14 +211,14 @@ void OceanEnvironment::Render()
 	//
 	
 	//mLakeBed->SetDepthMap(mShadowTexture->SRView);
-	mLakeBed->Render(m_CameraSystem.get(), mDirLight1->Perspective());
+	mLakeBed->Render(m_CameraSystem, mDirLight1->Perspective());
 	
 	//
 	// Render a cube in the water
 	//
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.useInstancing = false;
 	
@@ -240,7 +240,7 @@ void OceanEnvironment::Render()
 		m_D3DSystem->TurnOnWireframe();
 	}
 	mWater->SetFarPlane(m_EngineOptions->fFarPlane);
-	mWater->Render(m_CameraSystem.get(), false, mReflectionTexture->SRView, mRefractionTexture->SRView);
+	mWater->Render(m_CameraSystem, false, mReflectionTexture->SRView, mRefractionTexture->SRView);
 	//mOceanSurface->SetReflectionMap(mReflectionTexture->SRView);
 	//mOceanSurface->SetRefractionMap(mRefractionTexture->SRView);
 	//mOceanSurface->Render(m_CameraSystem.get(), fSeaLevel, fFrameTime);
@@ -262,7 +262,7 @@ void OceanEnvironment::RenderDeferred()
 	}
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.useInstancing = false;
 	mrp.renderDeferred = true;
@@ -278,7 +278,7 @@ void OceanEnvironment::RenderDeferred()
 	// Render the mesh representing the floor of the water system
 	//
 
-	mLakeBed->Render(m_CameraSystem.get(), mDirLight1->Perspective(), true);
+	mLakeBed->Render(m_CameraSystem, mDirLight1->Perspective(), true);
 
 	//
 	// Render the ocean
@@ -291,7 +291,7 @@ void OceanEnvironment::RenderDeferred()
 		m_D3DSystem->TurnOnWireframe();
 	}
 	mWater->SetFarPlane(m_EngineOptions->fFarPlane);
-	mWater->Render(m_CameraSystem.get(), true, mReflectionTexture->SRView, mRefractionTexture->SRView);
+	mWater->Render(m_CameraSystem, true, mReflectionTexture->SRView, mRefractionTexture->SRView);
 	//mOceanSurface->SetReflectionMap(mReflectionTexture->SRView);
 	//mOceanSurface->SetRefractionMap(mRefractionTexture->SRView);
 	//mOceanSurface->Render(m_CameraSystem.get(), fSeaLevel, fFrameTime);
@@ -313,10 +313,10 @@ void OceanEnvironment::RenderShadowMap()
 	
 	mDirLight1->Update();
 	
-	mLakeBed->Render(m_CameraSystem.get(), mDirLight1->Perspective(), true);
+	mLakeBed->Render(m_CameraSystem, mDirLight1->Perspective(), true);
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.shadowMap = true;
 	mCubeAboveWater->Render(mrp);
@@ -338,10 +338,10 @@ void OceanEnvironment::RenderRefraction(XMFLOAT4 clipplane)
 	mDirLight1->Update();
 	
 	//mLakeBed->SetDepthMap(mShadowTexture->SRView);
-	mLakeBed->Render(m_CameraSystem.get(), mDirLight1->Perspective(), false, false, clipplane, false);
+	mLakeBed->Render(m_CameraSystem, mDirLight1->Perspective(), false, false, clipplane, false);
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.reflection = false;
 	mrp.clipplane = clipplane;
@@ -366,10 +366,10 @@ void OceanEnvironment::RenderReflection(XMFLOAT4 clipplane)
 	mDirLight1->Update();
 	
 	//mLakeBed->SetDepthMap(mShadowTexture->SRView);
-	mLakeBed->Render(m_CameraSystem.get(), mDirLight1->Perspective(), false, false, clipplane, true);
+	mLakeBed->Render(m_CameraSystem, mDirLight1->Perspective(), false, false, clipplane, true);
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.reflection = true;
 	mrp.clipplane = clipplane;

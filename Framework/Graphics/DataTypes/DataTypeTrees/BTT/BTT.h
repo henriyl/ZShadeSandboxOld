@@ -48,7 +48,7 @@ struct BinaryTriangle
 	BinaryTriangleTree* tree1 = new BinaryTriangleTree(detailLevel-1);
 	BinaryTriangle* bTT1 = new BinaryTriangle();
 	
-	TVertex v1[3];
+	ZShadeSandboxMath::XMMath3 v1[3];
 	v1[0] = vv1;
 	v1[1] = vv2;
 	v1[2] = vv3;
@@ -77,11 +77,11 @@ public:
 	
 	BTT();
 	BTT(int recursionLimit);
-	BTT(TVertex v[3], int recursionLimit, bool split = false, bool splitOnce = false);
-	BTT(TVertex v1, TVertex v2, TVertex v3, int recursionLimit, bool split = false, bool splitOnce = false);
+	BTT(ZShadeSandboxMath::XMMath3 v[3], int recursionLimit, bool split = false, bool splitOnce = false);
+	BTT(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3, int recursionLimit, bool split = false, bool splitOnce = false);
 	BTT(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, int recursionLimit, bool split = false, bool splitOnce = false);
-	BTT(TVertex v[3], UINT ind[3], int recursionLimit, bool split = false, bool splitOnce = false);
-	BTT(TVertex v1, TVertex v2, TVertex v3, UINT ind1, UINT ind2, UINT ind3, int recursionLimit, bool split = false, bool splitOnce = false);
+	BTT(ZShadeSandboxMath::XMMath3 v[3], UINT ind[3], int recursionLimit, bool split = false, bool splitOnce = false);
+	BTT(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3, UINT ind1, UINT ind2, UINT ind3, int recursionLimit, bool split = false, bool splitOnce = false);
 	BTT(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, UINT ind1, UINT ind2, UINT ind3, int recursionLimit, bool split = false, bool splitOnce = false);
 	BTT(Triangle* tri, int recursionLimit, bool split = false, bool splitOnce = false);
 	BTT(BinaryTriangle* tri, int recursionLimit, bool split = false, bool splitOnce = false);

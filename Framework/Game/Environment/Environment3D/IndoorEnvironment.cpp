@@ -90,7 +90,7 @@ void IndoorEnvironment::Render()
 	}
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mCube->Render(mrp);
 }
 //===============================================================================================================================

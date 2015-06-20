@@ -2,6 +2,7 @@
 #include "CGlobal.h"
 #include "Light.h"
 #include "LightCamera.h"
+#include "PointColliderController.h"
 //==================================================================================================================================
 //==================================================================================================================================
 Arm::Arm()
@@ -32,6 +33,8 @@ Camera::Camera(EngineOptions* eo)
 	
 	mThirdPerson = false;
 	
+	mTerrainCollisionOn = false;
+
 	//Reflection view is disabled by default
 	mRenderReflectionView = false;
 
@@ -267,51 +270,87 @@ void Camera::Update()
 		}
 		else
 		{
-			//Create the View Matrix
-			mCamRotation = XMMatrixRotationRollPitchYaw(mCamPitch, mCamYaw, 0);
+			//if (!mTerrainCollisionOn)
+			{
+				//Create the View Matrix
+				mCamRotation = XMMatrixRotationRollPitchYaw(mCamPitch, mCamYaw, 0);
 
-			XMVECTOR target = XMVector3TransformCoord(gDefaultForward, mCamRotation);
-			target = XMVector3Normalize(target);
-			XMVECTOR refltarget = XMVector3TransformCoord(gDefaultForward, mCamRotation);
-			refltarget = XMVector3Normalize(refltarget);
-			
-			XMVECTOR right = XMVector3TransformCoord(gDefaultRight, mCamRotation);
-			XMVECTOR forward = XMVector3TransformCoord(gDefaultForward, mCamRotation);
-			XMVECTOR up = XMVector3Cross(forward, right);
+				XMVECTOR target = XMVector3TransformCoord(gDefaultForward, mCamRotation);
+				target = XMVector3Normalize(target);
+				XMVECTOR refltarget = XMVector3TransformCoord(gDefaultForward, mCamRotation);
+				refltarget = XMVector3Normalize(refltarget);
+				
+				XMVECTOR right = XMVector3TransformCoord(gDefaultRight, mCamRotation);
+				XMVECTOR forward = XMVector3TransformCoord(gDefaultForward, mCamRotation);
+				XMVECTOR up = XMVector3Cross(forward, right);
 
-			XMVECTOR position = XMVectorSet(mCamPosition.x, mCamPosition.y, mCamPosition.z, 0);
-			position += mMoveStrafe * right;
-			position += mMoveWalk * forward;
+				//if (mTerrainCollisionOn)// && mMoved)
+				//{
+				//	ZShadeSandboxPhysics::PointColliderController collider;
+				//	XMFLOAT3 intersectionPoint;
 
-			XMVECTOR direction = target - position;
-			direction = XMVector3Normalize(direction);
+				//	bool colliding = collider.Colliding(
+				//		100.0f,
+				//		0.0f,//-0.3f,
+				//		mCamPosition,
+				//		mMoveStrafe,
+				//		ZShadeSandboxMath::XMMath3(right),
+				//		mMoveWalk,
+				//		ZShadeSandboxMath::XMMath3(forward),
+				//		vertexList,
+				//		indexList,
+				//		intersectionPoint
+				//	);
 
-			mMoveStrafe = 0.0f;
-			mMoveWalk = 0.0f;
+				//	mCamPosition = intersectionPoint;
+				//}
 
-			target = XMVectorAdd(position, target);
+				XMVECTOR position = XMVectorSet(mCamPosition.x, mCamPosition.y, mCamPosition.z, 0);
+				
+				//if (!mTerrainCollisionOn)
+				{
+					position += mMoveStrafe * right;
+					position += mMoveWalk * forward;
+				}
+				
+				XMVECTOR direction = target - position;
+				direction = XMVector3Normalize(direction);
+				
+				mMoveStrafe = 0.0f;
+				mMoveWalk = 0.0f;
 
-			mView = XMMatrixLookAtLH(position, target, up);
-			
-			XMStoreFloat3(&mCamDirection, direction);
-			XMStoreFloat3(&mCamPosition, position);
-			XMStoreFloat3(&mCamTarget, target);
-			XMStoreFloat3(&mCamRight, right);
-			XMStoreFloat3(&mCamForward, forward);
-			XMStoreFloat3(&mCamUp, up);
+				target = XMVectorAdd(position, target);
+
+				mView = XMMatrixLookAtLH(position, target, up);
+				
+				XMStoreFloat3(&mCamDirection, direction);
+				XMStoreFloat3(&mCamPosition, position);
+				XMStoreFloat3(&mCamTarget, target);
+				XMStoreFloat3(&mCamRight, right);
+				XMStoreFloat3(&mCamForward, forward);
+				XMStoreFloat3(&mCamUp, up);
+			}
 		}
 		
-		//Find all the inverses
-		mInvProj     = XMMatrixInverse( NULL, mProj );
-		mInvView     = XMMatrixInverse( NULL, mView );
-		mInvViewProj = XMMatrixInverse( NULL, ViewProj() );
-		
-		// Update the viewing frustum
-		if (m_ViewingFrustum != 0)
-			m_ViewingFrustum->Update(ViewProj());
+		//if (!mTerrainCollisionOn)
+		{
+			//Find all the inverses
+			mInvProj     = XMMatrixInverse( NULL, mProj );
+			mInvView     = XMMatrixInverse( NULL, mView );
+			mInvViewProj = XMMatrixInverse( NULL, ViewProj() );
+			
+			// Update the viewing frustum
+			if (m_ViewingFrustum != 0)
+				m_ViewingFrustum->Update(ViewProj());
 
-		// Rebuild the sphere and cone for the viewing frustum
-		BuildFrustumConeSphere();
+			// Rebuild the sphere and cone for the viewing frustum
+			BuildFrustumConeSphere();
+		}
+		
+		//if (mTerrainCollisionOn)
+		//{
+		//	TerrainCollisionUpdateBegin();
+		//}
 	}
 }
 //==================================================================================================================================
@@ -368,6 +407,59 @@ void Camera::UpdateReflection(XMVECTOR plane)
 	}
 }
 //==================================================================================================================================
+void Camera::TerrainCollisionUpdateBegin()
+{
+	//Create the View Matrix
+	mCamRotation = XMMatrixRotationRollPitchYaw(mCamPitch, mCamYaw, 0);
+
+	XMVECTOR target = XMVector3TransformCoord(gDefaultForward, mCamRotation);
+	target = XMVector3Normalize(target);
+	XMVECTOR refltarget = XMVector3TransformCoord(gDefaultForward, mCamRotation);
+	refltarget = XMVector3Normalize(refltarget);
+	
+	XMVECTOR right = XMVector3TransformCoord(gDefaultRight, mCamRotation);
+	XMVECTOR forward = XMVector3TransformCoord(gDefaultForward, mCamRotation);
+	XMVECTOR up = XMVector3Cross(forward, right);
+	
+	XMStoreFloat3(&mCamRight, right);
+	XMStoreFloat3(&mCamForward, forward);
+	XMStoreFloat3(&mCamUp, up);
+	XMStoreFloat3(&mCamTarget, target);
+}
+//==================================================================================================================================
+void Camera::TerrainCollisionUpdateEnd()
+{
+	XMVECTOR position = XMVectorSet(mCamPosition.x, mCamPosition.y, mCamPosition.z, 0);
+	//position += mMoveStrafe * mCamRight;
+	//position += mMoveWalk * mCamForward;
+
+	XMVECTOR direction = ZShadeSandboxMath::XMMath3(mCamTarget).ToVector() - position;
+	direction = XMVector3Normalize(direction);
+	
+	mMoveStrafe = 0.0f;
+	mMoveWalk = 0.0f;
+
+	XMVECTOR target = XMVectorAdd(position, ZShadeSandboxMath::XMMath3(mCamTarget).ToVector());
+
+	mView = XMMatrixLookAtLH(position, target, ZShadeSandboxMath::XMMath3(mCamUp).ToVector());
+	
+	XMStoreFloat3(&mCamDirection, direction);
+	XMStoreFloat3(&mCamPosition, position);
+	XMStoreFloat3(&mCamTarget, target);
+	
+	//Find all the inverses
+	mInvProj     = XMMatrixInverse( NULL, mProj );
+	mInvView     = XMMatrixInverse( NULL, mView );
+	mInvViewProj = XMMatrixInverse( NULL, ViewProj() );
+	
+	// Update the viewing frustum
+	if (m_ViewingFrustum != 0)
+		m_ViewingFrustum->Update(ViewProj());
+
+	// Rebuild the sphere and cone for the viewing frustum
+	BuildFrustumConeSphere();
+}
+//==================================================================================================================================
 void Camera::AfterReset(float aspect)
 {
 	mAspect = aspect;
@@ -377,11 +469,13 @@ void Camera::AfterReset(float aspect)
 //==================================================================================================================================
 void Camera::Strafe(float speed)
 {
+	mMoved = true;
 	mMoveStrafe += speed;
 }
 //==================================================================================================================================
 void Camera::Walk(float speed)
 {
+	mMoved = true;
 	mMoveWalk += speed;
 }
 //==================================================================================================================================
@@ -493,6 +587,41 @@ XMFLOAT3 Camera::Forward()
 XMFLOAT3 Camera::Up()
 {
 	return mCamUp;
+}
+//==================================================================================================================================
+XMVECTOR Camera::VDirection()
+{
+	return ZShadeSandboxMath::XMMath3(mCamDirection).ToVector();
+}
+//==================================================================================================================================
+XMVECTOR Camera::VPosition()
+{
+	return ZShadeSandboxMath::XMMath3(mCamPosition).ToVector();
+}
+//==================================================================================================================================
+XMVECTOR Camera::VMapPosition()
+{
+	return ZShadeSandboxMath::XMMath3(mCamMapPosition).ToVector();
+}
+//==================================================================================================================================
+XMVECTOR Camera::VTarget()
+{
+	return ZShadeSandboxMath::XMMath3(mCamTarget).ToVector();
+}
+//==================================================================================================================================
+XMVECTOR Camera::VRight()
+{
+	return ZShadeSandboxMath::XMMath3(mCamRight).ToVector();
+}
+//==================================================================================================================================
+XMVECTOR Camera::VForward()
+{
+	return ZShadeSandboxMath::XMMath3(mCamForward).ToVector();
+}
+//==================================================================================================================================
+XMVECTOR Camera::VUp()
+{
+	return ZShadeSandboxMath::XMMath3(mCamUp).ToVector();
 }
 //==================================================================================================================================
 /*void Camera::SetPositionV(XMVECTOR v)

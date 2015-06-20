@@ -17,7 +17,7 @@
 #pragma region "Includes"
 #include "OutdoorEnvironment.h"
 #include "Grass.h"
-#include "SimpleTerrain.h"
+//#include "SimpleTerrain.h"
 #include "MaterialShader.h"
 #pragma endregion
 
@@ -49,7 +49,7 @@ public:
 
 private:
 	
-	SimpleTerrain* m_pTerrain;
+	//SimpleTerrain* m_pTerrain;
 	MaterialShader* m_pMaterialShader;
 	
 	ID3D11ShaderResourceView* tex;

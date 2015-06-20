@@ -57,6 +57,7 @@ protected:
 	float fMapSize;
 	float fLeafWidth;
 	
+	bool bTerrainTrianglesAdded;
 	bool bToggleTerrainSSAO;
 	bool bToggleTerrainShadow;
 	bool bToggleTerrainNormalMap;

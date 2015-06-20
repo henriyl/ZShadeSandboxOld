@@ -69,7 +69,7 @@ void CubeReflectionOutdoorEnvironment::Render()
 	//
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mCube->Render(mrp);
 }
@@ -86,7 +86,7 @@ void CubeReflectionOutdoorEnvironment::RenderRefraction(XMFLOAT4 clipplane)
 	//
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.clipplane = clipplane; // Using normal view but with a clip plane for refraction
 	mCube->Render(mrp);
@@ -99,7 +99,7 @@ void CubeReflectionOutdoorEnvironment::RenderReflection(XMFLOAT4 clipplane)
 	//
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.reflection = true;
 	mrp.clipplane = clipplane;

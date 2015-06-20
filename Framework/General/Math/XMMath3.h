@@ -93,7 +93,7 @@ public:
 	void Multiply(const XMMath3& val);
 	
 	void Divide(const XMMath3& val);
-	
+
 	XMMath3& operator += (const XMMath3& val);
 	
 	XMMath3& operator -= (const XMMath3& val);
@@ -112,12 +112,32 @@ public:
 	
 	XMMath3& operator = (const XMMath3& val);
 
+	bool Equals(const XMMath3& val);
+
+	bool LessThanEquals(const XMMath3& val);
+
+	bool GreaterThanEquals(const XMMath3& val);
+
+	bool LessThan(const XMMath3& val);
+
+	bool GreaterThan(const XMMath3& val);
+
+	bool operator <= (const XMMath3& val);
+	
+	bool operator >= (const XMMath3& val);
+
+	bool operator < (const XMMath3& val);
+	
+	bool operator > (const XMMath3& val);
+
+	bool operator == (const XMMath3& val);
+
 	void Add(const float& val);
-
+	
 	void Subtract(const float& val);
-
+	
 	void Multiply(const float& val);
-
+	
 	void Divide(const float& val);
 
 	XMMath3& operator += (const float& val);
@@ -137,6 +157,26 @@ public:
 	XMMath3& operator / (const float& val);
 	
 	XMMath3& operator = (const float& val);
+
+	bool Equals(const float& val);
+
+	bool LessThanEquals(const float& val);
+
+	bool GreaterThanEquals(const float& val);
+
+	bool LessThan(const float& val);
+
+	bool GreaterThan(const float& val);
+
+	bool operator <= (const float& val);
+	
+	bool operator >= (const float& val);
+
+	bool operator < (const float& val);
+	
+	bool operator > (const float& val);
+
+	bool operator == (const float& val);
 };
 }
 //==============================================================================================================================

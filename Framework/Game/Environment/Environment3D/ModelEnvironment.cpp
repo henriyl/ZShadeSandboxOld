@@ -109,7 +109,7 @@ void ModelEnvironment::RenderShadowMap()
 	mDirLight1->Update();
 	
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.shadowMap = true;
 
@@ -144,7 +144,7 @@ void ModelEnvironment::RenderDeferred()
 	}
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.renderDeferred = true;
 	mrp.light = mDirLight1;
 	
@@ -183,7 +183,7 @@ void ModelEnvironment::RenderDeferred()
 	mHuman->Render(mrp);
 
 	ZShadeSandboxLighting::LightRenderParameters lrp;
-	lrp.camera = m_CameraSystem.get();
+	lrp.camera = m_CameraSystem;
 	lrp.clipplane = XMFLOAT4(0, 0, 0, 0);
 	lrp.reflect = false;
 	lrp.renderDeferred = true;
@@ -310,7 +310,7 @@ void ModelEnvironment::Render()
 bool ModelEnvironment::RenderScene()
 {
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	
 	vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
@@ -379,7 +379,7 @@ bool ModelEnvironment::RenderScene()
 	if (bEnableDeferredShading)
 	{
 		ZShadeSandboxLighting::LightRenderParameters lrp;
-		lrp.camera = m_CameraSystem.get();
+		lrp.camera = m_CameraSystem;
 		lrp.clipplane = XMFLOAT4(0, 0, 0, 0);
 		lrp.reflect = false;
 		lrp.renderDeferred = false;
@@ -390,7 +390,7 @@ bool ModelEnvironment::RenderScene()
 	else
 	{
 		ZShadeSandboxLighting::LightRenderParameters lrp;
-		lrp.camera = m_CameraSystem.get();
+		lrp.camera = m_CameraSystem;
 		lrp.clipplane = XMFLOAT4(0, 0, 0, 0);
 		lrp.reflect = false;
 		lrp.renderDeferred = false;

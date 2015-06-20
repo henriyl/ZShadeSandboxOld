@@ -368,6 +368,56 @@ XMMath2& XMMath2::operator = (const XMMath2& val)
 	return *this;
 }
 //==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::Equals(const ZShadeSandboxMath::XMMath2& val)
+{
+	return (x == val.x && y == val.y);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::LessThanEquals(const ZShadeSandboxMath::XMMath2& val)
+{
+	return (x <= val.x && y <= val.y);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::GreaterThanEquals(const ZShadeSandboxMath::XMMath2& val)
+{
+	return (x >= val.x && y >= val.y);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::LessThan(const ZShadeSandboxMath::XMMath2& val)
+{
+	return (x < val.x && y < val.y);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::GreaterThan(const ZShadeSandboxMath::XMMath2& val)
+{
+	return (x > val.x && y > val.y);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator <= (const ZShadeSandboxMath::XMMath2& val)
+{
+	return LessThanEquals(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator >= (const ZShadeSandboxMath::XMMath2& val)
+{
+	return GreaterThanEquals(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator < (const ZShadeSandboxMath::XMMath2& val)
+{
+	return LessThan(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator > (const ZShadeSandboxMath::XMMath2& val)
+{
+	return GreaterThan(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator == (const ZShadeSandboxMath::XMMath2& val)
+{
+	return Equals(val);
+}
+//==============================================================================================================================
 void XMMath2::Add(const float& val)
 {
 	x += val;
@@ -444,5 +494,55 @@ XMMath2& XMMath2::operator = (const float& val)
 {
 	Assign(val);
 	return *this;
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::Equals(const float& val)
+{
+	return (x == val && y == val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::LessThanEquals(const float& val)
+{
+	return (x <= val && y <= val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::GreaterThanEquals(const float& val)
+{
+	return (x >= val && y >= val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::LessThan(const float& val)
+{
+	return (x < val && y < val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::GreaterThan(const float& val)
+{
+	return (x > val && y > val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator <= (const float& val)
+{
+	return LessThanEquals(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator >= (const float& val)
+{
+	return GreaterThanEquals(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator < (const float& val)
+{
+	return LessThan(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator > (const float& val)
+{
+	return GreaterThan(val);
+}
+//==============================================================================================================================
+bool ZShadeSandboxMath::XMMath2::operator == (const float& val)
+{
+	return Equals(val);
 }
 //==============================================================================================================================

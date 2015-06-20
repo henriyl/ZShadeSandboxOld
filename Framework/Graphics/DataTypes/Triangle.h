@@ -13,27 +13,16 @@
 #include "D3D.h"
 #include "ZMath.h"
 #include "Vertex.h"
+#include "XMMath.h"
 //==================================================================================================================================
 #define CLOCKWISE 0
 #define COUNTER_CLOCKWISE 1
 //==================================================================================================================================
-struct TVertex
-{
-	float x;
-	float y;
-	float z;
-	
-	TVertex();
-	TVertex(const TVertex& v);
-	TVertex(float x, float y, float z);
-	
-	bool operator == (const TVertex& o);
-};
 //==================================================================================================================================
 struct TLine
 {
-	TVertex v1;
-	TVertex v2;
+	ZShadeSandboxMath::XMMath3 v1;
+	ZShadeSandboxMath::XMMath3 v2;
 };
 //==================================================================================================================================
 /*enum IntersectInfo
@@ -50,16 +39,16 @@ public:
 	
 	Triangle();
 	Triangle(const Triangle& tri);
-	Triangle(TVertex v[3]);
-	Triangle(TVertex v1, TVertex v2, TVertex v3);
+	Triangle(ZShadeSandboxMath::XMMath3 v[3]);
+	Triangle(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3);
 	Triangle(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3);
-	Triangle(TVertex v[3], UINT ind[3]);
-	Triangle(TVertex v1, TVertex v2, TVertex v3, UINT ind1, UINT ind2, UINT ind3);
+	Triangle(ZShadeSandboxMath::XMMath3 v[3], UINT ind[3]);
+	Triangle(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3, UINT ind1, UINT ind2, UINT ind3);
 	Triangle(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, UINT ind1, UINT ind2, UINT ind3);
 	
 	void deep_copy(const Triangle& tri);
-	void copy_vertices(TVertex v[3]);
-	void copy_vertices(TVertex v1, TVertex v2, TVertex v3);
+	void copy_vertices(ZShadeSandboxMath::XMMath3 v[3]);
+	void copy_vertices(ZShadeSandboxMath::XMMath3 v1, ZShadeSandboxMath::XMMath3 v2, ZShadeSandboxMath::XMMath3 v3);
 	void copy_vertices(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3);
 	void copy_indices(UINT ind[3]);
 	void copy_indices(UINT ind1, UINT ind2, UINT ind3);
@@ -84,12 +73,14 @@ public:
 	
 	// This is just a rough test to see if this works
 	//IntersectInfo TwoLinesIntersect(TLine line1, TLine line2);
-	bool ThreeLinesIntersect(TLine line1, TLine line2, TLine line3, TVertex& center);
+	bool ThreeLinesIntersect(TLine line1, TLine line2, TLine line3, ZShadeSandboxMath::XMMath3& center);
 	
 	bool& UseIndices()					{ return bUseIndices; }
-	TVertex Centroid() const			{ return mCentroid; }
-	const TVertex* GetVertex() const 	{ return mVertex; }
+	ZShadeSandboxMath::XMMath3 Centroid() const			{ return mCentroid; }
+	const ZShadeSandboxMath::XMMath3* GetVertex() const 	{ return mVertex; }
 	const UINT* Indices() const 		{ return mIndices; }
+	
+	ZShadeSandboxMath::XMMath3 GetVertex(int index) { return mVertex[index]; }
 	
 private:
 	
@@ -98,9 +89,9 @@ private:
 	
 	bool bUseIndices;
 
-	TVertex		mCentroid;
-	TVertex 	mVertex[3];
-	UINT		mIndices[3];
+	ZShadeSandboxMath::XMMath3	mCentroid;
+	ZShadeSandboxMath::XMMath3 	mVertex[3];
+	UINT						mIndices[3];
 };
 //==================================================================================================================================
 //==================================================================================================================================

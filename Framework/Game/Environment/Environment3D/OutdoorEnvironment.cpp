@@ -536,7 +536,7 @@ void OutdoorEnvironment::Update()
 	}*/
 
 	// Updates the world matrix for the sun
-	//mSun->Update(m_CameraSystem.get());
+	//mSun->Update(m_CameraSystem);
 
 	if (bToggleWater)
 	{
@@ -778,7 +778,7 @@ void OutdoorEnvironment::Render()
 	}
 
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	
 	vector<ZShadeSandboxMesh::CustomMesh*>::iterator it = m_SpawnedMeshContainer.begin();
@@ -843,7 +843,7 @@ void OutdoorEnvironment::Render()
 	}
 
 	//ZShadeSandboxMesh::OBJMeshRenderParameters omrp;
-	//omrp.camera = m_CameraSystem.get();
+	//omrp.camera = m_CameraSystem;
 	//omrp.renderType = ZShadeSandboxMesh::ERenderType::e3ControlPointPatchList;
 	//omrp.tessellate = true;
 	mMesh->SetFarPlane(m_EngineOptions->fFarPlane);
@@ -854,7 +854,7 @@ void OutdoorEnvironment::Render()
 	//
 	
 	ZShadeSandboxLighting::LightRenderParameters lrp;
-	lrp.camera = m_CameraSystem.get();
+	lrp.camera = m_CameraSystem;
 	lrp.clipplane = XMFLOAT4(0, 0, 0, 0);
 	lrp.reflect = false;
 	lrp.renderDeferred = false;
@@ -876,7 +876,7 @@ void OutdoorEnvironment::RenderShadowMap()
 void OutdoorEnvironment::RenderReflection(XMFLOAT4 clipplane)
 {
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.reflection = true;
 	mrp.clipplane = clipplane;
@@ -910,7 +910,7 @@ void OutdoorEnvironment::RenderReflection(XMFLOAT4 clipplane)
 		mPickingSphere->Render(mrp);
 	
 	ZShadeSandboxLighting::LightRenderParameters lrp;
-	lrp.camera = m_CameraSystem.get();
+	lrp.camera = m_CameraSystem;
 	lrp.clipplane = clipplane;
 	lrp.reflect = true;
 	lrp.renderDeferred = false;
@@ -919,7 +919,7 @@ void OutdoorEnvironment::RenderReflection(XMFLOAT4 clipplane)
 	ZShadeSandboxLighting::LightManager::Instance()->RenderLightMesh(lrp);
 	
 	//ZShadeSandboxMesh::OBJMeshRenderParameters omrp;
-	//omrp.camera = m_CameraSystem.get();
+	//omrp.camera = m_CameraSystem;
 	//omrp.reflection = true;
 	//omrp.clipplane = clipplane;
 	//omrp.tessellate = true;
@@ -932,7 +932,7 @@ void OutdoorEnvironment::RenderReflection(XMFLOAT4 clipplane)
 void OutdoorEnvironment::RenderRefraction(XMFLOAT4 clipplane)
 {
 	ZShadeSandboxMesh::MeshRenderParameters mrp;
-	mrp.camera = m_CameraSystem.get();
+	mrp.camera = m_CameraSystem;
 	mrp.light = mDirLight1;
 	mrp.reflection = false;
 	mrp.clipplane = clipplane;
@@ -966,7 +966,7 @@ void OutdoorEnvironment::RenderRefraction(XMFLOAT4 clipplane)
 		mPickingSphere->Render(mrp);
 	
 	ZShadeSandboxLighting::LightRenderParameters lrp;
-	lrp.camera = m_CameraSystem.get();
+	lrp.camera = m_CameraSystem;
 	lrp.clipplane = clipplane;
 	lrp.reflect = false;
 	lrp.renderDeferred = false;
@@ -975,7 +975,7 @@ void OutdoorEnvironment::RenderRefraction(XMFLOAT4 clipplane)
 	ZShadeSandboxLighting::LightManager::Instance()->RenderLightMesh(lrp);
 	
 	//ZShadeSandboxMesh::OBJMeshRenderParameters omrp;
-	//omrp.camera = m_CameraSystem.get();
+	//omrp.camera = m_CameraSystem;
 	//omrp.reflection = false;
 	//omrp.clipplane = clipplane;
 	//omrp.tessellate = true;
@@ -1035,13 +1035,13 @@ bool OutdoorEnvironment::RenderTerrainShadowSSAO()
 	m_pQuadTreeMesh->TerrainZScale() = fTerrSize;
 
 	// Render the shadow map for the terrain
-	m_pQuadTreeRenderer->RenderShadowMap(m_CameraSystem.get(), mDirLight1->Perspective(), tsc);
+	m_pQuadTreeRenderer->RenderShadowMap(m_CameraSystem, mDirLight1->Perspective(), tsc);
 	
 	m_D3DSystem->SetBackBufferRenderTarget();
 	// Pop RT and reset to the normal view
 	m_D3DSystem->ResetViewport();
 	
-	m_pQuadTreeRenderer->RenderSSAO(m_CameraSystem.get(), mDirLight1->Perspective(), tsc);
+	m_pQuadTreeRenderer->RenderSSAO(m_CameraSystem, mDirLight1->Perspective(), tsc);
 
 	m_D3DSystem->SetBackBufferRenderTarget();
 	// Pop RT and reset to the normal view
@@ -1100,7 +1100,7 @@ bool OutdoorEnvironment::RenderTerrain(XMFLOAT4 clipplane, bool bReflection, boo
 	m_pQuadTreeMesh->HeightScale() = fHeightScale;
 	m_pQuadTreeMesh->TerrainZScale() = fTerrSize;
 	
-	m_pQuadTreeRenderer->Render(m_CameraSystem.get(), mDirLight1, tsc);
+	m_pQuadTreeRenderer->Render(m_CameraSystem, mDirLight1, tsc);
 
 	return true;
 }
@@ -1118,7 +1118,7 @@ bool OutdoorEnvironment::RenderWater()
 		m_D3DSystem->TurnOnWireframe();
 	}
 	mWater->SetFarPlane(m_EngineOptions->fFarPlane);
-	mWater->Render(m_CameraSystem.get(), false, mReflectionTexture->SRView, mRefractionTexture->SRView);
+	mWater->Render(m_CameraSystem, false, mReflectionTexture->SRView, mRefractionTexture->SRView);
 	if (!bWireframeMode && !Quickwire()) m_D3DSystem->TurnOnCulling();
 
 	return true;
@@ -1134,7 +1134,7 @@ bool OutdoorEnvironment::RenderOcean()
 	//m_pOcean->SetReflectionMap( mReflectionTexture->SRView );
 	//m_pOcean->SetRefractionMap( mRefractionTexture->SRView );
 	//m_pOcean->Update( m_Timer.ConstantTime() );
-	//m_pOcean->Render(m_Timer.ConstantTime(), m_CameraSystem.get());
+	//m_pOcean->Render(m_Timer.ConstantTime(), m_CameraSystem);
 
 	return true;
 }

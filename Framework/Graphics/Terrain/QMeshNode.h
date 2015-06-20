@@ -10,13 +10,22 @@
 #define __QMESHNODE_H
 //===============================================================================================================================
 //===============================================================================================================================
+
+//
+// Includes
+//
+
 #include "Vertex.h"
 #include "QNodeType.h"
 #include "D3D.h"
 #include "BoxPrimitive.h"
 #include "SpherePrimitive.h"
 #include "CubeMesh.h"
+#include "Triangle.h"
+
 class AABB;
+
+//===============================================================================================================================
 //===============================================================================================================================
 namespace ZShadeSandboxTerrain {
 struct QMeshNode
@@ -60,18 +69,25 @@ struct QMeshNode
 	// The actual bounding box to be rendered for this node
 	ZShadeSandboxMesh::CubeMesh* box_mesh;
 	
+	//vector<Triangle*> internalTriangles;
+	vector<XMFLOAT3> triangleVertices;
+	vector<UINT>	 triangleIndices;
+	
 	int m_vertex_count;
 	int m_index_count;
 	int m_triangle_count;
 	
 	ZShadeSandboxMesh::VertexTex* vertices;
 	unsigned long* indices;
-
+	
 	ID3D11Buffer* m_vertex_buffer11;
 	ID3D11Buffer* m_index_buffer11;
-
+	
 	QMeshNode()
-	: vertices(0), indices(0), m_vertex_buffer11(0), m_index_buffer11(0)
+	:	vertices(0)
+	,	indices(0)
+	,	m_vertex_buffer11(0)
+	,	m_index_buffer11(0)
 	{
 	}
 };

@@ -9,83 +9,121 @@
 #ifndef __HEIGHTMAP_H
 #define __HEIGHTMAP_H
 //===================================================================================================================
+//===================================================================================================================
+
+//
+// Includes
+//
+
 #include "D3D.h"
 #include "HeightmapData.h"
 #include "ProceduralGenerator.h"
+#include "HeightmapContainer.h"
+#include "ProceduralParameters.h"
+
+//===================================================================================================================
 //===================================================================================================================
 namespace ZShadeSandboxTerrain {
 class Heightmap
 {
 public:
 	
-	Heightmap(string heightmap, int width, int height, float heightScale, float seaLevel, float maxHeight);
-	Heightmap(ZShadeSandboxTerrain::ProceduralParameters pp, int width, int height, float heightScale, float seaLevel, float maxHeight);
+	Heightmap(string heightmap, ZShadeSandboxTerrain::ProceduralParameters pp, float heightScale);
+	Heightmap(ZShadeSandboxTerrain::ProceduralParameters pp, float heightScale);
 	Heightmap(const Heightmap& o);
 	~Heightmap();
-
-	float SampleHeight(int x, int z);
-	float SampleHeight(int index);
-	void UpdateHeightValues(float heightScale, float zScale);
+	
 	bool LoadElevation(string heightmap);
+	void LoadProceduralElevation();
 	
-	void LoadProceduralElevation(ZShadeSandboxTerrain::ProceduralParameters pp);
-	
-	void UpdateHeight(int x, int z, float height);
-	
-	// Returns the height in a safe way
-	float GetHeight(float x, float z);
 	bool InBounds(int x, int z);
-	bool InHeightmap(float x, float z);
+	bool InBounds(int index);
+	float ReadHeight(int x, int z);
+	float ReadHeight(int index);
 
-	int Width() { return m_heightmap_width; }
-	int Height() { return m_heightmap_height; }
+	float ReadX(int x, int z);
+	float ReadX(int index);
+	float ReadZ(int x, int z);
+	float ReadZ(int index);
 
-	vector<HeightData> GetHeightmap() { return m_heightmap; }
+	void UpdateHeight(int x, int z, float value) { m_heightmap.UpdateHeight(x, z, value); }
+	void UpdateHeight(int index, float value) { m_heightmap.UpdateHeight(index, value); }
+
+	int HeightmapSize() { return mProceduralParameters.terrainSize; }
 	
+	ZShadeSandboxTerrain::HeightmapContainer GetHeightmap() { return m_heightmap; }
+	
+	void CopyToHeightMapData();
+
 	//
 	// Procedural Generation for the heightmap
 	//
+	
+	/*
+	Body of a simple script generating a hilly map with roughly radial lake in the middle:
+	
+	// load map parameters
+	local width = GGen_GetArgValue("width");
+	local height = GGen_GetArgValue("height");
+
+	// create a radial gradient with height 1 in the center and height 1200 on the outer rim
+	local base = GGen_Data_2D(width, height, 0);
+	base.RadialGradient(width / 2, height / 2, width > height ? height / 2 : width / 2, 1, 1200, true);
+
+	// create a separate noise map using default noise settings
+	local noise = GGen_Data_2D(width, height);
+	noise.Noise(2, width > height ? height / 8 : width / 8, GGEN_STD_NOISE);
+
+	// adjust the range of the noise
+	noise.ScaleValuesTo(-500, 500);
+
+	// combine the maps
+	base.AddMap(noise);
+
+	// raise the water level so 9% of the map is under level 0
+	base.Flood(0.91);
+
+	return base;
+	*/
 	
 	void BuildRandomHeightmap();
 	void BuildPerlinNoiseHeightmap();
 	void BuildFieldNoiseHeightmap();
 	void BuildDiamondSquare();
-
-	// These are added to an existing heightmap input
 	void AddRandomHeightmap();
 	void AddPerlinNoiseHeightmap();
 	void AddFieldNoiseHeightmap();
 
-	// Perform a simple smooth of the map so it is not choppy
+	// Perform a smoothing of the map so it is not choppy
 	void Smooth(int smoothingPassCount);
 	void Smooth();
-
+	
+	// Normalize the map so that it is not too tall
 	void Normalize(float normalizeFactor);
-
+	
 	// Perform height erosion in four directions by using a linear interpolation from an erosion value
 	// erosionValue if between 0 and 1 inclusive
 	void ErodeHeight(float erosionValue);
 	
 	void ErodeWater(ZShadeSandboxTerrain::WaterErosionParameters wep);
-
+	
+	void ThermalWeathering(ZShadeSandboxTerrain::WaterErosionParameters wep);
+	
 	void Flatten(float flatHeight);
 	
 private:
 	
-	void BuildFromProcGen();
+	EHeightExtension::Type m_ext;
 	
-	ProceduralGenerator* mProcGen;
+	float fHeightScale;
 	
-	EHeightExtension::Type m_ext;//What extention is the heightmap
+	ZShadeSandboxTerrain::ProceduralParameters mProceduralParameters;
 	
-	float m_maxHeight;
-	float m_seaLevel;
-	float m_height_scale;
-	int m_heightmap_width;
-	int m_heightmap_height;
-	
-	vector<HeightData> m_heightmap;
+	vector<HeightData> mHeightData;
+
+	ZShadeSandboxTerrain::HeightmapContainer m_heightmap;
 };
 }
+//===================================================================================================================
 //===================================================================================================================
 #endif//__HEIGHTMAP_H

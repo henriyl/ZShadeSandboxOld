@@ -17,7 +17,7 @@
 //
 
 #include "D3D.h"
-#include "HeightmapData.h"
+#include "HeightmapContainer.h"
 
 //===============================================================================================================================
 // To use this add the heightmap data and width of the terrain
@@ -28,30 +28,23 @@ class HeightErosion
 {
 public:
 	
-	HeightErosion(vector<HeightData> heightMapInput, int terrainSize, float erosionValue);
+	HeightErosion(ZShadeSandboxTerrain::HeightmapContainer heightMapInput, int terrainSize, float erosionValue);
 	~HeightErosion();
 	
 	// Performs the erosion
 	void Erode();
 	
 	// Returns the generated erosion map
-	vector<HeightData> GetErosionMap() { return mErosionMap; }
-	
-	float ReadErosionHeight(int x, int z);
+	ZShadeSandboxTerrain::HeightmapContainer ErosionMap() { return mErosionMap; }
 	
 	// Sets the erosion value
-	float& ErosionValue() { return mErosionValue; }
+	float& ErosionValue() { return fErosionValue; }
 	
 private:
 	
 	void RebuildHeightmap();
 	
 	void UpdateErosion(int xUpdate0, int xUpdate1, int zUpdate0, int zUpdate1);
-	
-	// Get the height from the heightmap
-	float ReadHeight(int x, int z);
-	
-	void UpdateErosionHeight(int x, int z, float height);
 	
 	// Does an interpolation of current height value and previous height value with
 	// the height erosion value
@@ -60,17 +53,17 @@ private:
 private:
 	
 	// Erosion Output
-	vector<HeightData> mErosionMap;
+	ZShadeSandboxTerrain::HeightmapContainer mErosionMap;
 	
 	// Heightmap input
-	vector<HeightData> mHeightMap;
+	ZShadeSandboxTerrain::HeightmapContainer mHeightMap;
 	
-	int		mTerrainSize;
+	int		iTerrainSize;
 	
 	// value between 0 and 1
 	// 1 is flat
 	// 0 is no change
-	float 	mErosionValue;
+	float 	fErosionValue;
 };
 }
 //===============================================================================================================================

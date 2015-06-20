@@ -116,6 +116,26 @@ public:
 	XMMath2& operator / (const XMMath2& val);
 	
 	XMMath2& operator = (const XMMath2& val);
+
+	bool Equals(const XMMath2& val);
+	
+	bool LessThanEquals(const XMMath2& val);
+	
+	bool GreaterThanEquals(const XMMath2& val);
+	
+	bool LessThan(const XMMath2& val);
+	
+	bool GreaterThan(const XMMath2& val);
+
+	bool operator <= (const XMMath2& val);
+	
+	bool operator >= (const XMMath2& val);
+
+	bool operator < (const XMMath2& val);
+	
+	bool operator > (const XMMath2& val);
+
+	bool operator == (const XMMath2& val);
 	
 	void Add(const float& val);
 
@@ -142,6 +162,26 @@ public:
 	XMMath2& operator / (const float& val);
 	
 	XMMath2& operator = (const float& val);
+
+	bool Equals(const float& val);
+	
+	bool LessThanEquals(const float& val);
+	
+	bool GreaterThanEquals(const float& val);
+	
+	bool LessThan(const float& val);
+	
+	bool GreaterThan(const float& val);
+
+	bool operator <= (const float& val);
+	
+	bool operator >= (const float& val);
+
+	bool operator < (const float& val);
+	
+	bool operator > (const float& val);
+
+	bool operator == (const float& val);
 };
 }
 //==============================================================================================================================
