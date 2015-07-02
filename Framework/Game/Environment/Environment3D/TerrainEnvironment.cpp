@@ -97,7 +97,7 @@ void TerrainEnvironment::Init()
 	tp.g_tessellate = bEnableTessellation;
 	tp.g_terrScale = fTerrSize;
 	tp.g_makeFlat = false;
-	tp.g_procedural = true;
+	tp.g_procedural = false;
 	tp.g_proceduralParameters.erosionValue = 0.2f;
 	tp.g_proceduralParameters.normalizeFactor = 2.0f;
 	tp.g_proceduralParameters.smoothingPassCount = 1.0f;

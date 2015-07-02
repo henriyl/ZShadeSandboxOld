@@ -115,17 +115,14 @@ bool Heightmap::LoadElevation(string heightmap)
 	if (fileExt == "bmp")
 	{
 		m_ext = EHeightExtension::Type::eBmp;
-		LoadElevation(heightmap);
 	}
 	else if (fileExt == "raw")
 	{
 		m_ext = EHeightExtension::Type::eRaw;
-		LoadElevation(heightmap);
 	}
 	else
 	{
-		m_ext = EHeightExtension::Type::eNone;
-		
+		m_ext = EHeightExtension::Type::eNone;		
 		return false;
 	}
 	
@@ -139,7 +136,7 @@ bool Heightmap::LoadElevation(string heightmap)
 			unsigned int count;
 			BITMAPFILEHEADER bitmapFileHeader;
 			BITMAPINFOHEADER bitmapInfoHeader;
-			int imageSize, x, z, k, index;
+			int imageSize, x, z;
 			unsigned char* bitmapImage;
 			unsigned char height;
 
@@ -168,6 +165,7 @@ bool Heightmap::LoadElevation(string heightmap)
 			}
 			
 			//Calculate the size of the bitmap image data
+			// What if it's not 3-channel 24-bit image?...
 			imageSize = heightmapWidth * heightmapHeight * 3;
 
 			//Allocate memory for the bitmap image data
@@ -185,10 +183,7 @@ bool Heightmap::LoadElevation(string heightmap)
 
 			//Close the file
 			error = fclose(file_ptr);
-
 			if (error != 0) return false;
-
-			HeightData _data;
 
 			//m_heightmap.resize(m_heightmap_width * m_heightmap_height);
 			
@@ -199,31 +194,24 @@ bool Heightmap::LoadElevation(string heightmap)
 			m_heightmap.SeaLevel() = mProceduralParameters.seaLevel;
 			m_heightmap.Init();
 			
-			//Initialize the position in the image data buffer
-			k = 0;
-			index = 0;
-			
 			//Read the image data into the heightmap
 			for (z = 0; z < mProceduralParameters.terrainSize; z++)
 			{
 				for (x = 0; x < mProceduralParameters.terrainSize; x++)
 				{
-					//height = (bitmapImage[k] / 255.0f) * fHeightScale;
-					height = bitmapImage[k] * fHeightScale;
+					height = bitmapImage[3 * (x + z * mProceduralParameters.terrainSize)] * fHeightScale;
 
+					HeightData _data;
 					_data.x = x;
 					_data.y = height;
 					_data.z = z;
 
 					m_heightmap.UpdateHeight(x, z, _data);
-
-					k += 3;
 				}
 			}
 
 			//Release the bitmap image data
 			delete[] bitmapImage;
-			bitmapImage = 0;
 
 			CopyToHeightMapData();
 
@@ -262,6 +250,8 @@ bool Heightmap::LoadElevation(string heightmap)
 			{
 				for (int x = 0; x < mProceduralParameters.terrainSize; x++)
 				{
+					// Indexing is probably incorrect here too
+
 					height = (in[k++] / 255.0f) * fHeightScale;
 
 					_data.x = x;
@@ -331,12 +321,9 @@ void Heightmap::AddFieldNoiseHeightmap()
 //===================================================================================================================
 void Heightmap::Smooth(int smoothingPassCount)
 {
-	if (smoothingPassCount > 0)
+	for (int i = 0; i < smoothingPassCount; i++)
 	{
-		for (int i = 0; i < smoothingPassCount; i++)
-		{
-			Smooth();
-		}
+		Smooth();
 	}
 }
 //===================================================================================================================
@@ -355,7 +342,7 @@ void Heightmap::Smooth()
 				{
 					if (m >= 0 && m < mProceduralParameters.terrainSize && n >= 0 && n < mProceduralParameters.terrainSize)
 					{
-						averageHeight += m_heightmap.ReadHeight(n, m);
+						averageHeight += m_heightmap.ReadHeight(m, n);
 						count += 1;
 					}
 				}
@@ -423,7 +410,7 @@ bool Heightmap::InBounds(int x, int z)
 //===================================================================================================================
 bool Heightmap::InBounds(int index)
 {
-	return (index < mProceduralParameters.terrainSize && index >= 0 && index >= 0);
+	return (index < mProceduralParameters.terrainSize * mProceduralParameters.terrainSize && index >= 0);
 }
 //===================================================================================================================
 float Heightmap::ReadHeight(int x, int z)

@@ -65,6 +65,8 @@ void QuadTreeMesh::Init()
 	// Add the default diffuse array SRV with default texture
 	AddDiffuseLayerMapName(m_DefaultTextureName, 0);
 	CreateDiffuseLayerMap();
+
+	ComputeBounds(m_MeshNodes);
 	
 	m_meshLoaded = true;
 }
@@ -294,17 +296,11 @@ void QuadTreeMesh::ReGenMesh(ZShadeSandboxTerrain::QMeshNode*& node)
 {
 	if (node == 0) return;
 
-	int LeafWidth = m_QuadTree->LeafWidth();
 	int TerrScale = m_QuadTree->TerrainScale();
-	int MapSize = m_QuadTree->MapSize();
-
-	// Center the grid in model space
-	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
-	float halfLength = ((float)LeafWidth - 1.0f) / 2.0f;
 	
 	// Recreate the AABB for the node
-	node->boundary.vMin = XMFLOAT3((node->boundingCoord[0].x - halfWidth) * TerrScale, node->boundingCoord[0].y, (node->boundingCoord[0].z - halfWidth) * TerrScale);
-	node->boundary.vMax = XMFLOAT3((node->boundingCoord[3].x - halfWidth) * TerrScale, node->boundingCoord[3].y, (node->boundingCoord[3].z - halfWidth) * TerrScale);
+	node->boundary.vMin = XMFLOAT3((node->boundingCoord[0].x) * TerrScale, node->boundingCoord[0].y, (node->boundingCoord[0].z) * TerrScale);
+	node->boundary.vMax = XMFLOAT3((node->boundingCoord[3].x) * TerrScale, node->boundingCoord[3].y, (node->boundingCoord[3].z) * TerrScale);
 	
 	//m_QuadTree->UpdateHeightValues(m_heightScale, m_terrainZScale);
 
@@ -433,18 +429,13 @@ void QuadTreeMesh::ReGenMesh3PointPatchTessellation(ZShadeSandboxTerrain::QMeshN
 
 	int index = 0;
 	float height = m_QuadTree->SeaLevel();
-	int LeafWidth = m_QuadTree->LeafWidth();
 	int TerrScale = m_QuadTree->TerrainScale();
 	int MapSize = m_QuadTree->MapSize();
 
-	// Center the grid in model space
-	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
-	float halfLength = ((float)LeafWidth - 1.0f) / 2.0f;
-
-	XMFLOAT3 nodeBounds0 = XMFLOAT3((node->boundingCoord[0].x - halfWidth) * TerrScale, node->boundingCoord[0].y, (node->boundingCoord[0].z - halfWidth) * TerrScale);
-	XMFLOAT3 nodeBounds1 = XMFLOAT3((node->boundingCoord[1].x - halfWidth) * TerrScale, node->boundingCoord[1].y, (node->boundingCoord[1].z - halfWidth) * TerrScale);
-	XMFLOAT3 nodeBounds2 = XMFLOAT3((node->boundingCoord[2].x - halfWidth) * TerrScale, node->boundingCoord[2].y, (node->boundingCoord[2].z - halfWidth) * TerrScale);
-	XMFLOAT3 nodeBounds3 = XMFLOAT3((node->boundingCoord[3].x - halfWidth) * TerrScale, node->boundingCoord[3].y, (node->boundingCoord[3].z - halfWidth) * TerrScale);
+	XMFLOAT3 nodeBounds0 = XMFLOAT3((node->boundingCoord[0].x) * TerrScale, node->boundingCoord[0].y, (node->boundingCoord[0].z) * TerrScale);
+	XMFLOAT3 nodeBounds1 = XMFLOAT3((node->boundingCoord[1].x) * TerrScale, node->boundingCoord[1].y, (node->boundingCoord[1].z) * TerrScale);
+	XMFLOAT3 nodeBounds2 = XMFLOAT3((node->boundingCoord[2].x) * TerrScale, node->boundingCoord[2].y, (node->boundingCoord[2].z) * TerrScale);
+	XMFLOAT3 nodeBounds3 = XMFLOAT3((node->boundingCoord[3].x) * TerrScale, node->boundingCoord[3].y, (node->boundingCoord[3].z) * TerrScale);
 
 	ZShadeSandboxMath::XMMath3 v1[3], v2[3];
 
@@ -597,10 +588,6 @@ void QuadTreeMesh::GenerateMeshNT(ZShadeSandboxTerrain::QMeshNode*& node)
 	int TerrScale = m_QuadTree->TerrainScale();
 	int MapSize = m_QuadTree->MapSize();
 
-	// Center the grid in model space
-	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
-	float halfLength = ((float)LeafWidth - 1.0f) / 2.0f;
-
 	int vert_count = (LeafWidth) * (LeafWidth);
 	int index_count = ((LeafWidth) * 2) * (LeafWidth - 1) + (LeafWidth - 2);
 	
@@ -626,7 +613,7 @@ void QuadTreeMesh::GenerateMeshNT(ZShadeSandboxTerrain::QMeshNode*& node)
 				height = m_QuadTree->ReadHeight(x, z);
 			}
 
-			node->vertices[index].position = XMFLOAT3(((x - halfWidth) * TerrScale), height, ((z - halfLength) * TerrScale));
+			node->vertices[index].position = XMFLOAT3(((x) * TerrScale), height, ((z) * TerrScale));
 			//node->vertices[index].normal = XMFLOAT3(0, 1, 0);
 			node->vertices[index].texture = XMFLOAT2(x * (1.0f / (MapSize - 1)), z * (1.0f / (MapSize - 1)));
 
@@ -687,34 +674,25 @@ void QuadTreeMesh::GenerateMesh4PointPatchTessellation(ZShadeSandboxTerrain::QMe
 	if (node->type != ZShadeSandboxTerrain::EQuadNodeType::LEAF) return;
 
 	int index = 0;
-	int LeafWidth = m_QuadTree->LeafWidth();
 	int TerrScale = m_QuadTree->TerrainScale();
 	int MapSize = m_QuadTree->MapSize();
 
 	int vert_count = 4;
 	int index_count = 4;
 
-	// Center the grid in model space
-	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
-	float halfLength = ((float)LeafWidth - 1.0f) / 2.0f;
-
 #pragma region "Load Vertices"
 	node->m_vertex_count = vert_count;
 	node->m_triangle_count = node->m_vertex_count / 3;
 	node->vertices = new ZShadeSandboxMesh::VertexTex[vert_count];
 	
-	float xPos[4];
-	float yPos[4];
-	float zPos[4];
-
 	//Looks like I only need four vertices to pass to the tessellation shader
 	for (int i = 0; i < 4; i++)
 	{
-		xPos[i] = (node->boundingCoord[i].x - halfWidth) * TerrScale;
-		yPos[i] = node->boundingCoord[i].y;
-		zPos[i] = (node->boundingCoord[i].z - halfWidth) * TerrScale;
+		float x = node->boundingCoord[i].x * TerrScale;
+		float y = node->boundingCoord[i].y;
+		float z = node->boundingCoord[i].z * TerrScale;
 
-		node->vertices[i].position = XMFLOAT3(xPos[i], yPos[i], zPos[i]);
+		node->vertices[i].position = XMFLOAT3(x, y, z);
 		node->vertices[i].texture = XMFLOAT2(node->boundingCoord[i].x * (1.0f / (MapSize - 1)), node->boundingCoord[i].z * (1.0f / (MapSize - 1)));
 	}
 #pragma endregion
@@ -742,18 +720,13 @@ void QuadTreeMesh::GenerateMesh3PointPatchTessellation(ZShadeSandboxTerrain::QMe
 
 	int index = 0;
 	float height = m_QuadTree->SeaLevel();
-	int LeafWidth = m_QuadTree->LeafWidth();
 	int TerrScale = m_QuadTree->TerrainScale();
 	int MapSize = m_QuadTree->MapSize();
 
-	// Center the grid in model space
-	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
-	float halfLength = ((float)LeafWidth - 1.0f) / 2.0f;
-
-	XMFLOAT3 nodeBounds0 = XMFLOAT3((node->boundingCoord[0].x - halfWidth) * TerrScale, node->boundingCoord[0].y, (node->boundingCoord[0].z - halfWidth) * TerrScale);
-	XMFLOAT3 nodeBounds1 = XMFLOAT3((node->boundingCoord[1].x - halfWidth) * TerrScale, node->boundingCoord[1].y, (node->boundingCoord[1].z - halfWidth) * TerrScale);
-	XMFLOAT3 nodeBounds2 = XMFLOAT3((node->boundingCoord[2].x - halfWidth) * TerrScale, node->boundingCoord[2].y, (node->boundingCoord[2].z - halfWidth) * TerrScale);
-	XMFLOAT3 nodeBounds3 = XMFLOAT3((node->boundingCoord[3].x - halfWidth) * TerrScale, node->boundingCoord[3].y, (node->boundingCoord[3].z - halfWidth) * TerrScale);
+	XMFLOAT3 nodeBounds0 = XMFLOAT3((node->boundingCoord[0].x) * TerrScale, node->boundingCoord[0].y, (node->boundingCoord[0].z) * TerrScale);
+	XMFLOAT3 nodeBounds1 = XMFLOAT3((node->boundingCoord[1].x) * TerrScale, node->boundingCoord[1].y, (node->boundingCoord[1].z) * TerrScale);
+	XMFLOAT3 nodeBounds2 = XMFLOAT3((node->boundingCoord[2].x) * TerrScale, node->boundingCoord[2].y, (node->boundingCoord[2].z) * TerrScale);
+	XMFLOAT3 nodeBounds3 = XMFLOAT3((node->boundingCoord[3].x) * TerrScale, node->boundingCoord[3].y, (node->boundingCoord[3].z) * TerrScale);
 
 	ZShadeSandboxMath::XMMath3 v1[3], v2[3];
 
@@ -849,10 +822,6 @@ void QuadTreeMesh::LatheInternalTriangles(ZShadeSandboxTerrain::QMeshNode*& node
 	int LeavesInRow = m_QuadTree->TotalLeavesInRow();
 	int TerrScale = m_QuadTree->TerrainScale();
 	int MapSize = m_QuadTree->MapSize();
-	
-	// Center the grid in model space
-	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
-	float halfLength = ((float)LeafWidth - 1.0f) / 2.0f;
 
 	UINT faceCount = (LeafWidth - 1) * (LeafWidth - 1) * 2;
 
@@ -1093,7 +1062,7 @@ void QuadTreeMesh::LatheCollisionMesh()
 				height = m_QuadTree->ReadHeight(index);
 			}
 
-			vertexList[index] = XMFLOAT3(((x - halfWidth) * TerrScale), height, ((z - halfLength) * TerrScale));
+			vertexList[index] = XMFLOAT3(((x) * TerrScale), height, ((z) * TerrScale));
 		}
 	}
 
@@ -1347,220 +1316,52 @@ bool QuadTreeMesh::FindInternalTriangles(XMFLOAT3 position, vector<XMFLOAT3>& in
 //==============================================================================================================================
 bool QuadTreeMesh::GetHeightAtPosition(XMFLOAT3 position, float& height)
 {
-	float meshMinX, meshMaxX, meshMinZ, meshMaxZ;
-	
-	meshMinX = m_MeshNodes->boundary.vMin.x;
-	meshMaxX = m_MeshNodes->boundary.vMax.x;
-
-	meshMinZ = m_MeshNodes->boundary.vMin.z;
-	meshMaxZ = m_MeshNodes->boundary.vMax.z;
-	
-	// Make sure the coordinates are actually over a polygon.
-	if((position.x < meshMinX) || (position.x > meshMaxX) || (position.z < meshMinZ) || (position.z > meshMaxZ))
-	{
-		return false;
-	}
-	
-	// Find the node which contains the polygon for this position.
 	return GetHeightAtPosition(m_MeshNodes, position, height);
 }
 //==============================================================================================================================
 bool QuadTreeMesh::GetHeightAtPosition(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT3 position, float& height)
 {
 	if (node == 0) return false;
+	if (!node->boundary.ContainsPoint3DOmitY(XMFLOAT3(position.x, 0, position.z))) return false;
 
-	if (node->type == ZShadeSandboxTerrain::EQuadNodeType::LEAF)
+	float h = m_QuadTree->ReadHeight(position.x, position.z);
+	height = ((h * m_heightScale * 100.0f) / 255.0)/ ((m_terrainZScale * 2) + 1);
+	return true;
+
+	// If the leaves actually contained triangles and not patches to be subdivided, the code below would work.
+	/*if (node->type == ZShadeSandboxTerrain::EQuadNodeType::LEAF)
 	{
-		float meshMinX, meshMaxX, meshMinZ, meshMaxZ;
+		float min_x = node->boundary.vMin.x;
+		float max_x = node->boundary.vMax.x;
+		float min_z = node->boundary.vMin.z;
+		float max_z = node->boundary.vMax.z;
 
-		meshMinX = node->boundary.vMin.x;
-		meshMaxX = node->boundary.vMax.x;
+		float fx = (position.x - min_x) / (max_x - min_x);
+		float fz = (position.z - min_z) / (max_z - min_z);
 
-		meshMinZ = node->boundary.vMin.z;
-		meshMaxZ = node->boundary.vMax.z;
+		float w00 = (1.0f - fx) * (1.0f - fz);
+		float w10 = fx * (1.0f - fz);
+		float w01 = (1.0f - fx) * fz;
+		float w11 = fx * fz;
 
-		// Make sure the coordinates are actually over a polygon.
-		if ((position.x < meshMinX) || (position.x > meshMaxX) || (position.z < meshMinZ) || (position.z > meshMaxZ))
-		{
-			return false;
-		}
+		float h00 = m_QuadTree->ReadHeight(min_x, min_z);
+		float h01 = m_QuadTree->ReadHeight(min_x, max_z);
+		float h10 = m_QuadTree->ReadHeight(max_x, min_z);
+		float h11 = m_QuadTree->ReadHeight(max_x, max_z);
 
-		// Find the node which contains the polygon for this position.
-		return FindNodeHeight(node, position, height);
-	}
-	
-	//
-	// Search the children to find the height
-	//
-	
-	bool foundHeight = false;
-	
-	foundHeight = GetHeightAtPosition(node->children[0], position, height);
-
-	if (!foundHeight)
-		foundHeight = GetHeightAtPosition(node->children[1], position, height);
-	
-	if (!foundHeight)
-		foundHeight = GetHeightAtPosition(node->children[2], position, height);
-	
-	if (!foundHeight)
-		foundHeight = GetHeightAtPosition(node->children[3], position, height);
-
-	return foundHeight;
-}
-//==============================================================================================================================
-bool QuadTreeMesh::FindNodeHeight(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT3 position, float& height)
-{
-	float xMin, xMax, zMin, zMax;
-	int count, index;
-	float vertex1[3], vertex2[3], vertex3[3];
-	bool foundHeight = false;
-	
-	// Calculate the dimensions of this node.
-	xMin = node->boundary.vMin.x;
-	xMax = node->boundary.vMax.x;
-
-	zMin = node->boundary.vMin.z;
-	zMax = node->boundary.vMax.z;
-
-	// See if the x and z coordinate are in this node, if not then stop traversing this part of the tree.
-	if ((position.x < xMin) || (position.x > xMax) || (position.z < zMin) || (position.z > zMax))
-	{
-		return false;
-	}
-	
-	// If the coordinates are in this node then check first to see if children nodes exist.
-	count = 0;
-	
-	for(int i = 0; i < 4; i++)
-	{
-		if(node->children[i] != 0)
-		{
-			count++;
-			FindNodeHeight(node->children[i], position, height);
-		}
-	}
-	
-	// If there were children nodes then return since the polygon will be in one of the children.
-	if(count > 0)
-	{
-		return false;
-	}
-	
-	// If there were no children then the polygon must be in this node.  Check all the polygons in this node to find 
-	// the height of which one the polygon we are looking for.
-	
-	// If the height is not found interpolate between node vertices the camera is on and the camera position
-	if (node->boundary.ContainsPoint3DOmitY(XMFLOAT3(position.x, 0, position.z)))
-	{
-		// Interpolate the real height values around the camera and smooth the camera movement
-
-		int LeafWidth = m_QuadTree->LeafWidth();
-		int TerrScale = m_QuadTree->TerrainScale();
-
-		// Center the grid in model space
-		float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
-		float halfLength = ((float)LeafWidth - 1.0f) / 2.0f;
-
-		float realHeight = position.y;
-		float biggest = m_QuadTree->SeaLevel();
-		float heightAverage = m_QuadTree->SeaLevel();
-		int size = 0;
-		float h;
-		
-		/*float h0 = m_QuadTree->ReadHeight(node->boundingCoord[0].x, node->boundingCoord[0].z);
-		float h1 = m_QuadTree->ReadHeight(node->boundingCoord[1].x, node->boundingCoord[1].z);
-		float h2 = m_QuadTree->ReadHeight(node->boundingCoord[2].x, node->boundingCoord[2].z);
-		float h3 = m_QuadTree->ReadHeight(node->boundingCoord[3].x, node->boundingCoord[3].z);
-
-		float midHeight = (h0 + h2) / 2;
-
-		float t = 0.7f;
-		
-		realHeight = ZShadeSandboxMath::ZMath::lerp(position.y, h0, t);
-		realHeight = ZShadeSandboxMath::ZMath::lerp(realHeight, h1, t);
-		realHeight = ZShadeSandboxMath::ZMath::lerp(realHeight, h2, t);
-		realHeight = ZShadeSandboxMath::ZMath::lerp(realHeight, h3, t);
-		
-		height = realHeight;*/
-
-		for (int z = (int)node->boundingCoord[0].z; z <= (int)node->boundingCoord[2].z; z++)
-		{
-			for (int x = (int)node->boundingCoord[0].x; x <= (int)node->boundingCoord[1].x; x++)
-			{
-				if (m_QuadTree->UsingHeight())
-				{
-					float averageHeight = 0;
-					float count = 0;
-					
-					for (int m = x - 1; m <= x + 1; m++)
-					{
-						for (int n = z - 1; n <= z + 1; n++)
-						{
-							if (m >= 0 && m < m_QuadTree->MapSize() && n >= 0 && n < m_QuadTree->MapSize())
-							{
-								h = m_QuadTree->ReadHeight(n, m);
-								h = ((h * m_heightScale * 100.0f) / 255.0) / ((m_terrainZScale * 2) + 1);
-
-								averageHeight += h;
-
-								count++;
-							}
-						}
-					}
-					
-					h = averageHeight / count;
-					
-					if (h > biggest)
-					{
-						biggest = h;
-					}
-					
-					heightAverage += h;
-					size++;
-				}
-				
-				//if (m_QuadTree->UsingHeight())
-				//{
-				//	h = m_QuadTree->ReadHeight(x, z);
-				//	h = ((h * m_heightScale * 100.0f) / 255.0) / ((m_terrainZScale * 2) + 1);
-				//
-				//	if (h > biggest)
-				//	{
-				//		biggest = h;
-				//	}
-				//
-				//	heightAverage += h;
-				//
-				//	size++;
-				//}
-			}
-		}
-		
-		heightAverage /= size;
-		
-		float t = 0.7f;
-		
-		realHeight = ZShadeSandboxMath::ZMath::lerp(position.y, biggest, t);
-		realHeight = ZShadeSandboxMath::ZMath::lerp(realHeight, heightAverage, t);
-		
-		if (realHeight < biggest)
-		{
-			realHeight = ZShadeSandboxMath::ZMath::lerp(biggest, realHeight, t);
-		}
-		
-		height = realHeight;
-
-		foundHeight = true;
+		float h = w00 * h00 + w01 * h01 + w10 * h10 + w11 * h11;
+		height = ((h * m_heightScale * 100.0f) / 255.0) / ((m_terrainZScale * 2) + 1);
+		return true;
 	}
 	else
 	{
-		foundHeight = false;
-	}
-
-	m_cameraCollided = foundHeight;
-
-	return foundHeight;
+		for (int i = 0; i < 4; ++i)
+		{
+			if (GetHeightAtPosition(node->children[i], position, height))
+				return true;
+		}
+		return false;
+	}*/
 }
 //==============================================================================================================================
 void QuadTreeMesh::Intersects(ZShadeSandboxMath::Ray ray, bool& hit, XMFLOAT3& hitPoint)
@@ -1594,12 +1395,7 @@ void QuadTreeMesh::Intersects(ZShadeSandboxTerrain::QMeshNode* node, ZShadeSandb
 		hitPoint.y = (node->boundary.vMin.y + node->boundary.vMax.y) / 2;
 		hitPoint.z = (node->boundary.vMin.z + node->boundary.vMax.z) / 2;
 
-		int LeafWidth = m_QuadTree->LeafWidth();
 		int TerrScale = m_QuadTree->TerrainScale();
-
-		// Center the grid in model space
-		float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
-		float halfLength = ((float)LeafWidth - 1.0f) / 2.0f;
 
 		// Locate the contact point on this node
 		float h = m_QuadTree->SeaLevel();
@@ -1613,7 +1409,7 @@ void QuadTreeMesh::Intersects(ZShadeSandboxTerrain::QMeshNode* node, ZShadeSandb
 					h = ((h * m_heightScale * 100.0f) / 255.0) / ((m_terrainZScale * 2) + 1);
 				}
 
-				XMFLOAT3 point((x - halfWidth) * TerrScale, h, (z - halfWidth) * TerrScale);
+				XMFLOAT3 point(x * TerrScale, h, z * TerrScale);
 				ZShadeSandboxMath::SpherePrimitive sphere(point, 2);
 
 				if (ShapeContact::RayIntersectsSphere(ray, sphere, d))
@@ -1843,26 +1639,22 @@ void QuadTreeMesh::GenerateHeightQuad(ZShadeSandboxTerrain::QMeshNode* node, XMF
 //==============================================================================================================================
 void QuadTreeMesh::DecomposePoint(XMFLOAT3 pointIn, XMFLOAT3& pointOut)
 {
-	int LeafWidth = m_QuadTree->LeafWidth();
 	int TerrScale = m_QuadTree->TerrainScale();
-	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
 	
-	float x = (pointIn.x / TerrScale) + halfWidth;
+	float x = (pointIn.x / TerrScale);
 	float y = pointIn.y;
-	float z = (pointIn.z / TerrScale) + halfWidth;
+	float z = (pointIn.z / TerrScale);
 	
 	pointOut = XMFLOAT3(x, y, z);
 }
 //==============================================================================================================================
 void QuadTreeMesh::TransformPoint(XMFLOAT3 pointIn, XMFLOAT3& pointOut)
 {
-	int LeafWidth = m_QuadTree->LeafWidth();
 	int TerrScale = m_QuadTree->TerrainScale();
-	float halfWidth = ((float)LeafWidth - 1.0f) / 2.0f;
 
-	float x = (pointIn.x + halfWidth) * TerrScale;
+	float x = (pointIn.x) * TerrScale;
 	float y = pointIn.y;
-	float z = (pointIn.z + halfWidth) * TerrScale;
+	float z = (pointIn.z) * TerrScale;
 
 	pointOut = XMFLOAT3(x, y, z);
 }
@@ -1958,5 +1750,50 @@ void QuadTreeMesh::AddNormalMap(string basePath, string normalMapFilename)
 void QuadTreeMesh::AddDetailMap(string basePath, string detailMapFilename)
 {
 	mMaterial->AddDetailMapTexture(basePath, detailMapFilename);
+}
+//================================================================================================================
+void QuadTreeMesh::ComputeBounds(ZShadeSandboxTerrain::QMeshNode* node)
+{
+	assert(node != nullptr);
+
+	XMFLOAT3 vmin(FLT_MAX, FLT_MAX, FLT_MAX);
+	XMFLOAT3 vmax(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+	if (node->type == ZShadeSandboxTerrain::EQuadNodeType::LEAF)
+	{
+		for (int i = 0; i < node->m_vertex_count; ++i)
+		{
+			XMFLOAT3& vertex = node->vertices[i].position;
+			vmin.x = fminf(vmin.x, vertex.x);
+			vmin.y = fminf(vmin.y, vertex.y);
+			vmin.z = fminf(vmin.z, vertex.z);
+			vmax.x = fmaxf(vmax.x, vertex.x);
+			vmax.y = fmaxf(vmax.y, vertex.y);
+			vmax.z = fmaxf(vmax.z, vertex.z);
+		}
+
+		for (int x = (int) vmin.x; x < (int) vmax.x; ++x)
+		{
+			for (int z = (int) vmin.z; z < (int) vmax.x; ++z)
+			{
+				float height = m_QuadTree->ReadHeight(x, z);
+				height = ((height * m_heightScale * 100.0f) / 255.0) / ((m_terrainZScale * 2) + 1);
+				vmin.y = fminf(vmin.y, height);
+				vmax.y = fmaxf(vmax.y, height);
+			}
+		}
+
+		node->boundary = ZShadeSandboxMath::AABB(vmin, vmax);
+	}
+	else
+	{
+		node->boundary = ZShadeSandboxMath::AABB(vmin, vmax);
+		
+		for (int i = 0; i < 4; ++i)
+		{
+			ComputeBounds(node->children[i]);
+			node->boundary = ZShadeSandboxMath::AABB::Union(node->boundary, node->children[i]->boundary);
+		}
+	}
 }
 //================================================================================================================

@@ -520,104 +520,33 @@ bool ShapeContact::RayIntersectsTriangle(ZShadeSandboxMath::Ray ray, ZShadeSandb
 //==================================================================================================================================
 bool ShapeContact::RayIntersectsAABB(ZShadeSandboxMath::Ray ray, ZShadeSandboxMath::AABB box, float& distance)
 {
-	distance = 0.0f;
+	// This is the form of the test used by all fast ray tracers.
+	// Possible zero direction components are handled correctly on IEEE-float compliant hardware.
+
+	float rcp_dir_x = 1.0f / ray.direction.x;
+	float rcp_dir_y = 1.0f / ray.direction.y;
+	float rcp_dir_z = 1.0f / ray.direction.z;
 	
-	float tmax = FLT_MAX;
+	float tx_min = (box.vMin.x - ray.position.x) * rcp_dir_x;
+	float ty_min = (box.vMin.y - ray.position.y) * rcp_dir_y;
+	float tz_min = (box.vMin.z - ray.position.z) * rcp_dir_z;
+	float tx_max = (box.vMax.x - ray.position.x) * rcp_dir_x;
+	float ty_max = (box.vMax.y - ray.position.y) * rcp_dir_y;
+	float tz_max = (box.vMax.z - ray.position.z) * rcp_dir_z;
 
-	if (abs(ray.direction.x) < 1e-6f)
-	{
-		if (ray.position.x < box.vMin.x || ray.position.x > box.vMax.x)
-		{
-			distance = 0.0f;
-			return false;
-		}
-	}
-	else
-	{
-		float inverse = 1.0f / ray.direction.x;
-		float t1 = (box.vMin.x - ray.position.x) * inverse;
-		float t2 = (box.vMax.x - ray.position.x) * inverse;
+	float tx_near = fminf(tx_min, tx_max);
+	float tx_far = fmaxf(tx_min, tx_max);
+	float ty_near = fminf(ty_min, ty_max);
+	float ty_far = fmaxf(ty_min, ty_max);
+	float tz_near = fminf(tz_min, tz_max);
+	float tz_far = fmaxf(tz_min, tz_max);
 
-		if (t1 > t2)
-		{
-			float temp = t1;
-			t1 = t2;
-			t2 = temp;
-		}
+	// If intersecting a finite line segment of length t, replace FLT_MAX with t.
+	float tmin = fmaxf(fmaxf(tx_near, ty_near), fmaxf(tz_near, 0.0f));
+	float tmax = fminf(fminf(tx_far, ty_far), fminf(tz_far, FLT_MAX));
 
-		distance = max(t1, distance);
-		tmax = min(t2, tmax);
-
-		if (distance > tmax)
-		{
-			distance = 0.0f;
-			return false;
-		}
-	}
-
-	if (abs(ray.direction.y) < 1e-6f)
-	{
-		if (ray.position.y < box.vMin.y || ray.position.y > box.vMax.y)
-		{
-			distance = 0.0f;
-			return false;
-		}
-	}
-	else
-	{
-		float inverse = 1.0f / ray.direction.y;
-		float t1 = (box.vMin.y - ray.position.y) * inverse;
-		float t2 = (box.vMax.y - ray.position.y) * inverse;
-
-		if (t1 > t2)
-		{
-			float temp = t1;
-			t1 = t2;
-			t2 = temp;
-		}
-
-		distance = max(t1, distance);
-		tmax = min(t2, tmax);
-
-		if (distance > tmax)
-		{
-			distance = 0.0f;
-			return false;
-		}
-	}
-
-	if (abs(ray.direction.z) < 1e-6f)
-	{
-		if (ray.position.z < box.vMin.z || ray.position.z > box.vMax.z)
-		{
-			distance = 0.0f;
-			return false;
-		}
-	}
-	else
-	{
-		float inverse = 1.0f / ray.direction.z;
-		float t1 = (box.vMin.z - ray.position.z) * inverse;
-		float t2 = (box.vMax.z - ray.position.z) * inverse;
-
-		if (t1 > t2)
-		{
-			float temp = t1;
-			t1 = t2;
-			t2 = temp;
-		}
-
-		distance = max(t1, distance);
-		tmax = min(t2, tmax);
-
-		if (distance > tmax)
-		{
-			distance = 0.0f;
-			return false;
-		}
-	}
-	
-	return true;
+	distance = tmin;
+	return tmin <= tmax;
 }
 //==================================================================================================================================
 bool ShapeContact::RayIntersectsAABB(ZShadeSandboxMath::Ray ray, ZShadeSandboxMath::AABB box, ZShadeSandboxMath::XMMath3& point)

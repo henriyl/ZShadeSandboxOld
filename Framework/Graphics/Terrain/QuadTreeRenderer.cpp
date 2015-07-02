@@ -65,7 +65,7 @@ void QuadTreeRenderer::RenderSSAO(Camera* pCamera, LightCamera* camera, ZShadeSa
 	{
 		mSSAOTarget->ClearRenderTarget(0.0f, 0.0f, 0.0f, 1.0f);
 
-		camera->Update();
+		camera->Update();// you probably should call camera.update once per frame in somewhere like GraphicsEngine.Update() ...
 
 		RenderSSAO(m_quadtreeMesh->GetRootNode(), tsc, pCamera, camera);
 	}
@@ -75,12 +75,7 @@ void QuadTreeRenderer::RenderSSAO(ZShadeSandboxTerrain::QMeshNode* node, ZShadeS
 {
 	if (node == 0) return;
 
-	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
-	bool result = pCamera->ViewingFrustum()->ContainsCube(node->center, (node->fWidth / 2.0f));
-
-	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
-	if (!result)
-		result = pCamera->ViewingFrustum()->ContainsAABB(node->boundary.vMin, node->boundary.vMax);
+	bool result = pCamera->ViewingFrustum()->ContainsAABB(node->boundary.Center(), node->boundary.Extents());
 
 	// If it can't be seen then none of its children can either so don't continue down the tree, this is where the speed is gained.
 	if (!result)
@@ -433,12 +428,7 @@ void QuadTreeRenderer::Render(ZShadeSandboxTerrain::QMeshNode* node, Camera* pCa
 {
 	if (node == 0) return;
 	
-	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
-	bool result = pCamera->ViewingFrustum()->ContainsCube(node->center, (node->fWidth / 2.0f));
-	
-	// Check to see if the node can be viewed, height doesn't matter in a quad tree.
-	if (!result)
-		result = pCamera->ViewingFrustum()->ContainsAABB(node->boundary.vMin, node->boundary.vMax);
+	bool result = pCamera->ViewingFrustum()->ContainsAABB(node->boundary.Center(), node->boundary.Extents());
 	
 	// If it can't be seen then none of its children can either so don't continue down the tree, this is where the speed is gained.
 	if(!result)

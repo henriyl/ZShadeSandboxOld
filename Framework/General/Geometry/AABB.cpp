@@ -77,3 +77,10 @@ float AABB::DistanceToPoint3D(XMFLOAT3 p)
 	return sqrt(dx * dx + dy * dy + dz * dz);
 }
 //==================================================================================================================================
+AABB AABB::Union(const AABB& box1, const AABB& box2)
+{
+	XMFLOAT3 vmin = XMFLOAT3(fminf(box1.vMin.x, box2.vMin.x), fminf(box1.vMin.y, box2.vMin.y), fminf(box1.vMin.z, box2.vMin.z));
+	XMFLOAT3 vmax = XMFLOAT3(fmaxf(box1.vMax.x, box2.vMax.x), fmaxf(box1.vMax.y, box2.vMax.y), fmaxf(box1.vMax.z, box2.vMax.z));
+	return AABB(vmin, vmax);
+}
+//==================================================================================================================================

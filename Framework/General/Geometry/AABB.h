@@ -19,6 +19,7 @@ struct AABB
 	XMFLOAT3 vMax;
 	
 	// Extra info
+	// Lose these as they are very fast to compute.
 	XMFLOAT3 vCenter;
 	XMFLOAT3 vSize;
 	XMFLOAT3 vExtent;
@@ -34,6 +35,16 @@ struct AABB
 	
 	float DistanceToPoint2D(XMFLOAT3 p);
 	float DistanceToPoint3D(XMFLOAT3 p);
+
+	static AABB Union(const AABB& box1, const AABB& box2);
+	inline XMFLOAT3 Center()
+	{
+		return XMFLOAT3(0.5f * (vMin.x + vMax.x), 0.5f * (vMin.y + vMax.y), 0.5f * (vMin.z + vMax.z));
+	}
+	inline XMFLOAT3 Extents()
+	{
+		return XMFLOAT3(0.5f * (vMax.x - vMin.x), 0.5f * (vMax.y - vMin.y), 0.5f * (vMax.z - vMin.z));
+	}
 };
 }
 //==================================================================================================================================

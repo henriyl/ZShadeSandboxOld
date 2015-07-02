@@ -136,7 +136,6 @@ private:
 
 	// Find highest point in the node at a position
 	bool GetHeightAtPosition(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT3 position, float& height);
-	bool FindNodeHeight(ZShadeSandboxTerrain::QMeshNode* node, XMFLOAT3 position, float& height);
 	
 	bool CameraColliding(float unitsPerMeter, float gravity, Camera*& camera, ZShadeSandboxTerrain::QMeshNode* node);
 	bool Colliding(XMFLOAT3 position, vector<XMFLOAT3>& internalVertices, vector<UINT>& internalIndices, ZShadeSandboxTerrain::QMeshNode* node);
@@ -209,6 +208,9 @@ private:
 
 	// Rebuilds the index buffer for the mesh
 	void ReBuildIndexBuffer(ZShadeSandboxTerrain::QMeshNode*& node);
+
+	// Recursively fit AABB's around node.
+	void ComputeBounds(QMeshNode* node);
 	
 private:
 
