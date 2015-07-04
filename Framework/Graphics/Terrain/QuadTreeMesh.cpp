@@ -1328,7 +1328,7 @@ bool QuadTreeMesh::GetHeightAtPosition(ZShadeSandboxTerrain::QMeshNode* node, XM
 	float h00 = m_QuadTree->ReadHeight(ix, iz);
 	float h01 = m_QuadTree->ReadHeight(ix, iz + 1);
 	float h10 = m_QuadTree->ReadHeight(ix + 1, iz);
-	float h11 = m_QuadTree->ReadHeight(ix + 1, ix + 1);
+	float h11 = m_QuadTree->ReadHeight(ix + 1, iz + 1);
 
 	float h = w00 * h00 + w01 * h01 + w10 * h10 + w11 * h11;
 	height = ((h * m_heightScale * 100.0f) / 255.0) / ((m_terrainZScale * 2) + 1);
