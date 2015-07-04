@@ -203,15 +203,11 @@ void TerrainEnvironment::Update()
 	
 	if (keyboard->IsKeyDown(Keyboard::Key::V))
 	{
-		//while (1) { Sleep(100); break; }
-		fHeightScale += 1.0f;
+		fHeightScale *= 1.1f;
 	}
 	if (keyboard->IsKeyDown(Keyboard::Key::B))
 	{
-		//while (1) { Sleep(100); break; }
-		fHeightScale -= 1.0f;
-		if (fHeightScale <= 0.0f)
-			fHeightScale += 1.0f;
+		fHeightScale *= 0.9f;
 	}
 
 	if (keyboard->RisingEdge(Keyboard::Key::G))

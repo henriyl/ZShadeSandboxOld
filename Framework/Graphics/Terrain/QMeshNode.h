@@ -33,7 +33,7 @@ struct QMeshNode
 	QMeshNode* parent;
 	QMeshNode* children[4];
 	
-	// The axis aligned boundary of this node
+	// The axis aligned boundary of this node in world space coordinates.
 	ZShadeSandboxMath::AABB boundary;
 	
 	//Bounding Coordinates for the node
