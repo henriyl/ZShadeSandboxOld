@@ -204,10 +204,14 @@ void TerrainEnvironment::Update()
 	if (keyboard->IsKeyDown(Keyboard::Key::V))
 	{
 		fHeightScale *= 1.1f;
+		m_pQuadTreeMesh->HeightScale() = fHeightScale;
+		m_pQuadTreeMesh->ComputeBounds();
 	}
 	if (keyboard->IsKeyDown(Keyboard::Key::B))
 	{
 		fHeightScale *= 0.9f;
+		m_pQuadTreeMesh->HeightScale() = fHeightScale;
+		m_pQuadTreeMesh->ComputeBounds();
 	}
 
 	if (keyboard->RisingEdge(Keyboard::Key::G))
@@ -623,7 +627,7 @@ void TerrainEnvironment::Render()
 	tsc.g_DetailBrightness = 1.8f;
 	tsc.g_useReflection = false;
 	
-	m_pQuadTreeMesh->HeightScale() = fHeightScale;
+	//m_pQuadTreeMesh->HeightScale() = fHeightScale;
 	m_pQuadTreeMesh->TerrainZScale() = fTerrSize;
 	
 	m_pQuadTreeRenderer->Render(m_CameraSystem, mDirLight1, tsc);
@@ -703,7 +707,7 @@ void TerrainEnvironment::RenderTerrainShadowSSAO()
 	tsc.g_MapSize = fMapSize;
 	tsc.g_DetailBrightness = 1.8f;
 
-	m_pQuadTreeMesh->HeightScale() = fHeightScale;
+	//m_pQuadTreeMesh->HeightScale() = fHeightScale;
 	m_pQuadTreeMesh->TerrainZScale() = fTerrSize;
 
 	// Render the shadow map for the terrain

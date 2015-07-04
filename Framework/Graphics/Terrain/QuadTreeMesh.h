@@ -104,6 +104,7 @@ public:
 	void AddBlendMap(string basePath, string blendMapFilename);
 	void AddNormalMap(string basePath, string normalMapFilename);
 	void AddDetailMap(string basePath, string detailMapFilename);
+	void ComputeBounds();
 	
 public:
 	

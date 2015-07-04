@@ -1723,6 +1723,11 @@ void QuadTreeMesh::AddDetailMap(string basePath, string detailMapFilename)
 	mMaterial->AddDetailMapTexture(basePath, detailMapFilename);
 }
 //================================================================================================================
+void QuadTreeMesh::ComputeBounds()
+{
+	ComputeBounds(m_MeshNodes);
+}
+//================================================================================================================
 void QuadTreeMesh::ComputeBounds(ZShadeSandboxTerrain::QMeshNode* node)
 {
 	assert(node != nullptr);
